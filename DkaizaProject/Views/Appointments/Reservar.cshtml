@@ -14,46 +14,39 @@
 
     <div class="container booking-container">
 
-        <!-- Step indicators -->
+        <!-- Step indicators - AHORA EMPIEZA EN FECHA -->
         <div class="steps-bar">
-            <div class="step active" id="step-ind-1"><span>1</span> Servicio</div>
+            <div class="step active" id="step-ind-1"><span>1</span> Fecha</div>
             <div class="step-line"></div>
-            <div class="step" id="step-ind-2"><span>2</span> Fecha</div>
+            <div class="step" id="step-ind-2"><span>2</span> Estilista</div>
             <div class="step-line"></div>
-            <div class="step" id="step-ind-3"><span>3</span> Estilista</div>
+            <div class="step" id="step-ind-3"><span>3</span> Horario</div>
             <div class="step-line"></div>
-            <div class="step" id="step-ind-4"><span>4</span> Horario</div>
-            <div class="step-line"></div>
-            <div class="step" id="step-ind-5"><span>5</span> Confirmar</div>
+            <div class="step" id="step-ind-4"><span>4</span> Confirmar</div>
         </div>
 
-        <!-- STEP 1: Servicio -->
-        <div class="booking-step active" id="step-1">
-            <h2 class="step-title">Elige un servicio</h2>
-            <div class="services-booking-grid">
-                @foreach (var svc in Model.Servicios)
-                {
-                    <div class="svc-card" data-id="@svc.Id" data-dur="@svc.DuracionHoras" data-nombre="@svc.Nombre" data-precio="@svc.Precio">
-                        <div class="svc-card-icon">
-                            @if (svc.DuracionHoras == 1) { <span>✂</span> }
-                            else if (svc.DuracionHoras == 2) { <span>✦</span> }
-                            else { <span>◈</span> }
-                        </div>
-                        <div class="svc-card-body">
-                            <h3>@svc.Nombre</h3>
-                            <p>@(svc.Descripcion ?? "")</p>
-                        </div>
-                        <div class="svc-card-meta">
-                            <span class="dur-badge">@svc.DuracionHoras h</span>
-                            <span class="price-tag">S/ @svc.Precio.ToString("0")</span>
-                        </div>
+        <!-- Mostrar servicio seleccionado (resumen) -->
+        <div class="selected-service-summary" id="selectedServiceSummary">
+            <div class="summary-card">
+                <div class="summary-icon">
+                    <i class="fas fa-cut"></i>
+                </div>
+                <div class="summary-info">
+                    <span class="summary-label">Servicio seleccionado</span>
+                    <h3 id="selectedServiceName">Cargando...</h3>
+                    <div class="summary-meta">
+                        <span id="selectedServiceDuration"><i class="far fa-clock"></i> --</span>
+                        <span id="selectedServicePrice"><i class="fas fa-tag"></i> S/ --</span>
                     </div>
-                }
+                </div>
+                <a href="/Appointments/Servicios" class="btn-change-service">
+                    <i class="fas fa-exchange-alt"></i> Cambiar
+                </a>
             </div>
         </div>
 
-        <!-- STEP 2: Fecha -->
-        <div class="booking-step" id="step-2">
+        <!-- STEP 1: Fecha -->
+        <div class="booking-step active" id="step-1">
             <h2 class="step-title">Elige una fecha</h2>
             <div class="calendar-wrap">
                 <div class="cal-nav">
@@ -68,24 +61,24 @@
             </div>
         </div>
 
-        <!-- STEP 3: Estilista -->
-        <div class="booking-step" id="step-3">
+        <!-- STEP 2: Estilista -->
+        <div class="booking-step" id="step-2">
             <h2 class="step-title">Elige un estilista</h2>
             <div class="stylists-grid" id="stylistsGrid">
                 <div class="loading-msg">Cargando estilistas...</div>
             </div>
         </div>
 
-        <!-- STEP 4: Horario -->
-        <div class="booking-step" id="step-4">
+        <!-- STEP 3: Horario -->
+        <div class="booking-step" id="step-3">
             <h2 class="step-title">Elige un horario</h2>
             <div class="time-slots" id="timeSlots">
                 <div class="loading-msg">Cargando horarios...</div>
             </div>
         </div>
 
-        <!-- STEP 5: Confirmar -->
-        <div class="booking-step" id="step-5">
+        <!-- STEP 4: Confirmar -->
+        <div class="booking-step" id="step-4">
             <h2 class="step-title">Confirmar reserva</h2>
             <div class="confirm-box">
                 <div class="confirm-row"><span>Servicio</span><strong id="conf-servicio">—</strong></div>
@@ -109,7 +102,7 @@
                 <p id="success-resumen"></p>
                 <div class="success-actions">
                     <a href="/Appointments/MisCitas" class="btn-primary-lg">Ver mis citas</a>
-                    <a href="/Appointments/Reservar" class="btn-ghost-lg">Reservar otra</a>
+                    <a href="/Appointments/Servicios" class="btn-ghost-lg">Reservar otra</a>
                 </div>
             </div>
         </div>
@@ -117,42 +110,183 @@
     </div><!-- /container -->
 </div>
 
+<style>
+    .selected-service-summary {
+        margin-bottom: 2rem;
+    }
+    
+    .summary-card {
+        background: linear-gradient(135deg, var(--rose-light), var(--cream));
+        border: 1px solid var(--rose);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .summary-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--rose);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+    }
+    
+    .summary-info {
+        flex: 1;
+    }
+    
+    .summary-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--rose-dark);
+        font-weight: 600;
+    }
+    
+    .summary-info h3 {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0;
+    }
+    
+    .summary-meta {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--ink-mid);
+    }
+    
+    .summary-meta i {
+        color: var(--rose);
+        margin-right: 4px;
+    }
+    
+    .btn-change-service {
+        background: transparent;
+        border: 1px solid var(--border-mid);
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        color: var(--ink-mid);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .btn-change-service:hover {
+        border-color: var(--rose);
+        color: var(--rose);
+        text-decoration: none;
+    }
+    
+    /* ========== BOTÓN FLOTANTE VOLVER AL INICIO ========== */
+    .back-home-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--ink);
+        color: white;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        z-index: 100;
+        text-decoration: none;
+    }
+    
+    .back-home-btn:hover {
+        background: var(--rose-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        color: white;
+    }
+    
+    @@media (max-width: 768px) {
+        .back-home-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+        }
+    }
+</style>
+
+<!-- Botón flotante Volver al inicio -->
+<a href="/" class="back-home-btn" title="Volver al inicio">
+    <i class="fas fa-home"></i>
+</a>
+
 @section Scripts {
 <script>
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const DIAS_LONG = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
-let sel = { servicio: null, fecha: null, estilista: null, horario: null };
+let sel = { 
+    servicio: null, 
+    fecha: null, 
+    estilista: null, 
+    horario: null 
+};
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
+
+// Obtener servicioId de la URL
+const urlParams = new URLSearchParams(window.location.search);
+const servicioId = urlParams.get('servicioId');
+
+// ── Cargar servicio seleccionado ─────────────────────────────────────────
+async function loadSelectedService() {
+    if (!servicioId) {
+        // No hay servicio seleccionado, redirigir a servicios
+        window.location.href = '/Appointments/Servicios';
+        return;
+    }
+    
+    // Obtener datos del servicio desde el ViewModel o API
+    const servicios = @Html.Raw(Json.Serialize(Model.Servicios));
+    const servicio = servicios.find(s => s.id == servicioId);
+    
+    if (servicio) {
+        sel.servicio = {
+            id: servicio.id,
+            dur: servicio.duracionHoras,
+            nombre: servicio.nombre,
+            precio: servicio.precio
+        };
+        
+        document.getElementById('selectedServiceName').textContent = servicio.nombre;
+        document.getElementById('selectedServiceDuration').innerHTML = `<i class="far fa-clock"></i> ${servicio.duracionHoras} hora${servicio.duracionHoras > 1 ? 's' : ''}`;
+        document.getElementById('selectedServicePrice').innerHTML = `<i class="fas fa-tag"></i> S/ ${servicio.precio}`;
+    } else {
+        window.location.href = '/Appointments/Servicios';
+    }
+}
 
 // ── Step navigation ──────────────────────────────────────────────────────
 function showStep(n) {
     document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
     document.getElementById('step-' + n).classList.add('active');
     document.querySelectorAll('.step').forEach((s, i) => {
-        s.classList.toggle('active', i + 1 <= n);
-        s.classList.toggle('done', i + 1 < n);
+        const stepNum = i + 1;
+        s.classList.toggle('active', stepNum === n);
+        s.classList.toggle('done', stepNum < n);
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-// ── Step 1: Service ──────────────────────────────────────────────────────
-document.querySelectorAll('.svc-card').forEach(card => {
-    card.addEventListener('click', () => {
-        document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected');
-        sel.servicio = {
-            id: +card.dataset.id,
-            dur: +card.dataset.dur,
-            nombre: card.dataset.nombre,
-            precio: card.dataset.precio
-        };
-        sel.fecha = null; sel.estilista = null; sel.horario = null;
-        renderCalendar();
-        showStep(2);
-    });
-});
 
 // ── Calendar ─────────────────────────────────────────────────────────────
 function renderCalendar() {
@@ -182,7 +316,7 @@ function renderCalendar() {
             sel.estilista = null; sel.horario = null;
             renderCalendar();
             loadEstilistas();
-            showStep(3);
+            showStep(2);
         });
     });
 }
@@ -195,9 +329,8 @@ document.getElementById('calNext').onclick = () => {
     calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
     renderCalendar();
 };
-renderCalendar();
 
-// ── Step 3: Stylists ─────────────────────────────────────────────────────
+// ── Step 2: Stylists ─────────────────────────────────────────────────────
 async function loadEstilistas() {
     const grid = document.getElementById('stylistsGrid');
     grid.innerHTML = '<div class="loading-msg">Cargando...</div>';
@@ -226,35 +359,12 @@ async function loadEstilistas() {
             sel.estilista = { id: +card.dataset.id, nombre: card.dataset.nombre };
             sel.horario = null;
             loadHorarios();
-            showStep(4);
+            showStep(3);
         });
     });
 }
 
-async function confirmarReserva() {
-    // ... obtener datos de la reserva ...
-    
-    const response = await fetch('/Appointments/Crear', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosReserva)
-    });
-    
-    const result = await response.json();
-    
-    if (result.success) {
-        alert(result.message);
-        window.location.href = '/Appointments/MisCitas';
-    } else if (result.requiresLogin) {
-        // Redirigir al login pero guardar la intención de reserva
-        sessionStorage.setItem('reservaPendiente', JSON.stringify(datosReserva));
-        window.location.href = '/Account/Login?returnUrl=/Appointments/Reservar';
-    } else {
-        alert(result.message);
-    }
-}
-
-// ── Step 4: Time slots ───────────────────────────────────────────────────
+// ── Step 3: Time slots ───────────────────────────────────────────────────
 async function loadHorarios() {
     const wrap = document.getElementById('timeSlots');
     wrap.innerHTML = '<div class="loading-msg">Cargando horarios...</div>';
@@ -275,13 +385,12 @@ async function loadHorarios() {
             btn.classList.add('selected');
             sel.horario = { start: +btn.dataset.start, end: +btn.dataset.end, label: btn.dataset.label };
             fillConfirm();
-            showStep(5);
+            showStep(4);
         });
     });
 }
 
-// ── Step 5: Confirm ──────────────────────────────────────────────────────
-const DIAS_LONG = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+// ── Step 4: Confirm ──────────────────────────────────────────────────────
 function fillConfirm() {
     const f = sel.fecha;
     const date = new Date(f.y, f.m, f.d);
@@ -292,6 +401,7 @@ function fillConfirm() {
     document.getElementById('conf-precio').textContent = 'S/ ' + sel.servicio.precio;
 }
 
+// ── Confirmar reserva ─────────────────────────────────────────────────────
 document.getElementById('btnConfirmar').addEventListener('click', async () => {
     const btn = document.getElementById('btnConfirmar');
     btn.disabled = true; btn.textContent = 'Reservando...';
@@ -310,13 +420,20 @@ document.getElementById('btnConfirmar').addEventListener('click', async () => {
         body: JSON.stringify(body)
     });
     const data = await res.json();
-    if (data.success) {
+    if (data.success) {s
         document.getElementById('success-resumen').textContent = data.resumen;
         showStep('success');
+    } else if (data.requiresLogin) {
+        sessionStorage.setItem('reservaPendiente', JSON.stringify(body));
+        window.location.href = '/Account/Login?returnUrl=/Appointments/Reservar?servicioId=' + sel.servicio.id;
     } else {
         alert(data.message || 'Error al reservar.');
         btn.disabled = false; btn.textContent = 'Confirmar cita →';
     }
 });
+
+// Inicializar
+renderCalendar();
+loadSelectedService();
 </script>
 }
