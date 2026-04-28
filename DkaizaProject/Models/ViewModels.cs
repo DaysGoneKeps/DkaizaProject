@@ -83,4 +83,45 @@ public class MisCitasViewModel
     public List<Cita> Historial { get; set; } = new();
 }
 
+public class PerfilViewModel
+{
+    public int Id { get; set; }
+    
+    [Required(ErrorMessage = "El nombre es requerido")]
+    [Display(Name = "Nombre")]
+    [MaxLength(100)]
+    public string Nombre { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "El apellido es requerido")]
+    [Display(Name = "Apellido")]
+    [MaxLength(100)]
+    public string Apellido { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "El email es requerido")]
+    [EmailAddress(ErrorMessage = "Email inválido")]
+    [Display(Name = "Correo electrónico")]
+    [MaxLength(150)]
+    public string Email { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "El teléfono es requerido")]
+    [Display(Name = "Teléfono")]
+    [Phone(ErrorMessage = "Teléfono inválido")]
+    [MaxLength(20)]
+    public string Telefono { get; set; } = string.Empty;
+    
+    [Display(Name = "Nueva contraseña")]
+    [DataType(DataType.Password)]
+    [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
+    public string? NuevaPassword { get; set; }
+    
+    [Display(Name = "Confirmar contraseña")]
+    [DataType(DataType.Password)]
+    [Compare("NuevaPassword", ErrorMessage = "Las contraseñas no coinciden")]
+    public string? ConfirmarPassword { get; set; }
+    
+    public DateTime FechaRegistro { get; set; }
+    
+    public string NombreCompleto => $"{Nombre} {Apellido}";
+}
+
 }
