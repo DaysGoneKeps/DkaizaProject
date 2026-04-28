@@ -5,8 +5,6 @@ using DkaizaProject.Data;
 
 namespace DkaizaProject.Controllers
 {
-    namespace DkaizaProject.Controllers
-{
     public class AppointmentsController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -15,11 +13,20 @@ namespace DkaizaProject.Controllers
 
         private int? CurrentClienteId => HttpContext.Session.GetInt32("ClienteId");
 
+        // ✅ NUEVO: Página para explorar servicios
+        public async Task<IActionResult> Servicios()
+        {
+            var servicios = await _db.Servicios
+                .Where(s => s.Activo)
+                .OrderBy(s => s.Nombre)
+                .ToListAsync();
+            
+            return View(servicios);
+        }
+
         // GET /Appointments/Reservar - AHORA PERMITE VER SIN LOGIN
         public async Task<IActionResult> Reservar()
         {
-            // Ya NO redirigimos al login aquí
-            // Solo pasamos los datos necesarios para mostrar la interfaz
             var vm = new ReservaViewModel
             {
                 Servicios = await _db.Servicios.Where(s => s.Activo).ToListAsync(),
@@ -32,7 +39,6 @@ namespace DkaizaProject.Controllers
         [HttpGet]
         public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fecha)
         {
-            // Ya NO verificamos autenticación aquí
             if (!DateTime.TryParse(fecha, out var fechaDate))
                 return Json(new { error = "Fecha inválida" });
 
@@ -85,7 +91,6 @@ namespace DkaizaProject.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearCitaDto dto)
         {
-            // Aquí SÍ verificamos autenticación
             if (CurrentClienteId == null)
                 return Json(new { success = false, message = "Debes iniciar sesión para reservar.", requiresLogin = true });
 
@@ -99,7 +104,6 @@ namespace DkaizaProject.Controllers
 
             int horaFin = dto.HoraInicio + servicio.DuracionHoras;
 
-            // Validate slot still available
             var conflicto = await _db.Citas.AnyAsync(c =>
                 c.Fecha.Date == fecha.Date &&
                 c.EstilistaId == dto.EstilistaId &&
@@ -110,7 +114,6 @@ namespace DkaizaProject.Controllers
             if (conflicto)
                 return Json(new { success = false, message = "El horario ya fue reservado. Por favor selecciona otro." });
 
-            // Validate not in break time
             if (dto.HoraInicio < estilista.HoraFinDescanso && horaFin > estilista.HoraInicioDescanso)
                 return Json(new { success = false, message = "El horario coincide con el descanso del estilista." });
 
@@ -138,7 +141,7 @@ namespace DkaizaProject.Controllers
             });
         }
 
-        // GET /Appointments/MisCitas - ESTE SÍ REQUIERE LOGIN
+        // GET /Appointments/MisCitas
         public async Task<IActionResult> MisCitas()
         {
             if (CurrentClienteId == null)
@@ -201,5 +204,4 @@ namespace DkaizaProject.Controllers
             return slots;
         }
     }
-}
 }
