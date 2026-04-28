@@ -99,13 +99,66 @@ namespace DkaizaProject.Controllers
         return RedirectToAction("Index", "Home");
     }
 
-    // GET /Account/Perfil
+    [HttpGet]
     public async Task<IActionResult> Perfil()
     {
-        var id = HttpContext.Session.GetInt32("ClienteId");
-        if (id == null) return RedirectToAction("Login");
-        var cliente = await _db.Clientes.FindAsync(id);
-        return View(cliente);
+        var clienteId = HttpContext.Session.GetInt32("ClienteId");
+        if (clienteId == null)
+            return RedirectToAction("Login");
+        
+        var cliente = await _db.Clientes.FindAsync(clienteId);
+        if (cliente == null)
+            return RedirectToAction("Login");
+        
+        var perfilVm = new PerfilViewModel
+        {
+            Id = cliente.Id,
+            Nombre = cliente.Nombre,
+            Apellido = cliente.Apellido,
+            Email = cliente.Email,
+            Telefono = cliente.Telefono,
+            FechaRegistro = cliente.FechaRegistro
+        };
+        
+        return View(perfilVm);
+    }
+    
+
+    // POST: /Account/ActualizarPerfil
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActualizarPerfil(PerfilViewModel model)
+    {
+        var clienteId = HttpContext.Session.GetInt32("ClienteId");
+        if (clienteId == null)
+            return RedirectToAction("Login");
+        
+        if (!ModelState.IsValid)
+            return View("Perfil", model);
+        
+        var cliente = await _db.Clientes.FindAsync(clienteId);
+        if (cliente == null)
+            return RedirectToAction("Login");
+        
+        // Actualizar datos básicos
+        cliente.Nombre = model.Nombre;
+        cliente.Apellido = model.Apellido;
+        cliente.Email = model.Email;
+        cliente.Telefono = model.Telefono;
+        
+        // Actualizar contraseña si se proporcionó
+        if (!string.IsNullOrEmpty(model.NuevaPassword))
+        {
+            cliente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.NuevaPassword);
+        }
+        
+        // Actualizar sesión con el nuevo nombre
+        HttpContext.Session.SetString("ClienteNombre", cliente.Nombre);
+        
+        await _db.SaveChangesAsync();
+        TempData["Success"] = "Tu perfil ha sido actualizado correctamente";
+        
+        return RedirectToAction("Perfil");
     }
 }
 

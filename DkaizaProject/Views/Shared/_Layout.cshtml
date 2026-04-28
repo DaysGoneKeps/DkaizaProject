@@ -15,6 +15,490 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" />
     
+    <style>
+        /* Estilos adicionales para el dropdown de usuario y perfil */
+        
+        /* User Menu Dropdown */
+        .user-menu-container {
+            position: relative;
+            margin-left: 0.5rem;
+        }
+
+        .user-menu-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            background: var(--cream-dark);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border);
+        }
+
+        .user-menu-trigger:hover {
+            background: var(--white);
+            border-color: var(--rose);
+        }
+
+        .user-avatar-mini {
+            width: 32px;
+            height: 32px;
+            background: var(--rose-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar-mini i {
+            font-size: 1.1rem;
+            color: var(--rose-dark);
+        }
+
+        .user-info-mini {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .user-name-mini {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .user-info-mini i {
+            font-size: 0.7rem;
+            color: var(--ink-light);
+            transition: transform 0.2s;
+        }
+
+        .user-menu-container:hover .user-info-mini i {
+            transform: rotate(180deg);
+        }
+
+        .user-menu-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 200px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        .user-menu-container:hover .user-menu-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: var(--ink-mid);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            font-size: 0.9rem;
+            color: var(--ink-light);
+        }
+
+        .dropdown-item:hover {
+            background: var(--cream);
+            color: var(--ink);
+        }
+
+        .dropdown-item:hover i {
+            color: var(--rose-dark);
+        }
+
+        .dropdown-item.logout {
+            color: #b83232;
+        }
+
+        .dropdown-item.logout:hover {
+            background: #fdf0f0;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
+        }
+
+        /* Perfil Page Styles */
+        .perfil-page {
+            padding: 2rem 0 4rem;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--white) 100%);
+            min-height: calc(100vh - 200px);
+        }
+
+        .perfil-header {
+            background: linear-gradient(135deg, var(--ink) 0%, var(--rose-dark) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .perfil-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .perfil-header-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .perfil-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .perfil-avatar i {
+            font-size: 3rem;
+            color: var(--white);
+        }
+
+        .perfil-title h1 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .perfil-title p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        .perfil-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        .info-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            position: sticky;
+            top: 80px;
+        }
+
+        .info-card-header {
+            background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream-dark) 100%);
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-card-header i {
+            font-size: 1.25rem;
+            color: var(--rose-dark);
+        }
+
+        .info-card-header h3 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin: 0;
+        }
+
+        .info-card-body {
+            padding: 1.25rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--ink-light);
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: var(--ink);
+            font-size: 0.85rem;
+        }
+
+        .info-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1rem 0;
+        }
+
+        .stats-summary {
+            margin-top: 0.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .stat-item i {
+            font-size: 1.1rem;
+            color: var(--rose-dark);
+            width: 24px;
+        }
+
+        .stat-item div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--ink-light);
+        }
+
+        .form-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .form-card-header {
+            padding: 1.25rem;
+            background: var(--cream-dark);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .form-card-header i {
+            font-size: 1.1rem;
+            color: var(--rose-dark);
+        }
+
+        .form-card-header h3 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin: 0;
+        }
+
+        .optional-badge {
+            margin-left: auto;
+            font-size: 0.7rem;
+            background: var(--border);
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: var(--ink-light);
+        }
+
+        .form-card-body {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--ink-mid);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ink-light);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px 10px 38px;
+            border: 1px solid var(--border-mid);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            color: var(--ink);
+            background: var(--cream);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--rose);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(200, 169, 138, 0.1);
+        }
+
+        .field-error {
+            font-size: 0.7rem;
+            color: #c0392b;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            background: var(--ink);
+            color: var(--white);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--rose-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink-mid);
+            border: 1px solid var(--border-mid);
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--ink-mid);
+            color: var(--ink);
+        }
+
+        /* Versión corregida - mobile responsive */
+        @@media (max-width: 768px) {
+            .perfil-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-card {
+                position: static;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .perfil-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                justify-content: center;
+            }
+            
+            .user-info-mini .user-name-mini {
+                display: none;
+            }
+            
+            .user-menu-trigger {
+                padding: 6px;
+            }
+            
+            .user-info-mini i {
+                display: none;
+            }
+        }
+    </style>
+    
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -70,14 +554,31 @@
                                 <i class="fas fa-shield-alt"></i> Admin
                             </a>
                         }
-                        <div class="user-dropdown">
-                            <div class="user-avatar">
-                                <i class="fas fa-user-circle"></i>
+                        
+                        <!-- Nuevo Dropdown de Usuario -->
+                        <div class="user-menu-container">
+                            <div class="user-menu-trigger">
+                                <div class="user-avatar-mini">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="user-info-mini">
+                                    <span class="user-name-mini">@Context.Session.GetString("ClienteNombre")</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
                             </div>
-                            <div class="user-info">
-                                <span class="user-name">@Context.Session.GetString("ClienteNombre")</span>
-                                <a href="/Account/Logout" class="user-logout">
-                                    <i class="fas fa-sign-out-alt"></i> Salir
+                            <div class="user-menu-dropdown">
+                                <a href="/Account/Perfil" class="dropdown-item">
+                                    <i class="fas fa-user"></i>
+                                    Mi Perfil
+                                </a>
+                                <a href="/Appointments/MisCitas" class="dropdown-item">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Mis Citas
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="/Account/Logout" class="dropdown-item logout">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Cerrar Sesión
                                 </a>
                             </div>
                         </div>
@@ -115,7 +616,7 @@
         @RenderBody()
     </main>
 
-             <!-- ========== FOOTER PROFESIONAL D'KAIZA ========== -->
+    <!-- ========== FOOTER PROFESIONAL D'KAIZA ========== -->
     <footer class="footer-dkaiza">
         <div class="container">
             <div class="footer-content">
@@ -214,8 +715,23 @@
             </div>
         </div>
     </footer>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js"></script>
+    
+    <script>
+        // Auto cerrar toasts después de 3 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const toasts = document.querySelectorAll('.toast-custom');
+            toasts.forEach(toast => {
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            });
+        });
+    </script>
+    
     @RenderSection("Scripts", required: false)
 
 </body>
