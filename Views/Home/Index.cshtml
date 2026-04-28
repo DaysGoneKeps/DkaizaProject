@@ -1,0 +1,49 @@
+﻿@model List<DkaizaProject.Models.Servicio>
+@{
+    ViewData["Title"] = "D'KAIZA";
+    Layout = "_Layout";
+}
+
+<section class="hero">
+    <div class="hero-content">
+        <p class="hero-eyebrow">Bienvenida a D'Kaiza</p>
+        <h1 class="hero-title">Tu belleza,<br/>nuestra pasión</h1>
+        <p class="hero-sub">Reserva tu cita en minutos con nuestros estilistas expertos.</p>
+        <div class="hero-actions">
+            @if (Context.Session.GetInt32("ClienteId") != null)
+            {
+                <a href="/Appointments/Servicios" class="btn-primary-lg">Reservar cita →</a>
+                <a href="/Appointments/MisCitas" class="btn-ghost-lg">Ver mis citas</a>
+            }
+            else
+            {
+                <a href="/Appointments/Servicios" class="btn-primary-lg">Reservar cita →</a>
+                <a href="/Account/Login" class="btn-ghost-lg">Ingresar</a>
+            }
+        </div>
+    </div>
+    <div class="hero-deco">
+        <div class="hero-circle c1"></div>
+        <div class="hero-circle c2"></div>
+        <div class="hero-circle c3"></div>
+    </div>
+</section>
+
+<!-- SECCIÓN ELIMINADA: services-section ya no va aquí -->
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box">
+            <h2>¿Lista para tu transformación?</h2>
+            <p>Reserva tu cita hoy y déjanos cuidarte.</p>
+            @if (Context.Session.GetInt32("ClienteId") != null)
+            {
+                <a href="/Appointments/Servicios" class="btn-primary-lg" style="margin-top:1.5rem;">Reservar ahora</a>
+            }
+            else
+            {
+                <a href="/Account/Register" class="btn-primary-lg" style="margin-top:1.5rem;">Crear cuenta gratis</a>
+            }
+        </div>
+    </div>
+</section>
