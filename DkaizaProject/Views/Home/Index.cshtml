@@ -1,8 +1,85 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<DkaizaProject.Models.Servicio>
+@{
+    ViewData["Title"] = "Inicio";
+    Layout = "_Layout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero">
+    <div class="hero-content">
+        <p class="hero-eyebrow">Bienvenida al salón</p>
+        <h1 class="hero-title">Tu belleza,<br/>nuestra pasión</h1>
+        <p class="hero-sub">Reserva tu cita en minutos con nuestros estilistas expertos.</p>
+        <div class="hero-actions">
+            @if (Context.Session.GetInt32("ClienteId") != null)
+            {
+                <a href="/Appointments/Reservar" class="btn-primary-lg">Reservar cita →</a>
+                <a href="/Appointments/MisCitas" class="btn-ghost-lg">Ver mis citas</a>
+            }
+            else
+            {
+                <a href="/Account/Register" class="btn-primary-lg">Comenzar →</a>
+                <a href="/Account/Login" class="btn-ghost-lg">Ingresar</a>
+            }
+        </div>
+    </div>
+    <div class="hero-deco">
+        <div class="hero-circle c1"></div>
+        <div class="hero-circle c2"></div>
+        <div class="hero-circle c3"></div>
+    </div>
+</section>
+
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-eyebrow">Lo que ofrecemos</p>
+            <h2 class="section-title">Nuestros servicios</h2>
+        </div>
+        <div class="services-grid">
+            @foreach (var svc in Model)
+            {
+                <div class="service-card">
+                    <div class="service-icon">
+                        @switch (svc.DuracionHoras)
+                        {
+                            case 1: <span>✂</span> break;
+                            case 2: <span>✦</span> break;
+                            default: <span>◈</span> break;
+                        }
+                    </div>
+                    <h3 class="service-name">@svc.Nombre</h3>
+                    <p class="service-desc">@(svc.Descripcion ?? "Servicio profesional")</p>
+                    <div class="service-meta">
+                        <span class="service-duration">@svc.DuracionHoras h</span>
+                        <span class="service-price">S/ @svc.Precio.ToString("0")</span>
+                    </div>
+                    @if (Context.Session.GetInt32("ClienteId") != null)
+                    {
+                        <a href="/Appointments/Reservar" class="service-btn">Reservar →</a>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login?returnUrl=/Appointments/Reservar" class="service-btn">Reservar →</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-box">
+            <h2>¿Lista para tu transformación?</h2>
+            <p>Reserva tu cita hoy y déjanos cuidarte.</p>
+            @if (Context.Session.GetInt32("ClienteId") != null)
+            {
+                <a href="/Appointments/Reservar" class="btn-primary-lg" style="margin-top:1.5rem;">Reservar ahora</a>
+            }
+            else
+            {
+                <a href="/Account/Register" class="btn-primary-lg" style="margin-top:1.5rem;">Crear cuenta gratis</a>
+            }
+        </div>
+    </div>
+</section>

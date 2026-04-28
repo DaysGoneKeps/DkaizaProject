@@ -1,0 +1,63 @@
+@model DkaizaProject.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Registrarse";
+    Layout = "_Layout";
+}
+
+<div class="auth-page">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <span class="auth-logo">✦</span>
+            <h1>Crear tu cuenta</h1>
+            <p>Únete y reserva tus citas en minutos</p>
+        </div>
+
+        <form asp-action="Register" method="post" class="auth-form">
+            <div asp-validation-summary="ModelOnly" class="alert-error"></div>
+
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label asp-for="Nombre">Nombre</label>
+                    <input asp-for="Nombre" placeholder="María" />
+                    <span asp-validation-for="Nombre" class="field-error"></span>
+                </div>
+                <div class="form-field">
+                    <label asp-for="Apellido">Apellido</label>
+                    <input asp-for="Apellido" placeholder="García" />
+                    <span asp-validation-for="Apellido" class="field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Email">Correo electrónico</label>
+                <input asp-for="Email" type="email" placeholder="tu@email.com" />
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Telefono">Teléfono</label>
+                <input asp-for="Telefono" placeholder="987 654 321" />
+                <span asp-validation-for="Telefono" class="field-error"></span>
+            </div>
+
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label asp-for="Password">Contraseña</label>
+                    <input asp-for="Password" type="password" placeholder="Min. 6 caracteres" />
+                    <span asp-validation-for="Password" class="field-error"></span>
+                </div>
+                <div class="form-field">
+                    <label asp-for="ConfirmarPassword">Confirmar contraseña</label>
+                    <input asp-for="ConfirmarPassword" type="password" placeholder="Repite tu contraseña" />
+                    <span asp-validation-for="ConfirmarPassword" class="field-error"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-auth">Crear cuenta →</button>
+        </form>
+
+        <div class="auth-footer">
+            ¿Ya tienes cuenta? <a href="/Account/Login">Ingresar</a>
+        </div>
+    </div>
+</div>

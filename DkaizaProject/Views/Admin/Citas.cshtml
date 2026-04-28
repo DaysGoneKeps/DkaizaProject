@@ -1,0 +1,47 @@
+@model List<DkaizaProject.Models.Cita>
+@{
+    ViewData["Title"] = "Todas las citas";
+    Layout = "_Layout";
+}
+
+<div class="admin-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <p class="section-eyebrow">Administración</p>
+                <h1>Todas las citas</h1>
+            </div>
+            <a href="/Admin" class="btn-ghost-sm">← Dashboard</a>
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Horario</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Estilista</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td>#@c.Id</td>
+                            <td>@c.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@c.HoraInicio:00 – @c.HoraFin:00</td>
+                            <td>@c.Cliente.NombreCompleto<br/><small style="color:#999">@c.Cliente.Email</small></td>
+                            <td>@c.Servicio.Nombre</td>
+                            <td>@c.Estilista.Nombre</td>
+                            <td><span class="estado-badge estado-@c.Estado.ToString().ToLower()">@c.Estado</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

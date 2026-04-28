@@ -1,0 +1,124 @@
+@model DkaizaProject.Models.MisCitasViewModel
+@{
+    ViewData["Title"] = "Mis citas";
+    Layout = "_Layout";
+}
+
+<div class="mis-citas-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <p class="section-eyebrow">Panel de cliente</p>
+                <h1>Mis citas</h1>
+            </div>
+            <a href="/Appointments/Reservar" class="btn-primary-lg">+ Nueva cita</a>
+        </div>
+
+        <div class="citas-tabs">
+            <button class="cita-tab active" data-target="proximas">Próximas (@Model.Proximas.Count)</button>
+            <button class="cita-tab" data-target="historial">Historial (@Model.Historial.Count)</button>
+        </div>
+
+        <!-- Próximas -->
+        <div class="citas-panel active" id="proximas">
+            @if (!Model.Proximas.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <h3>Sin citas próximas</h3>
+                    <p>Reserva tu primera cita y date el gusto.</p>
+                    <a href="/Appointments/Reservar" class="btn-primary-lg">Reservar ahora</a>
+                </div>
+            }
+            else
+            {
+                <div class="citas-list">
+                    @foreach (var cita in Model.Proximas)
+                    {
+                        <div class="cita-card" id="cita-@cita.Id">
+                            <div class="cita-date-block">
+                                <span class="cita-day">@cita.Fecha.Day</span>
+                                <span class="cita-month">@cita.Fecha.ToString("MMM").ToUpper()</span>
+                            </div>
+                            <div class="cita-info">
+                                <h3>@cita.Servicio.Nombre</h3>
+                                <p>con <strong>@cita.Estilista.Nombre</strong></p>
+                                <p class="cita-time">🕐 @cita.HoraInicio:00 — @cita.HoraFin:00</p>
+                                @if (!string.IsNullOrEmpty(cita.Notas))
+                                {
+                                    <p class="cita-notas">📝 @cita.Notas</p>
+                                }
+                            </div>
+                            <div class="cita-right">
+                                <span class="estado-badge estado-@cita.Estado.ToString().ToLower()">@cita.Estado</span>
+                                <button class="btn-cancelar" data-id="@cita.Id">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Historial -->
+        <div class="citas-panel" id="historial">
+            @if (!Model.Historial.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">🗂</div>
+                    <h3>Sin historial aún</h3>
+                    <p>Aquí aparecerán tus citas pasadas.</p>
+                </div>
+            }
+            else
+            {
+                <div class="citas-list">
+                    @foreach (var cita in Model.Historial)
+                    {
+                        <div class="cita-card faded">
+                            <div class="cita-date-block">
+                                <span class="cita-day">@cita.Fecha.Day</span>
+                                <span class="cita-month">@cita.Fecha.ToString("MMM").ToUpper()</span>
+                            </div>
+                            <div class="cita-info">
+                                <h3>@cita.Servicio.Nombre</h3>
+                                <p>con <strong>@cita.Estilista.Nombre</strong></p>
+                                <p class="cita-time">🕐 @cita.HoraInicio:00 — @cita.HoraFin:00</p>
+                            </div>
+                            <div class="cita-right">
+                                <span class="estado-badge estado-@cita.Estado.ToString().ToLower()">@cita.Estado</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.querySelectorAll('.cita-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.cita-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.citas-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.target).classList.add('active');
+    });
+});
+
+document.querySelectorAll('.btn-cancelar').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        if (!confirm('¿Seguro que deseas cancelar esta cita?')) return;
+        const id = btn.dataset.id;
+        const res = await fetch(`/Appointments/Cancelar/${id}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('cita-' + id).remove();
+            location.reload();
+        } else {
+            alert(data.message || 'No se pudo cancelar.');
+        }
+    });
+});
+</script>
+}

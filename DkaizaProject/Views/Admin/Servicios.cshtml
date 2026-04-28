@@ -1,0 +1,132 @@
+@model List<DkaizaProject.Models.Servicio>
+@{
+    ViewData["Title"] = "Gestión de Servicios";
+    Layout = "_Layout";
+}
+
+<div class="admin-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <p class="section-eyebrow">Administración</p>
+                <h1>Servicios</h1>
+            </div>
+            <button class="btn-primary-lg" onclick="openModal('modalNuevo')">+ Agregar servicio</button>
+        </div>
+
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Duración</th>
+                        <th>Precio</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var svc in Model)
+                    {
+                        <tr>
+                            <td>@svc.Id</td>
+                            <td>@svc.Nombre</td>
+                            <td>@(svc.Descripcion ?? "—")</td>
+                            <td><span class="dur-badge">@svc.DuracionHoras h</span></td>
+                            <td>S/ @svc.Precio.ToString("0")</td>
+                            <td><span class="estado-badge @(svc.Activo?"estado-confirmada":"estado-cancelada")">@(svc.Activo?"Activo":"Inactivo")</span></td>
+                            <td>
+                                <button class="btn-table-edit" onclick="openEdit(@svc.Id,'@svc.Nombre','@(svc.Descripcion??"")',@svc.DuracionHoras,@svc.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture),@svc.Activo.ToString().ToLower())">Editar</button>
+                                <button class="btn-table-del" onclick="eliminar(@svc.Id)">Eliminar</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo -->
+<div class="modal-overlay" id="modalNuevo">
+    <div class="modal">
+        <div class="modal-header"><h3>Nuevo servicio</h3><button onclick="closeModal('modalNuevo')">✕</button></div>
+        <form asp-action="CrearServicio" asp-controller="Admin" method="post" class="modal-form">
+            @Html.AntiForgeryToken()
+            <div class="form-field"><label>Nombre</label><input name="Nombre" required /></div>
+            <div class="form-field"><label>Descripción</label><input name="Descripcion" /></div>
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label>Duración (horas)</label>
+                    <select name="DuracionHoras">
+                        <option value="1">1 hora</option>
+                        <option value="2">2 horas</option>
+                        <option value="3">3 horas</option>
+                    </select>
+                </div>
+                <div class="form-field"><label>Precio (S/)</label><input name="Precio" type="number" min="0" step="0.50" value="0" /></div>
+            </div>
+            <button type="submit" class="btn-auth">Crear servicio</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal-overlay" id="modalEditar">
+    <div class="modal">
+        <div class="modal-header"><h3>Editar servicio</h3><button onclick="closeModal('modalEditar')">✕</button></div>
+        <form asp-action="EditarServicio" asp-controller="Admin" method="post" class="modal-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" id="editId" />
+            <div class="form-field"><label>Nombre</label><input name="Nombre" id="editNombre" required /></div>
+            <div class="form-field"><label>Descripción</label><input name="Descripcion" id="editDesc" /></div>
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label>Duración (horas)</label>
+                    <select name="DuracionHoras" id="editDur">
+                        <option value="1">1 hora</option>
+                        <option value="2">2 horas</option>
+                        <option value="3">3 horas</option>
+                    </select>
+                </div>
+                <div class="form-field"><label>Precio (S/)</label><input name="Precio" id="editPrecio" type="number" min="0" step="0.50" /></div>
+            </div>
+            <div class="form-field">
+                <label><input type="checkbox" name="Activo" id="editActivo" value="true" /> Activo</label>
+            </div>
+            <button type="submit" class="btn-auth">Guardar cambios</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openEdit(id, nombre, desc, dur, precio, activo) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editNombre').value = nombre;
+    document.getElementById('editDesc').value = desc;
+    document.getElementById('editDur').value = dur;
+    document.getElementById('editPrecio').value = precio;
+    document.getElementById('editActivo').checked = activo === true || activo === 'true';
+    openModal('modalEditar');
+}
+async function eliminar(id) {
+    if (!confirm('¿Desactivar este servicio?')) return;
+    try {
+        const r = await fetch('/Admin/EliminarServicio/' + id, { method: 'POST' });
+        const data = await r.json();
+        if (data.success) location.reload();
+        else alert('Error al desactivar el servicio');
+    } catch (error) {
+        alert('Error en la solicitud');
+    }
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+}
