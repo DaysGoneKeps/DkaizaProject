@@ -64,5 +64,6 @@ app.MapControllerRoute(
 
 app.MapRazorPages()
    .WithStaticAssets();
+Console.WriteLine(BCrypt.Net.BCrypt.HashPassword("admin123"));
 
 app.Run();
