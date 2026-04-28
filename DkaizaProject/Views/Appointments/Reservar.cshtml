@@ -231,6 +231,29 @@ async function loadEstilistas() {
     });
 }
 
+async function confirmarReserva() {
+    // ... obtener datos de la reserva ...
+    
+    const response = await fetch('/Appointments/Crear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosReserva)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+        alert(result.message);
+        window.location.href = '/Appointments/MisCitas';
+    } else if (result.requiresLogin) {
+        // Redirigir al login pero guardar la intención de reserva
+        sessionStorage.setItem('reservaPendiente', JSON.stringify(datosReserva));
+        window.location.href = '/Account/Login?returnUrl=/Appointments/Reservar';
+    } else {
+        alert(result.message);
+    }
+}
+
 // ── Step 4: Time slots ───────────────────────────────────────────────────
 async function loadHorarios() {
     const wrap = document.getElementById('timeSlots');
