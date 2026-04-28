@@ -1,0 +1,80 @@
+@model List<DkaizaProject.Models.Cita>
+@{
+    ViewData["Title"] = "Panel Admin";
+    Layout = "_Layout";
+}
+
+<div class="admin-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <p class="section-eyebrow">Panel de administración</p>
+                <h1>Dashboard</h1>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a href="/Admin/Servicios" class="btn-ghost-sm">Servicios</a>
+                <a href="/Admin/Estilistas" class="btn-ghost-sm">Estilistas</a>
+                <a href="/Admin/Citas" class="btn-ghost-sm">Todas las citas</a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Citas hoy</span>
+                <span class="stat-value">@ViewBag.CitasHoy</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Citas totales</span>
+                <span class="stat-value">@ViewBag.TotalCitas</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Clientes</span>
+                <span class="stat-value">@ViewBag.TotalClientes</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Servicios activos</span>
+                <span class="stat-value">@ViewBag.TotalServicios</span>
+            </div>
+        </div>
+
+        <h2 class="admin-section-title">Próximas citas</h2>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">📅</div>
+                <h3>Sin citas programadas</h3>
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Estilista</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model)
+                        {
+                            <tr>
+                                <td>@c.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@c.HoraInicio:00 - @c.HoraFin:00</td>
+                                <td>@c.Cliente?.NombreCompleto</td>
+                                <td>@c.Servicio?.Nombre</td>
+                                <td>@c.Estilista?.Nombre</td>
+                                <td><span class="estado-badge estado-@c.Estado.ToString().ToLower()">@c.Estado</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

@@ -1,31 +1,22 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using DkaizaProject.Models;
+using DkaizaProject.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace DkaizaProject.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ApplicationDbContext _db;
 
-    public HomeController(ILogger<HomeController> logger)
-    {
-        _logger = logger;
-    }
+    public HomeController(ApplicationDbContext db) => _db = db;
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var servicios = await _db.Servicios.Where(s => s.Activo).ToListAsync();
+        
+        // Forzar explícitamente tu vista
+        return View("~/Views/Home/Index.cshtml", servicios);
     }
 }

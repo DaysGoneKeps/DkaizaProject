@@ -1,0 +1,151 @@
+@model List<DkaizaProject.Models.Estilista>
+@{
+    ViewData["Title"] = "Gestión de Estilistas";
+    Layout = "_Layout";
+}
+
+<div class="admin-page">
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <p class="section-eyebrow">Administración</p>
+                <h1>Estilistas</h1>
+            </div>
+            <button class="btn-primary-lg" onclick="openModal('modalNuevo')">+ Agregar estilista</button>
+        </div>
+
+        <div class="stylists-admin-grid">
+            @foreach (var e in Model)
+            {
+                <div class="stylist-admin-card">
+                    <div class="stylist-avatar big">@e.Nombre.Substring(0,1)</div>
+                    <div class="stylist-admin-info">
+                        <h3>@e.Nombre</h3>
+                        <p>@(e.Especialidad ?? "Estilista profesional")</p>
+                        <span class="info-tag">🕐 @e.HorarioTexto</span>
+                        <span class="info-tag">☕ @e.DescansoTexto</span>
+                    </div>
+                    <div class="stylist-admin-actions">
+                        <span class="estado-badge @(e.Activo?"estado-confirmada":"estado-cancelada")">@(e.Activo?"Activo":"Inactivo")</span>
+                        <button class="btn-table-edit" onclick="openEdit(@e.Id,'@e.Nombre','@(e.Especialidad??"")',@e.HoraInicioTrabajo,@e.HoraFinTrabajo,@e.HoraInicioDescanso,@e.HoraFinDescanso,@e.Activo.ToString().ToLower())">Editar</button>
+                        <button class="btn-table-del" onclick="eliminar(@e.Id)">Eliminar</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@{
+    var horas = Enumerable.Range(6, 18).ToList();
+}
+
+<!-- Modal Nuevo -->
+<div class="modal-overlay" id="modalNuevo">
+    <div class="modal">
+        <div class="modal-header"><h3>Nuevo estilista</h3><button onclick="closeModal('modalNuevo')">✕</button></div>
+        <form asp-action="CrearEstilista" asp-controller="Admin" method="post" class="modal-form">
+            @Html.AntiForgeryToken()
+            <div class="form-field"><label>Nombre</label><input name="Nombre" required /></div>
+            <div class="form-field"><label>Especialidad</label><input name="Especialidad" /></div>
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label>Inicio trabajo</label>
+                    <select name="HoraInicioTrabajo">
+                        @foreach (var h in horas) { <option value="@h" selected="@(h == 10 ? "selected" : null)">@h:00</option> }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Fin trabajo</label>
+                    <select name="HoraFinTrabajo">
+                        @foreach (var h in horas) { <option value="@h" selected="@(h == 10 ? "selected" : null)">@h:00</option> }
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label>Inicio descanso</label>
+                    <select name="HoraInicioDescanso">
+                        @foreach (var h in horas) { <option value="@h" selected="@(h == 10 ? "selected" : null)">@h:00</option> }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Fin descanso</label>
+                    <select name="HoraFinDescanso">
+                        @foreach (var h in horas) { <option value="@h" selected="@(h == 10 ? "selected" : null)">@h:00</option> }
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-auth">Crear estilista</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal-overlay" id="modalEditar">
+    <div class="modal">
+        <div class="modal-header"><h3>Editar estilista</h3><button onclick="closeModal('modalEditar')">✕</button></div>
+        <form asp-action="EditarEstilista" asp-controller="Admin" method="post" class="modal-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" id="editId" />
+            <div class="form-field"><label>Nombre</label><input name="Nombre" id="editNombre" required /></div>
+            <div class="form-field"><label>Especialidad</label><input name="Especialidad" id="editEsp" /></div>
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label>Inicio trabajo</label>
+                    <select name="HoraInicioTrabajo" id="editInicioT">
+                        @foreach (var h in horas) { <option value="@h">@h:00</option> }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Fin trabajo</label>
+                    <select name="HoraFinTrabajo" id="editFinT">
+                        @foreach (var h in horas) { <option value="@h">@h:00</option> }
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-field">
+                    <label>Inicio descanso</label>
+                    <select name="HoraInicioDescanso" id="editInicioD">
+                        @foreach (var h in horas) { <option value="@h">@h:00</option> }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Fin descanso</label>
+                    <select name="HoraFinDescanso" id="editFinD">
+                        @foreach (var h in horas) { <option value="@h">@h:00</option> }
+                    </select>
+                </div>
+            </div>
+            <div class="form-field"><label><input type="checkbox" name="Activo" id="editActivo" value="true" /> Activo</label></div>
+            <button type="submit" class="btn-auth">Guardar cambios</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openEdit(id, nombre, esp, inicioT, finT, inicioD, finD, activo) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editNombre').value = nombre;
+    document.getElementById('editEsp').value = esp;
+    document.getElementById('editInicioT').value = inicioT;
+    document.getElementById('editFinT').value = finT;
+    document.getElementById('editInicioD').value = inicioD;
+    document.getElementById('editFinD').value = finD;
+    document.getElementById('editActivo').checked = activo;
+    openModal('modalEditar');
+}
+async function eliminar(id) {
+    if (!confirm('¿Desactivar este estilista?')) return;
+    const r = await fetch('/Admin/EliminarEstilista/' + id, { method: 'POST' });
+    if ((await r.json()).success) location.reload();
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+}
