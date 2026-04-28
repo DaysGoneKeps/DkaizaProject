@@ -59,7 +59,7 @@ public class ApplicationDbContext : IdentityDbContext
                 Apellido = "Salon",
                 Email = "admin@salon.com",
                 Telefono = "000-000-0000",
-                PasswordHash = "$2a$11$uC7VxVY1z8FQqKqgk7y0eOqvYhG9mG8Qk3lYvZlPpQwF8Wz0lZr7K",
+                PasswordHash = "$2a$11$eC3MeRvFgm5TqxeMK4xxYuZGPth0aElF2fqklF.G/mQEVZJ3fsbwK",
                 EsAdmin = true,
                 FechaRegistro = new DateTime(2024, 1, 1)
             }

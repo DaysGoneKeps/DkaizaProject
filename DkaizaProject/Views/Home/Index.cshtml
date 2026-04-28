@@ -17,7 +17,7 @@
             }
             else
             {
-                <a href="/Account/Register" class="btn-primary-lg">Comenzar →</a>
+                <a href="/Appointments/Reservar" class="btn-primary-lg">Comenzar →</a>
                 <a href="/Account/Login" class="btn-ghost-lg">Ingresar</a>
             }
         </div>
@@ -53,14 +53,8 @@
                         <span class="service-duration">@svc.DuracionHoras h</span>
                         <span class="service-price">S/ @svc.Precio.ToString("0")</span>
                     </div>
-                    @if (Context.Session.GetInt32("ClienteId") != null)
-                    {
-                        <a href="/Appointments/Reservar" class="service-btn">Reservar →</a>
-                    }
-                    else
-                    {
-                        <a href="/Account/Login?returnUrl=/Appointments/Reservar" class="service-btn">Reservar →</a>
-                    }
+                    <!-- Siempre mostrar el botón Reservar, sin importar si está logueado -->
+                    <a href="/Appointments/Reservar" class="service-btn">Ver disponibilidad →</a>
                 </div>
             }
         </div>
