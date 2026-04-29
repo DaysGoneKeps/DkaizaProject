@@ -77,6 +77,32 @@ public class CrearCitaDto
     public string? Notas { get; set; }
 }
 
+public class ReservaPendiente
+{
+    public int ClienteId { get; set; }
+    public int ServicioId { get; set; }
+    public int EstilistaId { get; set; }
+    public DateTime Fecha { get; set; }
+    public int HoraInicio { get; set; }
+    public int HoraFin { get; set; }
+    public string? Notas { get; set; }
+    public string ExternalReference { get; set; } = string.Empty;
+}
+
+public class CheckoutViewModel
+{
+    public Servicio Servicio { get; set; } = null!;
+    public Estilista Estilista { get; set; } = null!;
+    public DateTime Fecha { get; set; }
+    public int HoraInicio { get; set; }
+    public int HoraFin { get; set; }
+    public decimal MontoTotal { get; set; }
+    public decimal MontoSenal { get; set; }
+    public int PorcentajeSenal { get; set; }
+    public string Currency { get; set; } = "PEN";
+    public bool ConfigurationOk { get; set; }
+}
+
 public class MisCitasViewModel
 {
     public List<Cita> Proximas { get; set; } = new();

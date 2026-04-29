@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Servicio> Servicios { get; set; }
     public DbSet<Estilista> Estilistas { get; set; }
     public DbSet<Cita> Citas { get; set; }
+    public DbSet<Pago> Pagos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
@@ -33,6 +34,12 @@ public class ApplicationDbContext : IdentityDbContext
             .WithMany(e => e.Citas)
             .HasForeignKey(c => c.EstilistaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        mb.Entity<Pago>()
+            .HasOne(p => p.Cita)
+            .WithOne(c => c.Pago)
+            .HasForeignKey<Pago>(p => p.CitaId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Seed data
         mb.Entity<Servicio>().HasData(

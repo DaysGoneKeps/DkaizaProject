@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Pago aprobado";
+    Layout = "_Layout";
+}
+
+<div class="booking-page">
+    <div class="container booking-container">
+        <div class="success-block">
+            <div class="success-checkmark">✓</div>
+            <h2>¡Pago aprobado y cita confirmada!</h2>
+            <p>@ViewBag.Resumen</p>
+
+            <div class="confirm-box" style="margin-top:1.5rem; text-align:left;">
+                <div class="confirm-row"><span>Señal pagada</span><strong>S/ @(((decimal)(ViewBag.MontoPagado ?? 0m)).ToString("0.00"))</strong></div>
+                <div class="confirm-row"><span>Saldo en el salón</span><strong>S/ @(((decimal)(ViewBag.MontoTotal ?? 0m) - (decimal)(ViewBag.MontoPagado ?? 0m)).ToString("0.00"))</strong></div>
+                @if (!string.IsNullOrEmpty(ViewBag.PaymentId as string))
+                {
+                    <div class="confirm-row"><span>ID de pago MercadoPago</span><strong>@ViewBag.PaymentId</strong></div>
+                }
+            </div>
+
+            <div class="success-actions" style="margin-top:1.5rem;">
+                <a href="/Appointments/MisCitas" class="btn-primary-lg">Ver mis citas</a>
+                <a href="/Appointments/Servicios" class="btn-ghost-lg">Reservar otra</a>
+            </div>
+        </div>
+    </div>
+</div>

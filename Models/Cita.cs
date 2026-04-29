@@ -37,6 +37,8 @@ namespace DkaizaProject.Models
     public string? Notas { get; set; }
 
     public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+    public Pago? Pago { get; set; }
 }
 
 public enum EstadoCita

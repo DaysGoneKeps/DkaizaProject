@@ -1,0 +1,54 @@
+@model DkaizaProject.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Pagar reserva";
+    Layout = "_Layout";
+    var faltante = Model.MontoTotal - Model.MontoSenal;
+}
+
+<div class="booking-page">
+    <div class="booking-header">
+        <div class="container">
+            <p class="section-eyebrow">Paso final</p>
+            <h1>Confirma con un pago de señal</h1>
+        </div>
+    </div>
+
+    <div class="container booking-container">
+        @if (TempData["PaymentError"] != null)
+        {
+            <div class="alert-error" style="margin-bottom:1rem;">@TempData["PaymentError"]</div>
+        }
+
+        @if (!Model.ConfigurationOk)
+        {
+            <div class="alert-error" style="margin-bottom:1rem;">
+                ⚠ MercadoPago no está configurado. Pega tu <strong>Access Token de TEST</strong> en
+                <code>appsettings.json</code> → sección <code>MercadoPago.AccessToken</code> y reinicia la app.
+                <br /><small>Diagnóstico: token leído = "<code>@ViewBag.TokenPrefix</code>…" (longitud: @ViewBag.TokenLen)</small>
+            </div>
+        }
+
+        <div class="confirm-box">
+            <div class="confirm-row"><span>Servicio</span><strong>@Model.Servicio.Nombre</strong></div>
+            <div class="confirm-row"><span>Estilista</span><strong>@Model.Estilista.Nombre</strong></div>
+            <div class="confirm-row"><span>Fecha</span><strong>@Model.Fecha.ToString("dddd dd 'de' MMMM yyyy")</strong></div>
+            <div class="confirm-row"><span>Horario</span><strong>@($"{Model.HoraInicio:D2}:00 - {Model.HoraFin:D2}:00")</strong></div>
+            <div class="confirm-row"><span>Precio del servicio</span><strong>S/ @Model.MontoTotal.ToString("0.00")</strong></div>
+            <div class="confirm-row"><span>Señal (@Model.PorcentajeSenal%)</span><strong>S/ @Model.MontoSenal.ToString("0.00")</strong></div>
+            <div class="confirm-row"><span>Saldo a pagar en el salón</span><strong>S/ @faltante.ToString("0.00")</strong></div>
+
+            <p style="margin:1rem 0; font-size:.85rem; color:var(--ink-mid);">
+                Reserva tu cupo abonando solo el @Model.PorcentajeSenal% (S/ @Model.MontoSenal.ToString("0.00")). Este monto se descuenta del precio total y se reembolsa solo si cancelas con al menos 24h de anticipación.
+            </p>
+
+            <form asp-controller="Payment" asp-action="Iniciar" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-confirm" @(Model.ConfigurationOk ? "" : "disabled")>
+                    Pagar S/ @Model.MontoSenal.ToString("0.00") con MercadoPago
+                </button>
+            </form>
+
+            <a href="/Appointments/Servicios" class="btn-ghost-lg" style="display:inline-block; margin-top:.75rem;">Cancelar</a>
+        </div>
+    </div>
+</div>
