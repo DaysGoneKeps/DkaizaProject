@@ -14,7 +14,7 @@
 
     <div class="container booking-container">
 
-        <!-- Step indicators - AHORA EMPIEZA EN FECHA -->
+        <!-- Step indicators -->
         <div class="steps-bar">
             <div class="step active" id="step-ind-1"><span>1</span> Fecha</div>
             <div class="step-line"></div>
@@ -25,29 +25,9 @@
             <div class="step" id="step-ind-4"><span>4</span> Confirmar</div>
         </div>
 
-        <!-- Mostrar servicio seleccionado (resumen) -->
-        <div class="selected-service-summary" id="selectedServiceSummary">
-            <div class="summary-card">
-                <div class="summary-icon">
-                    <i class="fas fa-cut"></i>
-                </div>
-                <div class="summary-info">
-                    <span class="summary-label">Servicio seleccionado</span>
-                    <h3 id="selectedServiceName">Cargando...</h3>
-                    <div class="summary-meta">
-                        <span id="selectedServiceDuration"><i class="far fa-clock"></i> --</span>
-                        <span id="selectedServicePrice"><i class="fas fa-tag"></i> S/ --</span>
-                    </div>
-                </div>
-                <a href="/Appointments/Servicios" class="btn-change-service">
-                    <i class="fas fa-exchange-alt"></i> Cambiar
-                </a>
-            </div>
-        </div>
-
         <!-- STEP 1: Fecha -->
         <div class="booking-step active" id="step-1">
-            <h2 class="step-title">Elige una fecha</h2>
+            <h2 class="step-title">Seleccione una fecha</h2>
             <div class="calendar-wrap">
                 <div class="cal-nav">
                     <button class="cal-prev" id="calPrev">←</button>
@@ -86,11 +66,7 @@
                 <div class="confirm-row"><span>Estilista</span><strong id="conf-estilista">—</strong></div>
                 <div class="confirm-row"><span>Horario</span><strong id="conf-horario">—</strong></div>
                 <div class="confirm-row"><span>Precio</span><strong id="conf-precio">—</strong></div>
-                <div class="form-field" style="margin-top:1rem;">
-                    <label for="notasInput">Notas (opcional)</label>
-                    <textarea id="notasInput" rows="2" placeholder="Ej: Alergias, preferencias de estilo..."></textarea>
-                </div>
-                <button class="btn-confirm" id="btnConfirmar">Confirmar cita →</button>
+                <button class="btn-confirm" id="btnConfirmar">Confirmar →</button>
             </div>
         </div>
 
@@ -107,7 +83,7 @@
             </div>
         </div>
 
-    </div><!-- /container -->
+    </div>
 </div>
 
 <style>
@@ -189,7 +165,6 @@
         text-decoration: none;
     }
     
-    /* ========== BOTÓN FLOTANTE VOLVER AL INICIO ========== */
     .back-home-btn {
         position: fixed;
         bottom: 30px;
@@ -215,6 +190,163 @@
         color: white;
     }
     
+    .calendar-wrap {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .cal-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .cal-nav button {
+        background: var(--cream-dark);
+        border: 1px solid var(--border-mid);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--ink-mid);
+        transition: all 0.2s;
+    }
+    
+    .cal-nav button:hover {
+        background: var(--rose-light);
+        border-color: var(--rose);
+        color: var(--rose);
+    }
+    
+    .cal-month-label {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+    
+    .cal-days-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+    
+    .cal-days-header span {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink-mid);
+        padding: 8px 0;
+    }
+    
+    .cal-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+    
+    .cal-cell {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: var(--white);
+        border: 1px solid transparent;
+    }
+    
+    .cal-cell:hover:not(.disabled):not(.empty) {
+        background: var(--rose-light);
+        border-color: var(--rose);
+        transform: scale(1.05);
+    }
+    
+    .cal-cell.selected {
+        background: var(--ink);
+        color: white;
+    }
+    
+    .cal-cell.disabled {
+        color: var(--border-mid);
+        cursor: not-allowed;
+        background: var(--cream-dark);
+    }
+    
+    .cal-cell.empty {
+        cursor: default;
+        background: transparent;
+    }
+    
+    .step-title {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+    }
+    
+    /* Confirmar reserva - CENTRADO */
+    .confirm-box {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        max-width: 480px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    .confirm-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+    }
+    
+    .confirm-row:last-of-type {
+        border-bottom: none;
+    }
+    
+    .confirm-row span {
+        color: var(--ink-light);
+    }
+    
+    .confirm-row strong {
+        color: var(--ink);
+    }
+    
+    .btn-confirm {
+        display: block;
+        width: 100%;
+        background: var(--ink);
+        color: var(--white);
+        border: none;
+        border-radius: 50px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: var(--font-body);
+        margin-top: 1.5rem;
+        transition: background 0.2s;
+    }
+    
+    .btn-confirm:hover {
+        background: var(--rose-dark);
+    }
+    
+    .btn-confirm:disabled {
+        background: var(--border-mid);
+        cursor: not-allowed;
+    }
+    
     @@media (max-width: 768px) {
         .back-home-btn {
             bottom: 20px;
@@ -222,10 +354,22 @@
             width: 45px;
             height: 45px;
         }
+        .calendar-wrap {
+            max-width: 320px;
+        }
+        .cal-cell {
+            font-size: 12px;
+        }
+        .cal-days-header span {
+            font-size: 10px;
+        }
+        .confirm-box {
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
     }
 </style>
 
-<!-- Botón flotante Volver al inicio -->
 <a href="/" class="back-home-btn" title="Volver al inicio">
     <i class="fas fa-home"></i>
 </a>
@@ -244,19 +388,16 @@ let sel = {
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 
-// Obtener servicioId de la URL
 const urlParams = new URLSearchParams(window.location.search);
 const servicioId = urlParams.get('servicioId');
 
 // ── Cargar servicio seleccionado ─────────────────────────────────────────
 async function loadSelectedService() {
     if (!servicioId) {
-        // No hay servicio seleccionado, redirigir a servicios
         window.location.href = '/Appointments/Servicios';
         return;
     }
     
-    // Obtener datos del servicio desde el ViewModel o API
     const servicios = @Html.Raw(Json.Serialize(Model.Servicios));
     const servicio = servicios.find(s => s.id == servicioId);
     
@@ -267,10 +408,6 @@ async function loadSelectedService() {
             nombre: servicio.nombre,
             precio: servicio.precio
         };
-        
-        document.getElementById('selectedServiceName').textContent = servicio.nombre;
-        document.getElementById('selectedServiceDuration').innerHTML = `<i class="far fa-clock"></i> ${servicio.duracionHoras} hora${servicio.duracionHoras > 1 ? 's' : ''}`;
-        document.getElementById('selectedServicePrice').innerHTML = `<i class="fas fa-tag"></i> S/ ${servicio.precio}`;
     } else {
         window.location.href = '/Appointments/Servicios';
     }
@@ -330,10 +467,10 @@ document.getElementById('calNext').onclick = () => {
     renderCalendar();
 };
 
-// ── Step 2: Stylists ─────────────────────────────────────────────────────
+// ── Step 2: Estilistas ───────────────────────────────────────────────────
 async function loadEstilistas() {
     const grid = document.getElementById('stylistsGrid');
-    grid.innerHTML = '<div class="loading-msg">Cargando...</div>';
+    grid.innerHTML = '<div class="loading-msg">Cargando estilistas...</div>';
     const f = sel.fecha;
     const fechaStr = `${f.y}-${String(f.m+1).padStart(2,'0')}-${String(f.d).padStart(2,'0')}`;
     const res = await fetch(`/Appointments/EstilistasDisponibles?servicioId=${sel.servicio.id}&fecha=${fechaStr}`);
@@ -341,8 +478,15 @@ async function loadEstilistas() {
     let html = '';
     data.forEach(e => {
         const free = e.horariosLibres;
+        let fotoHtml = '';
+        if (e.fotoBase64) {
+            fotoHtml = `<img src="data:${e.fotoContentType};base64,${e.fotoBase64}" class="stylist-avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">`;
+        } else {
+            fotoHtml = `<div class="stylist-avatar">${e.nombre.charAt(0)}</div>`;
+        }
+        
         html += `<div class="stylist-card ${free===0?'no-slots':''}" data-id="${e.estilistaId}" data-nombre="${e.nombre}">
-            <div class="stylist-avatar">${e.nombre.charAt(0)}</div>
+            ${fotoHtml}
             <div class="stylist-info">
                 <h3>${e.nombre}</h3>
                 <p>${e.especialidad || 'Estilista profesional'}</p>
@@ -364,7 +508,7 @@ async function loadEstilistas() {
     });
 }
 
-// ── Step 3: Time slots ───────────────────────────────────────────────────
+// ── Step 3: Horarios ─────────────────────────────────────────────────────
 async function loadHorarios() {
     const wrap = document.getElementById('timeSlots');
     wrap.innerHTML = '<div class="loading-msg">Cargando horarios...</div>';
@@ -390,7 +534,7 @@ async function loadHorarios() {
     });
 }
 
-// ── Step 4: Confirm ──────────────────────────────────────────────────────
+// ── Step 4: Confirmar ────────────────────────────────────────────────────
 function fillConfirm() {
     const f = sel.fecha;
     const date = new Date(f.y, f.m, f.d);
@@ -412,7 +556,7 @@ document.getElementById('btnConfirmar').addEventListener('click', async () => {
         estilistaId: sel.estilista.id,
         fecha: fechaStr,
         horaInicio: sel.horario.start,
-        notas: document.getElementById('notasInput').value
+        notas: '' // Notas vacío (opcional)
     };
     const res = await fetch('/Appointments/Crear', {
         method: 'POST',
@@ -428,11 +572,11 @@ document.getElementById('btnConfirmar').addEventListener('click', async () => {
         window.location.href = '/Account/Login?returnUrl=/Appointments/Reservar?servicioId=' + sel.servicio.id;
     } else {
         alert(data.message || 'Error al reservar.');
-        btn.disabled = false; btn.textContent = 'Confirmar cita →';
+        btn.disabled = false; btn.textContent = 'Confirmar →';
     }
 });
 
-// ── Reanudar reserva pendiente tras login ───────────────────────────────
+// ── Reanudar reserva pendiente ───────────────────────────────────────────
 async function resumePendingReserva() {
     const raw = sessionStorage.getItem('reservaPendiente');
     if (!raw) return;
@@ -459,7 +603,7 @@ async function resumePendingReserva() {
     slot.classList.add('selected');
     sel.horario = { start: +slot.dataset.start, end: +slot.dataset.end, label: slot.dataset.label };
 
-    if (body.notas) document.getElementById('notasInput').value = body.notas;
+    // Ya no hay notas
     fillConfirm();
     showStep(4);
 }

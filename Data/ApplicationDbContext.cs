@@ -107,12 +107,10 @@ public class ApplicationDbContext : IdentityDbContext
 
         // 3. Estilistas
         mb.Entity<Estilista>().HasData(
-            new Estilista { Id = 1, Nombre = "María González", Especialidad = "Coloración y Balayage", HoraInicioTrabajo = 10, HoraFinTrabajo = 22, HoraInicioDescanso = 12, HoraFinDescanso = 13, Activo = true },
-            new Estilista { Id = 2, Nombre = "Laura Fernández", Especialidad = "Cortes y Peinados", HoraInicioTrabajo = 10, HoraFinTrabajo = 22, HoraInicioDescanso = 13, HoraFinDescanso = 14, Activo = true },
-            new Estilista { Id = 3, Nombre = "Carolina Rojas", Especialidad = "Tratamientos y Keratina", HoraInicioTrabajo = 10, HoraFinTrabajo = 22, HoraInicioDescanso = 15, HoraFinDescanso = 16, Activo = true },
-            new Estilista { Id = 4, Nombre = "Daniela Méndez", Especialidad = "Manicure y Pedicure", HoraInicioTrabajo = 10, HoraFinTrabajo = 20, HoraInicioDescanso = 14, HoraFinDescanso = 15, Activo = true },
-            new Estilista { Id = 5, Nombre = "Valentina Soto", Especialidad = "Maquillaje Profesional", HoraInicioTrabajo = 11, HoraFinTrabajo = 21, HoraInicioDescanso = 15, HoraFinDescanso = 16, Activo = true }
-        );
+    new Estilista { Id = 1, Nombre = "María González", Especialidad = "Coloración y Balayage", HoraInicioTrabajo = 10, HoraFinTrabajo = 22, HoraInicioDescanso = 12, HoraFinDescanso = 13, Activo = true },
+    new Estilista { Id = 2, Nombre = "Laura Fernández", Especialidad = "Cortes y Peinados", HoraInicioTrabajo = 10, HoraFinTrabajo = 22, HoraInicioDescanso = 13, HoraFinDescanso = 14, Activo = true },
+    new Estilista { Id = 3, Nombre = "Carolina Rojas", Especialidad = "Tratamientos y Keratina", HoraInicioTrabajo = 10, HoraFinTrabajo = 22, HoraInicioDescanso = 15, HoraFinDescanso = 16, Activo = true }
+);
 
         // 4. Admin user seed (contraseña: Admin123!)
         mb.Entity<Cliente>().HasData(

@@ -46,7 +46,7 @@ namespace DkaizaProject.Controllers
         }
 
         // GET /Admin/Servicios - Mostrar servicios agrupados por categoría
-        public async Task<IActionResult> Servicios()
+       public async Task<IActionResult> Servicios()
 {
     var check = AdminOnly(); if (check != null) return check;
 
@@ -62,7 +62,7 @@ namespace DkaizaProject.Controllers
         .ToListAsync();
 
     ViewBag.Categorias = categorias;
-    return View(servicios);
+    return View(servicios);  // ✅ Esto está bien: retorna servicios
 }
         
 
@@ -290,44 +290,131 @@ public async Task<IActionResult> ObtenerServicio(int id)
         }
 
         // POST /Admin/CrearEstilista
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> CrearEstilista(Estilista model)
+        // GET /Admin/ObtenerEstilista/5
+// GET /Admin/ObtenerEstilista/5
+[HttpGet]
+public async Task<IActionResult> ObtenerEstilista(int id)
+{
+    var check = AdminOnly(); 
+    if (check != null) return Json(new { success = false, message = "No autorizado" });
+
+    var estilista = await _db.Estilistas.FindAsync(id);
+    if (estilista == null)
+    {
+        return Json(new { success = false, message = "Estilista no encontrado" });
+    }
+
+    return Json(new
+    {
+        success = true,
+        estilista = new
         {
-            var check = AdminOnly(); if (check != null) return check;
-            _db.Estilistas.Add(model);
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Estilista creado correctamente.";
+            estilista.Id,
+            estilista.Nombre,
+            estilista.Especialidad,
+            estilista.HoraInicioTrabajo,
+            estilista.HoraFinTrabajo,
+            estilista.HoraInicioDescanso,
+            estilista.HoraFinDescanso,
+            estilista.Activo
+        }
+    });
+}
+
+// POST /Admin/CrearEstilista
+[HttpPost, ValidateAntiForgeryToken]
+public async Task<IActionResult> CrearEstilista(Estilista model, IFormFile? Foto)
+{
+    var check = AdminOnly(); if (check != null) return check;
+
+    // Manejar la foto
+    if (Foto != null && Foto.Length > 0)
+    {
+        if (Foto.Length > 2 * 1024 * 1024)
+        {
+            TempData["Error"] = "La foto no puede superar los 2MB.";
             return RedirectToAction("Estilistas");
         }
 
-        // POST /Admin/EditarEstilista
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarEstilista(Estilista model)
+        using (var memoryStream = new MemoryStream())
         {
-            var check = AdminOnly(); if (check != null) return check;
-            var est = await _db.Estilistas.FindAsync(model.Id);
-            if (est == null) return NotFound();
-            est.Nombre = model.Nombre;
-            est.Especialidad = model.Especialidad;
-            est.HoraInicioTrabajo = model.HoraInicioTrabajo;
-            est.HoraFinTrabajo = model.HoraFinTrabajo;
-            est.HoraInicioDescanso = model.HoraInicioDescanso;
-            est.HoraFinDescanso = model.HoraFinDescanso;
-            est.Activo = model.Activo;
-            await _db.SaveChangesAsync();
-            TempData["Success"] = "Estilista actualizado.";
+            await Foto.CopyToAsync(memoryStream);
+            model.FotoBytes = memoryStream.ToArray();
+            model.FotoContentType = Foto.ContentType;
+        }
+    }
+
+    model.Activo = true;
+    _db.Estilistas.Add(model);
+    await _db.SaveChangesAsync();
+    TempData["Success"] = $"Estilista '{model.Nombre}' creado correctamente.";
+    return RedirectToAction("Estilistas");
+}
+
+// POST /Admin/EditarEstilista
+[HttpPost, ValidateAntiForgeryToken]
+public async Task<IActionResult> EditarEstilista(Estilista model, IFormFile? Foto, bool EliminarFoto = false)
+{
+    var check = AdminOnly(); if (check != null) return check;
+
+    var est = await _db.Estilistas.FindAsync(model.Id);
+    if (est == null) return NotFound();
+
+    est.Nombre = model.Nombre;
+    est.Especialidad = model.Especialidad;
+    est.HoraInicioTrabajo = model.HoraInicioTrabajo;
+    est.HoraFinTrabajo = model.HoraFinTrabajo;
+    est.HoraInicioDescanso = model.HoraInicioDescanso;
+    est.HoraFinDescanso = model.HoraFinDescanso;
+    est.Activo = model.Activo;
+
+    // Manejar foto
+    if (EliminarFoto)
+    {
+        est.FotoBytes = null;
+        est.FotoContentType = null;
+    }
+    else if (Foto != null && Foto.Length > 0)
+    {
+        if (Foto.Length > 2 * 1024 * 1024)
+        {
+            TempData["Error"] = "La foto no puede superar los 2MB.";
             return RedirectToAction("Estilistas");
         }
 
-        // POST /Admin/EliminarEstilista/5
-        [HttpPost]
-        public async Task<IActionResult> EliminarEstilista(int id)
+        using (var memoryStream = new MemoryStream())
         {
-            var check = AdminOnly(); if (check != null) return check;
-            var est = await _db.Estilistas.FindAsync(id);
-            if (est != null) { est.Activo = false; await _db.SaveChangesAsync(); }
-            return Json(new { success = true });
+            await Foto.CopyToAsync(memoryStream);
+            est.FotoBytes = memoryStream.ToArray();
+            est.FotoContentType = Foto.ContentType;
         }
+    }
+
+    await _db.SaveChangesAsync();
+    TempData["Success"] = $"Estilista '{est.Nombre}' actualizado correctamente.";
+    return RedirectToAction("Estilistas");
+}
+
+// POST /Admin/EliminarEstilista/5
+[HttpPost]
+public async Task<IActionResult> EliminarEstilista(int id)
+{
+    var check = AdminOnly(); if (check != null) return Json(new { success = false, message = "No autorizado" });
+
+    var est = await _db.Estilistas.FindAsync(id);
+    if (est == null) return Json(new { success = false, message = "Estilista no encontrado" });
+
+    // Verificar si tiene citas asociadas
+    var tieneCitas = await _db.Citas.AnyAsync(c => c.EstilistaId == id);
+    if (tieneCitas)
+    {
+        return Json(new { success = false, message = "No se puede eliminar porque tiene citas asociadas" });
+    }
+
+    _db.Estilistas.Remove(est);
+    await _db.SaveChangesAsync();
+    return Json(new { success = true });
+}
 
         // GET /Admin/Citas
         public async Task<IActionResult> Citas()

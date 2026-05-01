@@ -18,15 +18,15 @@ namespace DkaizaProject.Controllers
 
         // ✅ NUEVO: Página para explorar servicios
         public async Task<IActionResult> Servicios()
-{
-    var categorias = await _db.CategoriasServicios
-        .Include(c => c.Servicios)
-        .Where(c => c.Activo)
-        .OrderBy(c => c.Orden)
-        .ToListAsync();
-    
-    return View(categorias);
-}
+        {
+            var categorias = await _db.CategoriasServicios
+                .Include(c => c.Servicios)
+                .Where(c => c.Activo)
+                .OrderBy(c => c.Orden)
+                .ToListAsync();
+            
+            return View(categorias);
+        }
 
         // GET /Appointments/Reservar - REQUIERE LOGIN
         public async Task<IActionResult> Reservar()
@@ -45,37 +45,38 @@ namespace DkaizaProject.Controllers
             return View(vm);
         }
 
-        // GET /Appointments/EstilistasDisponibles - PERMITE VER SIN LOGIN
         [HttpGet]
-        public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fecha)
+public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fecha)
+{
+    if (!DateTime.TryParse(fecha, out var fechaDate))
+        return Json(new { error = "Fecha inválida" });
+
+    var servicio = await _db.Servicios.FindAsync(servicioId);
+    if (servicio == null) return Json(new { error = "Servicio no encontrado" });
+
+    var estilistas = await _db.Estilistas.Where(e => e.Activo).ToListAsync();
+    var citasDelDia = await _db.Citas
+        .Where(c => c.Fecha.Date == fechaDate.Date && c.Estado != EstadoCita.Cancelada)
+        .ToListAsync();
+
+    var result = estilistas.Select(e =>
+    {
+        var slots = GetSlots(e, servicio.DuracionHoras, citasDelDia.Where(c => c.EstilistaId == e.Id).ToList());
+        return new 
         {
-            if (!DateTime.TryParse(fecha, out var fechaDate))
-                return Json(new { error = "Fecha inválida" });
+            estilistaId = e.Id,
+            nombre = e.Nombre,
+            especialidad = e.Especialidad ?? "",
+            horario = e.HorarioTexto,
+            descanso = e.DescansoTexto,
+            horariosLibres = slots.Count(s => s.Disponible),
+            fotoBase64 = e.FotoBytes != null ? Convert.ToBase64String(e.FotoBytes) : null,
+            fotoContentType = e.FotoContentType
+        };
+    }).ToList();
 
-            var servicio = await _db.Servicios.FindAsync(servicioId);
-            if (servicio == null) return Json(new { error = "Servicio no encontrado" });
-
-            var estilistas = await _db.Estilistas.Where(e => e.Activo).ToListAsync();
-            var citasDelDia = await _db.Citas
-                .Where(c => c.Fecha.Date == fechaDate.Date && c.Estado != EstadoCita.Cancelada)
-                .ToListAsync();
-
-            var result = estilistas.Select(e =>
-            {
-                var slots = GetSlots(e, servicio.DuracionHoras, citasDelDia.Where(c => c.EstilistaId == e.Id).ToList());
-                return new EstilistasDisponiblesDto
-                {
-                    EstilistaId = e.Id,
-                    Nombre = e.Nombre,
-                    Especialidad = e.Especialidad ?? "",
-                    Horario = e.HorarioTexto,
-                    Descanso = e.DescansoTexto,
-                    HorariosLibres = slots.Count(s => s.Disponible)
-                };
-            }).ToList();
-
-            return Json(result);
-        }
+    return Json(result);
+}
 
         // GET /Appointments/HorariosDisponibles - PERMITE VER SIN LOGIN
         [HttpGet]
