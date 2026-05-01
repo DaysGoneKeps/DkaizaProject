@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace DkaizaProject.Models
 {
-    public class Estilista
+   public class Estilista
 {
     [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     [Required, MaxLength(100)]
@@ -32,6 +32,10 @@ namespace DkaizaProject.Models
     public int HoraFinDescanso { get; set; } = 13;
 
     public bool Activo { get; set; } = true;
+
+    // Foto del estilista
+    public byte[]? FotoBytes { get; set; }
+    public string? FotoContentType { get; set; }
 
     public ICollection<Cita> Citas { get; set; } = new List<Cita>();
 
