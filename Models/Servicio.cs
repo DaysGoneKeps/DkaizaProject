@@ -27,6 +27,14 @@ namespace DkaizaProject.Models
 
     public bool Activo { get; set; } = true;
 
+    public byte[]? ImagenBytes { get; set; }
+        
+    public string? ImagenContentType { get; set; } // Tipo MIME de la imagen
+
+    // Relación con categoría
+    public int? CategoriaServicioId { get; set; }
+    public CategoriaServicio? Categoria { get; set; }
+
     public ICollection<Cita> Citas { get; set; } = new List<Cita>();
 }
 
