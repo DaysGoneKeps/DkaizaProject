@@ -18,14 +18,15 @@ namespace DkaizaProject.Controllers
 
         // ✅ NUEVO: Página para explorar servicios
         public async Task<IActionResult> Servicios()
-        {
-            var servicios = await _db.Servicios
-                .Where(s => s.Activo)
-                .OrderBy(s => s.Nombre)
-                .ToListAsync();
-            
-            return View(servicios);
-        }
+{
+    var categorias = await _db.CategoriasServicios
+        .Include(c => c.Servicios)
+        .Where(c => c.Activo)
+        .OrderBy(c => c.Orden)
+        .ToListAsync();
+    
+    return View(categorias);
+}
 
         // GET /Appointments/Reservar - REQUIERE LOGIN
         public async Task<IActionResult> Reservar()

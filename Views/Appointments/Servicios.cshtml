@@ -1,4 +1,4 @@
-@model List<DkaizaProject.Models.Servicio>
+@model List<DkaizaProject.Models.CategoriaServicio>
 @{
     ViewData["Title"] = "Nuestros Servicios - D'KAIZA";
     Layout = "_Layout";
@@ -57,48 +57,304 @@
         margin: 0 auto;
     }
     
-    /* Filtros */
-    .filters-section {
-        padding: 1.5rem 0;
-        background: var(--white);
-        border-bottom: 1px solid var(--border);
-        position: sticky;
-        top: 70px;
-        z-index: 90;
-        background: rgba(255,255,255,0.95);
-        backdrop-filter: blur(10px);
+    /* Botón Atrás */
+    .back-button-container {
+        max-width: 1100px;
+        margin: 0 auto 2rem auto;
+        padding: 0 2rem;
     }
     
-    .filter-badge {
+    .btn-back {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 20px;
+        background: transparent;
+        border: 1px solid var(--border-mid);
         border-radius: 50px;
-        background: var(--cream-dark);
-        color: var(--ink-mid);
+        padding: 10px 20px;
         font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--ink-mid);
         cursor: pointer;
         transition: all 0.3s ease;
-        border: 1px solid transparent;
+        text-decoration: none;
     }
     
-    .filter-badge:hover {
-        background: var(--rose-light);
-        color: var(--rose-dark);
+    .btn-back:hover {
+        background: var(--cream-dark);
+        border-color: var(--rose);
+        color: var(--rose);
+        transform: translateX(-3px);
     }
     
-    .filter-badge.active {
-        background: var(--ink);
-        color: white;
+    .btn-back i {
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .btn-back:hover i {
+        transform: translateX(-3px);
     }
     
     .services-section {
-        padding: 3rem 0 5rem;
+        padding: 0 0 5rem 0;
         background: var(--white);
     }
     
-    /* Botón flotante de volver */
+    /* Tarjeta de Categoría */
+    .categoria-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: all 0.35s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    
+    .categoria-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--rose);
+        box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
+    }
+    
+    .categoria-image {
+        background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream-dark) 100%);
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .categoria-card:hover .categoria-image {
+        background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
+    }
+    
+    .categoria-image i {
+        font-size: 3rem;
+        color: var(--rose-dark);
+        transition: all 0.3s ease;
+    }
+    
+    .categoria-card:hover .categoria-image i {
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .categoria-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: linear-gradient(135deg, var(--rose), var(--soft-sandstone));
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+    
+    .categoria-content {
+        padding: 1.25rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .categoria-name {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 0.5rem;
+    }
+    
+    .categoria-description {
+        font-size: 0.8rem;
+        color: var(--ink-light);
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+    }
+    
+    .categoria-count {
+        font-size: 0.7rem;
+        color: var(--rose-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* Servicios desplegables dentro de la tarjeta */
+    .servicios-list {
+        display: none;
+        background: var(--cream);
+        border-radius: var(--radius-sm);
+        margin-top: 0;
+    }
+    
+    .categoria-card.expanded .servicios-list {
+        display: block;
+        margin-top: 1rem;
+    }
+    
+    .servicios-list-inner {
+        padding: 0.75rem;
+    }
+    
+    .servicio-item {
+        background: var(--white);
+        border: 1px solid var(--border-mid);
+        border-radius: var(--radius-sm);
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+    }
+    
+    .servicio-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .servicio-item:hover {
+        border-color: var(--rose);
+        box-shadow: var(--shadow);
+    }
+    
+    .servicio-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .servicio-item-nombre {
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+    
+    .servicio-item-precio {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--rose-dark);
+    }
+    
+    .servicio-item-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .servicio-item-duracion {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.7rem;
+        background: var(--cream-dark);
+        padding: 4px 10px;
+        border-radius: 50px;
+        color: var(--ink-mid);
+    }
+    
+    .btn-reservar-servicio-item {
+        background: var(--ink);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-reservar-servicio-item:hover {
+        background: var(--rose-dark);
+        transform: translateY(-1px);
+    }
+    
+    /* Botón expandir - solo flecha */
+    .btn-expand-categoria {
+        width: 100%;
+        background: transparent;
+        border: 1px solid var(--border-mid);
+        border-radius: 50px;
+        padding: 8px;
+        margin-top: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-expand-categoria i {
+        font-size: 1rem;
+        color: var(--ink-mid);
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-expand-categoria:hover {
+        background: var(--rose-light);
+        border-color: var(--rose);
+    }
+    
+    .btn-expand-categoria:hover i {
+        color: var(--rose);
+    }
+    
+    .categoria-card.expanded .btn-expand-categoria i {
+        transform: rotate(180deg);
+    }
+    
+    .results-count {
+        font-size: 0.85rem;
+        color: var(--ink-light);
+        margin-bottom: 1.5rem;
+    }
+    
+    .results-count strong {
+        color: var(--rose-dark);
+        font-size: 1rem;
+    }
+    
+    .categoria-col.hidden {
+        display: none;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        color: var(--ink);
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: var(--ink-light);
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Botón flotante Volver al inicio (oculto porque ya tenemos el botón Atrás) */
     .back-home-btn {
         position: fixed;
         bottom: 30px;
@@ -124,202 +380,6 @@
         color: white;
     }
     
-    /* Resto de estilos de tarjetas (mantener los que ya tenías) */
-    .service-card {
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        transition: all 0.35s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-    
-    .service-card:hover {
-        transform: translateY(-6px);
-        border-color: var(--rose);
-        box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
-    }
-    
-    .service-image {
-        background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream-dark) 100%);
-        padding: 1.5rem;
-        text-align: center;
-        position: relative;
-        transition: all 0.3s ease;
-    }
-    
-    .service-card:hover .service-image {
-        background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
-    }
-    
-    .service-image i {
-        font-size: 3rem;
-        color: var(--rose-dark);
-        transition: all 0.3s ease;
-    }
-    
-    .service-card:hover .service-image i {
-        color: white;
-        transform: scale(1.1);
-    }
-    
-    .service-badge {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: linear-gradient(135deg, var(--rose), var(--soft-sandstone));
-        color: white;
-        font-size: 0.65rem;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 20px;
-    }
-    
-    .service-content {
-        padding: 1.25rem;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .service-name {
-        font-family: var(--font-display);
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: var(--ink);
-        margin-bottom: 0.5rem;
-    }
-    
-    .service-description {
-        font-size: 0.8rem;
-        color: var(--ink-light);
-        line-height: 1.5;
-        margin-bottom: 1rem;
-    }
-    
-    .service-details {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.4s ease-out;
-        background: var(--cream);
-        border-radius: var(--radius-sm);
-        margin-top: 0;
-    }
-    
-    .service-card.expanded .service-details {
-        max-height: 150px;
-        margin-top: 1rem;
-    }
-    
-    .service-details-inner {
-        padding: 0.75rem;
-    }
-    
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 0;
-    }
-    
-    .detail-label {
-        font-size: 0.75rem;
-        color: var(--ink-light);
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-    
-    .detail-label i {
-        color: var(--rose);
-        font-size: 0.7rem;
-    }
-    
-    .detail-value {
-        font-weight: 600;
-        color: var(--ink);
-        font-size: 0.85rem;
-    }
-    
-    .service-price {
-        font-family: var(--font-display);
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--rose-dark);
-    }
-    
-    .btn-expand {
-        width: 100%;
-        background: transparent;
-        border: 1px solid var(--border-mid);
-        border-radius: 50px;
-        padding: 8px;
-        margin-top: 1rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: var(--ink-mid);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-    
-    .btn-expand:hover {
-        background: var(--rose-light);
-        border-color: var(--rose);
-        color: var(--rose);
-    }
-    
-    .btn-expand i {
-        transition: transform 0.3s ease;
-    }
-    
-    .service-card.expanded .btn-expand i {
-        transform: rotate(180deg);
-    }
-    
-    .btn-reserve-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: var(--ink);
-        color: white !important;
-        border: none;
-        border-radius: 50px;
-        padding: 10px 16px;
-        margin-top: 1rem;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-    }
-    
-    .btn-reserve-card:hover {
-        background: var(--rose-dark);
-        transform: translateY(-2px);
-    }
-    
-    .results-count {
-        font-size: 0.85rem;
-        color: var(--ink-light);
-        margin-bottom: 1.5rem;
-    }
-    
-    .results-count strong {
-        color: var(--rose-dark);
-        font-size: 1rem;
-    }
-    
-    .service-col.hidden {
-        display: none;
-    }
-    
     @@media (max-width: 768px) {
         .back-home-btn {
             bottom: 20px;
@@ -328,89 +388,103 @@
             height: 45px;
         }
         
-        .service-image i {
+        .categoria-image i {
             font-size: 2.5rem;
+        }
+        
+        .servicio-item-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .servicio-item-meta {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .btn-reservar-servicio-item {
+            justify-content: center;
+        }
+        
+        .btn-back {
+            padding: 8px 16px;
+            font-size: 0.8rem;
         }
     }
 </style>
 
-<!-- Hero sin botón de volver -->
+<!-- Hero -->
 <div class="services-hero">
     <div class="container">
         <p class="services-eyebrow">Elige tu favorito</p>
         <h1 class="services-title">Nuestros Servicios</h1>
-        <p class="services-subtitle">Selecciona, conoce los detalles y reserva</p>
+        <p class="services-subtitle">Explora por categorías y reserva tu cita ideal</p>
     </div>
 </div>
 
-<!-- Filtros -->
-<div class="filters-section">
-    <div class="container">
-        <div class="d-flex flex-wrap justify-content-center gap-2">
-            <div class="filter-badge active" data-filter="all">
-                <i class="fas fa-border-all"></i> Todos
-            </div>
-            <div class="filter-badge" data-filter="1h">
-                <i class="far fa-clock"></i> 1 hora
-            </div>
-            <div class="filter-badge" data-filter="2h">
-                <i class="far fa-clock"></i> 2 horas
-            </div>
-            <div class="filter-badge" data-filter="3h">
-                <i class="far fa-clock"></i> 3+ horas
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Botón Atrás -->
 
-<!-- Grid de servicios -->
+
+<!-- Grid de Categorías -->
 <section class="services-section">
+    <br>
     <div class="container">
+        <a href="/" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+        Atras
+        </a>
+        <br><br>
+
         <div class="results-count">
-            <i class="fas fa-spa"></i> <strong id="resultCount">0</strong> servicios disponibles
+            <i class="tags"></i> <strong id="resultCount">0</strong> categorías disponibles
         </div>
         
-        <div class="row g-4" id="servicesGrid">
-            @foreach (var svc in Model)
+        <div class="row g-4" id="categoriasGrid">
+            @foreach (var categoria in Model.Where(c => c.Activo && c.Servicios.Any(s => s.Activo)).OrderBy(c => c.Orden))
             {
-                <div class="col-lg-4 col-md-6 service-col" data-duration="@svc.DuracionHoras">
-                    <div class="service-card" data-service-id="@svc.Id">
-                        <div class="service-image">
-                            <i class="fas @GetServiceIcon(svc.Nombre, svc.DuracionHoras)"></i>
-                            @if (svc.DuracionHoras >= 2)
-                            {
-                                <span class="service-badge">⭐ Popular</span>
-                            }
+                var serviciosActivos = categoria.Servicios.Where(s => s.Activo).ToList();
+                if (!serviciosActivos.Any()) continue;
+                
+                <div class="col-lg-4 col-md-6 categoria-col">
+                    <div class="categoria-card" data-categoria-id="@categoria.Id">
+                        <div class="categoria-image">
+                            <i class="fas @(categoria.Icono ?? "fa-folder")"></i>
+                            <span class="categoria-badge">@serviciosActivos.Count servicios</span>
                         </div>
-                        <div class="service-content">
-                            <h3 class="service-name">@svc.Nombre</h3>
-                            <p class="service-description">@(svc.Descripcion ?? "Servicio profesional con los mejores productos")</p>
+                        <div class="categoria-content">
+                            <h3 class="categoria-name">@categoria.Nombre</h3>
+                            <p class="categoria-description">@(categoria.Descripcion ?? "Descubre nuestros servicios profesionales")</p>
                             
-                            <div class="service-details">
-                                <div class="service-details-inner">
-                                    <div class="detail-row">
-                                        <span class="detail-label">
-                                            <i class="far fa-clock"></i> Duración
-                                        </span>
-                                        <span class="detail-value">@svc.DuracionHoras hora@(svc.DuracionHoras > 1 ? "s" : "")</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="detail-label">
-                                            <i class="fas fa-tag"></i> Precio
-                                        </span>
-                                        <span class="detail-value service-price">S/ @svc.Precio.ToString("0")</span>
-                                    </div>
+                            <div class="categoria-count">
+                                <i class="fas fa-cut"></i> @serviciosActivos.Count servicio@(serviciosActivos.Count != 1 ? "s" : "") disponibles
+                            </div>
+                            
+                            <!-- Lista de servicios desplegable -->
+                            <div class="servicios-list">
+                                <div class="servicios-list-inner">
+                                    @foreach (var servicio in serviciosActivos)
+                                    {
+                                        <div class="servicio-item" data-servicio-id="@servicio.Id">
+                                            <div class="servicio-item-header">
+                                                <span class="servicio-item-nombre">@servicio.Nombre</span>
+                                                <span class="servicio-item-precio">S/ @servicio.Precio.ToString("0")</span>
+                                            </div>
+                                            <div class="servicio-item-meta">
+                                                <span class="servicio-item-duracion">
+                                                    <i class="far fa-clock"></i> @servicio.DuracionHoras hora@(servicio.DuracionHoras > 1 ? "s" : "")
+                                                </span>
+                                                <button onclick="reservarServicio(event, @servicio.Id)" class="btn-reservar-servicio-item">
+                                                    <i class="fas fa-calendar-alt"></i> Reservar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                             
-                            <button class="btn-expand" onclick="toggleService(this)">
-                                <span>Ver detalles</span>
+                            <!-- Botón solo con flecha -->
+                            <button class="btn-expand-categoria" onclick="toggleCategoria(this)">
                                 <i class="fas fa-chevron-down"></i>
-                            </button>
-                            
-                            <button onclick="reservarServicio(@svc.Id)" class="btn-reserve-card">
-                                <span>Reservar ahora</span>
-                                <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
@@ -418,10 +492,10 @@
             }
         </div>
         
-        @if (!Model.Any())
+        @if (!Model.Any(c => c.Activo && c.Servicios.Any(s => s.Activo)))
         {
             <div class="empty-state">
-                <i class="fas fa-cut"></i>
+                <div class="empty-icon">✂</div>
                 <h3>No hay servicios disponibles</h3>
                 <p>Pronto añadiremos nuestros servicios. ¡Vuelve pronto!</p>
                 <a href="/" class="btn-primary-lg" style="margin-top: 1rem; display: inline-block;">
@@ -432,88 +506,49 @@
     </div>
 </section>
 
-<!-- Botón flotante Volver al inicio -->
+<!-- Botón flotante Volver al inicio (opcional, puedes eliminarlo si prefieres solo el botón Atrás) -->
 <a href="/" class="back-home-btn" title="Volver al inicio">
     <i class="fas fa-home"></i>
 </a>
 
 <script>
-    function toggleService(btn) {
-        const serviceCard = btn.closest('.service-card');
-        const expandText = btn.querySelector('span');
+    function toggleCategoria(btn) {
+        const categoriaCard = btn.closest('.categoria-card');
         const icon = btn.querySelector('i');
         
-        serviceCard.classList.toggle('expanded');
+        // Toggle solo la tarjeta actual
+        categoriaCard.classList.toggle('expanded');
         
-        if (serviceCard.classList.contains('expanded')) {
-            expandText.textContent = 'Ver menos';
+        if (categoriaCard.classList.contains('expanded')) {
             icon.style.transform = 'rotate(180deg)';
         } else {
-            expandText.textContent = 'Ver detalles';
             icon.style.transform = 'rotate(0deg)';
         }
     }
     
-    function reservarServicio(servicioId) {
-        window.location.href = '/Appointments/Reservar?servicioId=' + servicioId;
+    function reservarServicio(event, servicioId) {
+        event.stopPropagation();
+        const btn = event.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirigiendo...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            window.location.href = '/Appointments/Reservar?servicioId=' + servicioId;
+        }, 300);
     }
     
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterBadges = document.querySelectorAll('.filter-badge');
-        const serviceCols = document.querySelectorAll('.service-col');
+    // Contador de categorías visibles
+    function updateResultCount() {
+        const visibleCount = document.querySelectorAll('.categoria-col:not(.hidden)').length;
         const resultCountSpan = document.getElementById('resultCount');
-        
-        function updateResultCount() {
-            const visibleCount = document.querySelectorAll('.service-col:not(.hidden)').length;
-            if (resultCountSpan) resultCountSpan.textContent = visibleCount;
+        if (resultCountSpan) {
+            resultCountSpan.innerHTML = '<i class="fas fa-tags"></i> <strong>' + visibleCount + '</strong> categorías disponibles';
         }
-        
-        filterBadges.forEach(badge => {
-            badge.addEventListener('click', function() {
-                filterBadges.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                const filter = this.dataset.filter;
-                
-                serviceCols.forEach(col => {
-                    const duration = parseInt(col.dataset.duration);
-                    
-                    if (filter === 'all') {
-                        col.classList.remove('hidden');
-                    } else if (filter === '1h' && duration === 1) {
-                        col.classList.remove('hidden');
-                    } else if (filter === '2h' && duration === 2) {
-                        col.classList.remove('hidden');
-                    } else if (filter === '3h' && duration >= 3) {
-                        col.classList.remove('hidden');
-                    } else {
-                        col.classList.add('hidden');
-                    }
-                });
-                
-                updateResultCount();
-            });
-        });
-        
+    }
+    
+    // Inicializar contador
+    document.addEventListener('DOMContentLoaded', function() {
         updateResultCount();
     });
 </script>
-
-@functions {
-    private string GetServiceIcon(string nombre, int duracion)
-    {
-        var nombreLower = nombre?.ToLower() ?? "";
-        
-        if (nombreLower.Contains("corte")) return "fa-cut";
-        if (nombreLower.Contains("tinte") || nombreLower.Contains("color")) return "fa-palette";
-        if (nombreLower.Contains("peinado") || nombreLower.Contains("lavado")) return "fa-hand-sparkles";
-        if (nombreLower.Contains("alisado") || nombreLower.Contains("keratina")) return "fa-feather-alt";
-        if (nombreLower.Contains("tratamiento")) return "fa-spa";
-        
-        if (duracion == 1) return "fa-cut";
-        if (duracion == 2) return "fa-spa";
-        if (duracion >= 3) return "fa-crown";
-        
-        return "fa-star";
-    }
-}
