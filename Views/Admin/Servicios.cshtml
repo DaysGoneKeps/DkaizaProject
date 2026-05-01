@@ -2,24 +2,362 @@
 @{
     ViewData["Title"] = "Gestión de Servicios";
     Layout = "_Layout";
+    
+    var categorias = ViewBag.Categorias as List<DkaizaProject.Models.CategoriaServicio> ?? new List<DkaizaProject.Models.CategoriaServicio>();
 }
+
+<style>
+    .admin-page { padding: 2rem 0 4rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-family: var(--font-display); font-size: 1.8rem; color: var(--ink); margin: 0; }
+    .section-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rose); margin-bottom: 0.25rem; }
+    
+    .btn-primary-lg {
+        background: var(--ink);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 24px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    .btn-primary-lg:hover { background: var(--rose-dark); transform: translateY(-2px); }
+    
+    .admin-table-wrap { overflow-x: auto; background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .admin-table th { text-align: left; padding: 14px 12px; background: var(--cream-dark); font-weight: 600; color: var(--ink-mid); border-bottom: 1px solid var(--border); }
+    .admin-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .admin-table tr:hover td { background: var(--cream); }
+    
+    .servicio-imagen-mini { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: var(--cream-dark); }
+    .servicio-imagen-placeholder { width: 40px; height: 40px; background: var(--cream-dark); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--ink-light); }
+    .badge-duracion { background: var(--cream-dark); padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 500; color: var(--ink-mid); display: inline-block; }
+    .precio { font-weight: 700; color: var(--rose-dark); }
+    .estado-activo { background: #eafaf1; color: #1a7a4a; padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; display: inline-block; }
+    .estado-pendiente { background: #fef9e7; color: #9a7d0a; padding: 4px 12px; border-radius: 50px; font-size: 0.7rem; display: inline-block; }
+    .btn-edit { background: none; border: 1px solid var(--border-mid); border-radius: 50px; padding: 5px 14px; font-size: 0.7rem; cursor: pointer; margin-right: 6px; transition: all 0.2s; }
+    .btn-edit:hover { background: var(--cream-dark); border-color: var(--rose); }
+    .btn-delete { background: none; border: 1px solid #f5c6c6; border-radius: 50px; padding: 5px 14px; font-size: 0.7rem; color: #b83232; cursor: pointer; transition: all 0.2s; }
+    .btn-delete:hover { background: #fdf0f0; }
+    .badge-categoria { background: var(--rose-light); color: var(--rose-dark); padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; display: inline-block; }
+    .alert-success { background: #eafaf1; color: #1a7a4a; padding: 12px 16px; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #1a7a4a; }
+    .alert-error { background: #fdf0f0; color: #b83232; padding: 12px 16px; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #b83232; }
+    .empty-state { text-align: center; padding: 3rem; color: var(--ink-light); }
+    
+    /* Modal con diseño mejorado */
+    .modal-simple {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 10000;
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal-simple-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 550px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: modalFadeIn 0.3s ease;
+    }
+    
+    @@keyframes modalFadeIn {
+        from { opacity: 0; transform: translate(-50%, -48%); }
+        to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    
+    .modal-simple-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.75rem;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream) 100%);
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .modal-simple-header h3 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        color: var(--ink);
+    }
+    
+    .modal-simple-header h3 i {
+        margin-right: 8px;
+        color: var(--rose-dark);
+    }
+    
+    .modal-simple-header button {
+        background: rgba(0,0,0,0.1);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--ink-mid);
+        transition: all 0.2s;
+    }
+    
+    .modal-simple-header button:hover {
+        background: var(--rose);
+        color: white;
+        transform: rotate(90deg);
+    }
+    
+    .modal-simple-body {
+        padding: 1.75rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--ink-mid);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-group label i {
+        margin-right: 6px;
+        color: var(--rose);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border-mid);
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-family: var(--font-body);
+        transition: all 0.2s;
+        background: var(--cream);
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--rose);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(200, 169, 138, 0.2);
+    }
+    
+    .row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    /* Estilo moderno para subir imagen */
+    .image-upload-area {
+        border: 2px dashed var(--border-mid);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: var(--cream);
+        position: relative;
+    }
+    
+    .image-upload-area:hover {
+        border-color: var(--rose);
+        background: var(--rose-light);
+    }
+    
+    .image-upload-area.dragover {
+        border-color: var(--rose-dark);
+        background: var(--rose-light);
+    }
+    
+    .image-upload-icon {
+        font-size: 2.5rem;
+        color: var(--rose-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .image-upload-text {
+        font-size: 0.85rem;
+        color: var(--ink-mid);
+        margin-bottom: 0.25rem;
+    }
+    
+    .image-upload-hint {
+        font-size: 0.65rem;
+        color: var(--ink-light);
+    }
+    
+    .image-preview {
+        margin-top: 1rem;
+        display: none;
+        position: relative;
+        text-align: center;
+    }
+    
+    .image-preview img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid var(--rose);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .remove-image {
+        position: absolute;
+        top: -8px;
+        right: calc(50% - 50px);
+        background: #b83232;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .remove-image:hover {
+        background: #8b1a1a;
+        transform: scale(1.1);
+    }
+    
+    /* Estado info */
+    .estado-info {
+        background: var(--cream-dark);
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .estado-info i {
+        font-size: 1.2rem;
+        color: var(--rose-dark);
+    }
+    
+    .estado-info span {
+        font-size: 0.8rem;
+        color: var(--ink-mid);
+    }
+    
+    .estado-info strong {
+        color: var(--rose-dark);
+    }
+    
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .radio-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        text-transform: none;
+        font-weight: normal;
+    }
+    
+    .radio-group input[type="radio"] {
+        width: auto;
+        margin: 0;
+    }
+    
+    .btn-submit {
+        width: 100%;
+        background: var(--ink);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover {
+        background: var(--rose-dark);
+        transform: translateY(-2px);
+    }
+    
+    .estado-badge-mini {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+</style>
 
 <div class="admin-page">
     <div class="container">
         <div class="page-header">
             <div>
                 <p class="section-eyebrow">Administración</p>
-                <h1>Servicios</h1>
+                <h1>Lista de Servicios</h1>
             </div>
-            <button class="btn-primary-lg" onclick="openModal('modalNuevo')">+ Agregar servicio</button>
+            <button class="btn-primary-lg" onclick="mostrarModalNuevo()">
+                <i class="fas fa-plus"></i> Crear servicio
+            </button>
         </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-success"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
+        }
+        
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-error"><i class="fas fa-exclamation-circle"></i> @TempData["Error"]</div>
+        }
 
         <div class="admin-table-wrap">
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Nombre</th>
+                        <th>Imagen</th>
+                        <th>ID</th>
+                        <th>Servicio</th>
+                        <th>Categoría</th>
                         <th>Descripción</th>
                         <th>Duración</th>
                         <th>Precio</th>
@@ -31,102 +369,396 @@
                     @foreach (var svc in Model)
                     {
                         <tr>
-                            <td>@svc.Id</td>
-                            <td>@svc.Nombre</td>
-                            <td>@(svc.Descripcion ?? "—")</td>
-                            <td><span class="dur-badge">@svc.DuracionHoras h</span></td>
-                            <td>S/ @svc.Precio.ToString("0")</td>
-                            <td><span class="estado-badge @(svc.Activo?"estado-confirmada":"estado-cancelada")">@(svc.Activo?"Activo":"Inactivo")</span></td>
                             <td>
-                                <button class="btn-table-edit" onclick="openEdit(@svc.Id,'@svc.Nombre','@(svc.Descripcion??"")',@svc.DuracionHoras,@svc.Precio.ToString(System.Globalization.CultureInfo.InvariantCulture),@svc.Activo.ToString().ToLower())">Editar</button>
-                                <button class="btn-table-del" onclick="eliminar(@svc.Id)">Eliminar</button>
+                                @if (svc.ImagenBytes != null && svc.ImagenBytes.Length > 0)
+                                {
+                                    <img src="data:@svc.ImagenContentType;base64,@Convert.ToBase64String(svc.ImagenBytes)" class="servicio-imagen-mini" />
+                                }
+                                else
+                                {
+                                    <div class="servicio-imagen-placeholder"><i class="fas fa-cut"></i></div>
+                                }
                             </td>
-                        </tr>
+                            <td>@svc.Id</td>
+                            <td><strong>@svc.Nombre</strong></td>
+                            <td>
+                                @if (svc.Categoria != null)
+                                {
+                                    <span class="badge-categoria"><i class="fas @(svc.Categoria.Icono ?? "fa-folder")"></i> @svc.Categoria.Nombre</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-categoria" style="background: #f0f0f0;">Sin categoría</span>
+                                }
+                             </td>
+                            <td style="max-width: 200px;">@(svc.Descripcion ?? "—")</td>
+                            <td><span class="badge-duracion">@(svc.DuracionHoras * 60) min</span>
+</td>
+                            <td><span class="precio">S/ @svc.Precio.ToString("0")</span></td>
+                            <td>
+    <span class="@(svc.Activo ? "estado-activo" : "estado-inactivo")">
+        @(svc.Activo ? "Activo" : "Inactivo")
+    </span>
+</td>
+                            <td>
+                                <button class="btn-edit" onclick="mostrarModalEditar(@svc.Id)"><i class="fas fa-edit"></i> Editar</button>
+                                <button class="btn-delete" onclick="eliminarServicio(@svc.Id, '@svc.Nombre')"><i class="fas fa-trash"></i> Eliminar</button>
+                             </td>
+                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+        
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-cut" style="font-size: 3rem; opacity: 0.5;"></i>
+                <h3>No hay servicios</h3>
+                <p>Comienza agregando tu primer servicio</p>
+            </div>
+        }
     </div>
 </div>
 
-<!-- Modal Nuevo -->
-<div class="modal-overlay" id="modalNuevo">
-    <div class="modal">
-        <div class="modal-header"><h3>Nuevo servicio</h3><button onclick="closeModal('modalNuevo')">✕</button></div>
-        <form asp-action="CrearServicio" asp-controller="Admin" method="post" class="modal-form">
-            @Html.AntiForgeryToken()
-            <div class="form-field"><label>Nombre</label><input name="Nombre" required /></div>
-            <div class="form-field"><label>Descripción</label><input name="Descripcion" /></div>
-            <div class="form-row-2">
-                <div class="form-field">
-                    <label>Duración (horas)</label>
-                    <select name="DuracionHoras">
-                        <option value="1">1 hora</option>
-                        <option value="2">2 horas</option>
-                        <option value="3">3 horas</option>
+<!-- Modal Nuevo Servicio -->
+<div id="modalNuevo" class="modal-simple">
+    <div class="modal-simple-content">
+        <div class="modal-simple-header">
+            <h3><i class="fas fa-plus-circle"></i> Nuevo servicio</h3>
+            <button onclick="cerrarModalNuevo()">✕</button>
+        </div>
+        <div class="modal-simple-body">
+            <form id="formNuevo" asp-action="CrearServicio" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Nombre del Servicio *</label>
+                    <input type="text" name="Nombre" required placeholder="Ej: Corte de cabello" />
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-folder"></i> Categoría</label>
+                    <select name="CategoriaServicioId">
+                        <option value="">Seleccionar categoría</option>
+                        @foreach (var cat in categorias.Where(c => c.Activo))
+                        {
+                            <option value="@cat.Id">@cat.Nombre</option>
+                        }
                     </select>
                 </div>
-                <div class="form-field"><label>Precio (S/)</label><input name="Precio" type="number" min="0" step="0.50" value="0" /></div>
-            </div>
-            <button type="submit" class="btn-auth">Crear servicio</button>
-        </form>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Descripción</label>
+                    <textarea name="Descripcion" rows="2" placeholder="Describe el servicio..."></textarea>
+                </div>
+                
+                <div class="row-2">
+                    <div class="form-group">
+                        <label><i class="far fa-clock"></i> Duración *</label>
+                        <select name="DuracionHoras" id="editDur">
+                            <option value="1">60 minutos </option>
+                            <option value="2">120 minutos</option>
+                            <option value="3">180 minutos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave"></i> Costo *</label>
+                        <input type="number" name="Precio" min="0" step="0.50" required placeholder="Ej: 35.00" />
+                    </div>
+                </div>
+                
+                <!-- Área de subida de imagen moderna -->
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Imagen del servicio</label>
+                    <div class="image-upload-area" id="uploadAreaNuevo" onclick="document.getElementById('imagenInputNuevo').click()">
+                        <i class="fas fa-cloud-upload-alt image-upload-icon"></i>
+                        <div class="image-upload-text">Subir Imagen</div>
+                        <div class="image-upload-hint">PNG o JPG (máx 2MB)</div>
+                    </div>
+                    <input type="file" name="Imagen" id="imagenInputNuevo" accept="image/*" style="display: none;" onchange="previewImagenNuevo(this)" />
+                    <div id="previewContainerNuevo" class="image-preview" style="display: none;">
+                        <img id="previewImageNuevo" src="" alt="Vista previa" />
+                        <button type="button" class="remove-image" onclick="removerImagenNuevo()">✕</button>
+                    </div>
+                </div>
+                
+                <!-- Estado: Siempre activo al crear (solo informativo) -->
+                <div class="form-group">
+                    <label><i class="fas fa-toggle-on"></i> Estado</label>
+                    <div class="estado-info">
+                        <i class="fas fa-check-circle"></i>
+                        <span>El servicio se creará como <strong>Activo</strong> y estará disponible para reservas</span>
+                    </div>
+                    <input type="hidden" name="Estado" value="Activo" />
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Registrar servicio
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- Modal Editar -->
-<div class="modal-overlay" id="modalEditar">
-    <div class="modal">
-        <div class="modal-header"><h3>Editar servicio</h3><button onclick="closeModal('modalEditar')">✕</button></div>
-        <form asp-action="EditarServicio" asp-controller="Admin" method="post" class="modal-form">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Id" id="editId" />
-            <div class="form-field"><label>Nombre</label><input name="Nombre" id="editNombre" required /></div>
-            <div class="form-field"><label>Descripción</label><input name="Descripcion" id="editDesc" /></div>
-            <div class="form-row-2">
-                <div class="form-field">
-                    <label>Duración (horas)</label>
-                    <select name="DuracionHoras" id="editDur">
-                        <option value="1">1 hora</option>
-                        <option value="2">2 horas</option>
-                        <option value="3">3 horas</option>
+<!-- Modal Editar Servicio -->
+<div id="modalEditar" class="modal-simple">
+    <div class="modal-simple-content">
+        <div class="modal-simple-header">
+            <h3><i class="fas fa-edit"></i> Editar servicio</h3>
+            <button onclick="cerrarModalEditar()">✕</button>
+        </div>
+        <div class="modal-simple-body">
+            <form id="formEditar" asp-action="EditarServicio" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="editId" />
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Nombre *</label>
+                    <input type="text" name="Nombre" id="editNombre" required />
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-folder"></i> Categoría</label>
+                    <select name="CategoriaServicioId" id="editCategoria">
+                        <option value="">Sin categoría</option>
+                        @foreach (var cat in categorias.Where(c => c.Activo))
+                        {
+                            <option value="@cat.Id">@cat.Nombre</option>
+                        }
                     </select>
                 </div>
-                <div class="form-field"><label>Precio (S/)</label><input name="Precio" id="editPrecio" type="number" min="0" step="0.50" /></div>
-            </div>
-            <div class="form-field">
-                <label><input type="checkbox" name="Activo" id="editActivo" value="true" /> Activo</label>
-            </div>
-            <button type="submit" class="btn-auth">Guardar cambios</button>
-        </form>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Descripción</label>
+                    <textarea name="Descripcion" id="editDesc" rows="2"></textarea>
+                </div>
+                
+                <div class="row-2">
+                    <div class="form-group">
+                        <label><i class="far fa-clock"></i> Duración *</label>
+                        <select name="DuracionHoras" id="editDur">
+                            <option value="1">60 minutos </option>
+                            <option value="2">120 minutos</option>
+                            <option value="3">180 minutos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave"></i> Precio *</label>
+                        <input type="number" name="Precio" id="editPrecio" min="0" step="0.50" required />
+                    </div>
+                </div>
+                
+                <!-- Área de subida de imagen moderna -->
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Cambiar imagen</label>
+                    <div class="image-upload-area" id="uploadAreaEditar" onclick="document.getElementById('imagenInputEditar').click()">
+                        <i class="fas fa-cloud-upload-alt image-upload-icon"></i>
+                        <div class="image-upload-text">Haz clic para cambiar imagen</div>
+                        <div class="image-upload-hint">JPG, PNG o GIF (máx 2MB)</div>
+                    </div>
+                    <input type="file" name="Imagen" id="imagenInputEditar" accept="image/*" style="display: none;" onchange="previewImagenEditar(this)" />
+                    <div id="previewContainerEditar" class="image-preview" style="display: none;">
+                        <img id="previewImageEditar" src="" alt="Vista previa" />
+                        <button type="button" class="remove-image" onclick="removerImagenEditar()">✕</button>
+                    </div>
+                </div>
+                
+                <!-- Estado - Se puede editar -->
+                <div class="form-group">
+                    <label><i class="fas fa-toggle-on"></i> Estado</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="Estado" value="Activo" id="editEstadoActivo" /> 
+                            <span class="estado-badge-mini estado-activo">Activo</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="Estado" value="Pendiente" id="editEstadoPendiente" /> 
+                            <span class="estado-badge-mini estado-pendiente">Pendiente</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><input type="checkbox" name="EliminarImagen" value="true" /> Eliminar imagen actual</label>
+                </div>
+                
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Guardar cambios
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
-@section Scripts {
 <script>
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function openEdit(id, nombre, desc, dur, precio, activo) {
-    document.getElementById('editId').value = id;
-    document.getElementById('editNombre').value = nombre;
-    document.getElementById('editDesc').value = desc;
-    document.getElementById('editDur').value = dur;
-    document.getElementById('editPrecio').value = precio;
-    document.getElementById('editActivo').checked = activo === true || activo === 'true';
-    openModal('modalEditar');
-}
-async function eliminar(id) {
-    if (!confirm('¿Desactivar este servicio?')) return;
-    try {
-        const r = await fetch('/Admin/EliminarServicio/' + id, { method: 'POST' });
-        const data = await r.json();
-        if (data.success) location.reload();
-        else alert('Error al desactivar el servicio');
-    } catch (error) {
-        alert('Error en la solicitud');
+    // Funciones para el modal nuevo
+    function mostrarModalNuevo() {
+        var modal = document.getElementById('modalNuevo');
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            // Resetear formulario
+            document.getElementById('formNuevo').reset();
+            removerImagenNuevo();
+        }
     }
-}
-document.querySelectorAll('.modal-overlay').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
-});
+    
+    function cerrarModalNuevo() {
+        var modal = document.getElementById('modalNuevo');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    // Preview imagen nuevo
+    function previewImagenNuevo(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImageNuevo').src = e.target.result;
+                document.getElementById('previewContainerNuevo').style.display = 'block';
+                document.getElementById('uploadAreaNuevo').style.display = 'none';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function removerImagenNuevo() {
+        document.getElementById('imagenInputNuevo').value = '';
+        document.getElementById('previewContainerNuevo').style.display = 'none';
+        document.getElementById('uploadAreaNuevo').style.display = 'block';
+    }
+    
+    // Funciones para el modal editar
+    function mostrarModalEditar(id) {
+        fetch('/Admin/ObtenerServicio/' + id)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    document.getElementById('editId').value = data.servicio.id;
+                    document.getElementById('editNombre').value = data.servicio.nombre;
+                    document.getElementById('editCategoria').value = data.servicio.categoriaServicioId || '';
+                    document.getElementById('editDesc').value = data.servicio.descripcion || '';
+                    document.getElementById('editDur').value = data.servicio.duracionHoras;
+                    document.getElementById('editPrecio').value = data.servicio.precio;
+                    
+                    // Estado
+                    if (data.servicio.estado === 'Activo') {
+                        document.getElementById('editEstadoActivo').checked = true;
+                    } else {
+                        document.getElementById('editEstadoPendiente').checked = true;
+                    }
+                    
+                    var modal = document.getElementById('modalEditar');
+                    if (modal) {
+                        modal.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                    }
+                    
+                    // Resetear imagen preview
+                    removerImagenEditar();
+                } else {
+                    alert('Error al cargar el servicio');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+                alert('Error al cargar el servicio');
+            });
+    }
+    
+    function cerrarModalEditar() {
+        var modal = document.getElementById('modalEditar');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+    
+    function previewImagenEditar(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImageEditar').src = e.target.result;
+                document.getElementById('previewContainerEditar').style.display = 'block';
+                document.getElementById('uploadAreaEditar').style.display = 'none';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function removerImagenEditar() {
+        document.getElementById('imagenInputEditar').value = '';
+        document.getElementById('previewContainerEditar').style.display = 'none';
+        document.getElementById('uploadAreaEditar').style.display = 'block';
+    }
+    
+    // Función para eliminar servicio
+    function eliminarServicio(id, nombre) {
+        if (!confirm(`¿Eliminar permanentemente el servicio "${nombre}"? Esta acción no se puede deshacer.`)) return;
+        
+        fetch('/Admin/EliminarServicio/' + id, { method: 'POST' })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error al eliminar el servicio');
+                }
+            })
+            .catch(function(error) {
+                alert('Error en la solicitud');
+            });
+    }
+    
+    // Drag & drop para imágenes
+    function setupDragAndDrop(areaId, inputId, previewFunc) {
+        var area = document.getElementById(areaId);
+        if (!area) return;
+        
+        area.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            area.classList.add('dragover');
+        });
+        
+        area.addEventListener('dragleave', function(e) {
+            area.classList.remove('dragover');
+        });
+        
+        area.addEventListener('drop', function(e) {
+            e.preventDefault();
+            area.classList.remove('dragover');
+            var files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById(inputId).files = files;
+                if (previewFunc) previewFunc(document.getElementById(inputId));
+            }
+        });
+    }
+    
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        var modalNuevo = document.getElementById('modalNuevo');
+        var modalEditar = document.getElementById('modalEditar');
+        
+        if (event.target === modalNuevo) {
+            cerrarModalNuevo();
+        }
+        if (event.target === modalEditar) {
+            cerrarModalEditar();
+        }
+    }
+    
+    // Inicializar drag & drop
+    document.addEventListener('DOMContentLoaded', function() {
+        setupDragAndDrop('uploadAreaNuevo', 'imagenInputNuevo', function(input) { previewImagenNuevo(input); });
+        setupDragAndDrop('uploadAreaEditar', 'imagenInputEditar', function(input) { previewImagenEditar(input); });
+        console.log('Admin servicios cargado correctamente');
+    });
 </script>
-}

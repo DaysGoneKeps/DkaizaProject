@@ -50,7 +50,7 @@
         margin-bottom: 0.5rem;
     }
     
-    .services-subtitle {
+    .services-subtitle 
         color: var(--ink-light);
         font-size: 1rem;
         max-width: 500px;
@@ -471,7 +471,7 @@
                                             </div>
                                             <div class="servicio-item-meta">
                                                 <span class="servicio-item-duracion">
-                                                    <i class="far fa-clock"></i> @servicio.DuracionHoras hora@(servicio.DuracionHoras > 1 ? "s" : "")
+                                                    <i class="far fa-clock"></i> @(servicio.DuracionHoras * 60) min
                                                 </span>
                                                 <button onclick="reservarServicio(event, @servicio.Id)" class="btn-reservar-servicio-item">
                                                     <i class="fas fa-calendar-alt"></i> Reservar
