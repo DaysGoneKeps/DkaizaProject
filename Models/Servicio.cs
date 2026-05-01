@@ -19,7 +19,7 @@ namespace DkaizaProject.Models
     [MaxLength(300)]
     public string? Descripcion { get; set; }
 
-    [Required, Range(1, 3)]
+    [Required, Range(10, 480)]
     public int DuracionHoras { get; set; }
 
     [Range(0, 10000)]
