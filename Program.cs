@@ -1,11 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DkaizaProject.Data;
+using DkaizaProject.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Configuración de MercadoPago
+builder.Services.Configure<MercadoPagoSettings>(
+    builder.Configuration.GetSection("MercadoPago"));
 
 // Configuración de sesión (MEMORIA)
 builder.Services.AddDistributedMemoryCache();

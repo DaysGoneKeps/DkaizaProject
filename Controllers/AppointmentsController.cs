@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DkaizaProject.Models;
@@ -13,6 +14,8 @@ namespace DkaizaProject.Controllers
 
         private int? CurrentClienteId => HttpContext.Session.GetInt32("ClienteId");
 
+        public const string ReservaPendienteSessionKey = "ReservaPendiente";
+
         // ✅ NUEVO: Página para explorar servicios
         public async Task<IActionResult> Servicios()
         {
@@ -24,9 +27,15 @@ namespace DkaizaProject.Controllers
             return View(servicios);
         }
 
-        // GET /Appointments/Reservar - AHORA PERMITE VER SIN LOGIN
+        // GET /Appointments/Reservar - REQUIERE LOGIN
         public async Task<IActionResult> Reservar()
         {
+            if (CurrentClienteId == null)
+            {
+                var returnUrl = Request.Path + Request.QueryString;
+                return RedirectToAction("Login", "Account", new { returnUrl });
+            }
+
             var vm = new ReservaViewModel
             {
                 Servicios = await _db.Servicios.Where(s => s.Activo).ToListAsync(),
@@ -87,7 +96,7 @@ namespace DkaizaProject.Controllers
             return Json(slots);
         }
 
-        // POST /Appointments/Crear - SOLO AQUÍ PEDIMOS LOGIN
+        // POST /Appointments/Crear - Valida y deriva al checkout de pago
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearCitaDto dto)
         {
@@ -117,7 +126,7 @@ namespace DkaizaProject.Controllers
             if (dto.HoraInicio < estilista.HoraFinDescanso && horaFin > estilista.HoraInicioDescanso)
                 return Json(new { success = false, message = "El horario coincide con el descanso del estilista." });
 
-            var cita = new Cita
+            var pendiente = new ReservaPendiente
             {
                 ClienteId = CurrentClienteId.Value,
                 ServicioId = dto.ServicioId,
@@ -126,18 +135,14 @@ namespace DkaizaProject.Controllers
                 HoraInicio = dto.HoraInicio,
                 HoraFin = horaFin,
                 Notas = dto.Notas,
-                Estado = EstadoCita.Confirmada
+                ExternalReference = Guid.NewGuid().ToString("N")
             };
-
-            _db.Citas.Add(cita);
-            await _db.SaveChangesAsync();
+            HttpContext.Session.SetString(ReservaPendienteSessionKey, JsonSerializer.Serialize(pendiente));
 
             return Json(new
             {
                 success = true,
-                message = "¡Cita reservada exitosamente!",
-                citaId = cita.Id,
-                resumen = $"{servicio.Nombre} con {estilista.Nombre} el {fecha:dd/MM/yyyy} de {dto.HoraInicio:D2}:00 a {horaFin:D2}:00"
+                redirectUrl = Url.Action("Checkout", "Payment")
             });
         }
 

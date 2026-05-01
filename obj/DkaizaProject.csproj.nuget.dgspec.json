@@ -67,6 +67,10 @@
             "Microsoft.EntityFrameworkCore.Tools": {
               "target": "Package",
               "version": "[9.0.5, )"
+            },
+            "mercadopago-sdk": {
+              "target": "Package",
+              "version": "[2.12.1, )"
             }
           },
           "imports": [

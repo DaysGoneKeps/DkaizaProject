@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Pago pendiente";
+    Layout = "_Layout";
+}
+
+<div class="booking-page">
+    <div class="container booking-container">
+        <div class="success-block">
+            <div class="success-checkmark" style="background:#f0ad4e;">…</div>
+            <h2>Tu pago está pendiente</h2>
+            <p>
+                MercadoPago aún no confirma el cobro. Tu cita se confirmará automáticamente cuando el pago sea aprobado.
+                @if (!string.IsNullOrEmpty(ViewBag.Status as string))
+                {
+                    <br /><small>Estado reportado: @ViewBag.Status</small>
+                }
+            </p>
+
+            <div class="success-actions" style="margin-top:1.5rem;">
+                <a asp-controller="Payment" asp-action="Checkout" class="btn-primary-lg">Volver al checkout</a>
+                <a href="/Appointments/MisCitas" class="btn-ghost-lg">Ver mis citas</a>
+            </div>
+        </div>
+    </div>
+</div>

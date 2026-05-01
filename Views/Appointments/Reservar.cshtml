@@ -404,7 +404,7 @@ function fillConfirm() {
 // ── Confirmar reserva ─────────────────────────────────────────────────────
 document.getElementById('btnConfirmar').addEventListener('click', async () => {
     const btn = document.getElementById('btnConfirmar');
-    btn.disabled = true; btn.textContent = 'Reservando...';
+    btn.disabled = true; btn.textContent = 'Procesando...';
     const f = sel.fecha;
     const fechaStr = `${f.y}-${String(f.m+1).padStart(2,'0')}-${String(f.d).padStart(2,'0')}`;
     const body = {
@@ -420,9 +420,9 @@ document.getElementById('btnConfirmar').addEventListener('click', async () => {
         body: JSON.stringify(body)
     });
     const data = await res.json();
-    if (data.success) {
-        document.getElementById('success-resumen').textContent = data.resumen;
-        showStep('success');
+    if (data.success && data.redirectUrl) {
+        sessionStorage.removeItem('reservaPendiente');
+        window.location.href = data.redirectUrl;
     } else if (data.requiresLogin) {
         sessionStorage.setItem('reservaPendiente', JSON.stringify(body));
         window.location.href = '/Account/Login?returnUrl=/Appointments/Reservar?servicioId=' + sel.servicio.id;
@@ -432,8 +432,40 @@ document.getElementById('btnConfirmar').addEventListener('click', async () => {
     }
 });
 
+// ── Reanudar reserva pendiente tras login ───────────────────────────────
+async function resumePendingReserva() {
+    const raw = sessionStorage.getItem('reservaPendiente');
+    if (!raw) return;
+    let body;
+    try { body = JSON.parse(raw); } catch { sessionStorage.removeItem('reservaPendiente'); return; }
+    if (!body || String(body.servicioId) !== String(servicioId)) return;
+
+    const [y, m, d] = body.fecha.split('-').map(n => parseInt(n, 10));
+    sel.fecha = { d, m: m - 1, y };
+    calYear = y; calMonth = m - 1;
+    renderCalendar();
+
+    await loadEstilistas();
+    const card = document.querySelector(`.stylist-card[data-id="${body.estilistaId}"]`);
+    if (!card) { showStep(2); return; }
+    document.querySelectorAll('.stylist-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    sel.estilista = { id: body.estilistaId, nombre: card.dataset.nombre };
+
+    await loadHorarios();
+    const slot = document.querySelector(`.slot-btn[data-start="${body.horaInicio}"]:not(.blocked)`);
+    if (!slot) { showStep(3); return; }
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    slot.classList.add('selected');
+    sel.horario = { start: +slot.dataset.start, end: +slot.dataset.end, label: slot.dataset.label };
+
+    if (body.notas) document.getElementById('notasInput').value = body.notas;
+    fillConfirm();
+    showStep(4);
+}
+
 // Inicializar
 renderCalendar();
-loadSelectedService();
+loadSelectedService().then(() => resumePendingReserva());
 </script>
 }

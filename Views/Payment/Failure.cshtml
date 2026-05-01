@@ -1,0 +1,19 @@
+@{
+    ViewData["Title"] = "Pago rechazado";
+    Layout = "_Layout";
+}
+
+<div class="booking-page">
+    <div class="container booking-container">
+        <div class="success-block">
+            <div class="success-checkmark" style="background:#dc3545;">✕</div>
+            <h2>No se completó el pago</h2>
+            <p>@ViewBag.Mensaje</p>
+
+            <div class="success-actions" style="margin-top:1.5rem;">
+                <a asp-controller="Payment" asp-action="Checkout" class="btn-primary-lg">Reintentar pago</a>
+                <a href="/Appointments/Servicios" class="btn-ghost-lg">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</div>

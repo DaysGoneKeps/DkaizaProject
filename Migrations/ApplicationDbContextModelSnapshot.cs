@@ -111,7 +111,7 @@ namespace DkaizaProject.Migrations
                             EsAdmin = true,
                             FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nombre = "Admin",
-                            PasswordHash = "$2a$11$uC7VxVY1z8FQqKqgk7y0eOqvYhG9mG8Qk3lYvZlPpQwF8Wz0lZr7K",
+                            PasswordHash = "$2a$11$eC3MeRvFgm5TqxeMK4xxYuZGPth0aElF2fqklF.G/mQEVZJ3fsbwK",
                             Telefono = "000-000-0000"
                         });
                 });
@@ -184,6 +184,55 @@ namespace DkaizaProject.Migrations
                             HoraInicioTrabajo = 10,
                             Nombre = "Estilista 3"
                         });
+                });
+
+            modelBuilder.Entity("DkaizaProject.Models.Pago", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CitaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ExternalReference")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("FechaPago")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Metodo")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("MontoTotal")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("PaymentId")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreferenceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CitaId")
+                        .IsUnique();
+
+                    b.ToTable("Pagos");
                 });
 
             modelBuilder.Entity("DkaizaProject.Models.Servicio", b =>
@@ -494,6 +543,17 @@ namespace DkaizaProject.Migrations
                     b.Navigation("Servicio");
                 });
 
+            modelBuilder.Entity("DkaizaProject.Models.Pago", b =>
+                {
+                    b.HasOne("DkaizaProject.Models.Cita", "Cita")
+                        .WithOne("Pago")
+                        .HasForeignKey("DkaizaProject.Models.Pago", "CitaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cita");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -543,6 +603,11 @@ namespace DkaizaProject.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DkaizaProject.Models.Cita", b =>
+                {
+                    b.Navigation("Pago");
                 });
 
             modelBuilder.Entity("DkaizaProject.Models.Cliente", b =>

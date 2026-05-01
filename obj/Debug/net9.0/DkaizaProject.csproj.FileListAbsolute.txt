@@ -592,7 +592,6 @@ C:\Users\car_v\OneDrive\Desktop\DkaizaProject\DkaizaProject\obj\Debug\net9.0\Dka
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\DkaizaProject\obj\Debug\net9.0\ref\DkaizaProject.dll
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\appsettings.json
-C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\app.db
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\DkaizaProject.staticwebassets.runtime.json
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\DkaizaProject.staticwebassets.endpoints.json
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\DkaizaProject.exe
@@ -886,3 +885,17 @@ C:\Users\car_v\OneDrive\Desktop\DkaizaProject\obj\Debug\net9.0\refint\DkaizaProj
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\obj\Debug\net9.0\DkaizaProject.pdb
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\obj\Debug\net9.0\DkaizaProject.genruntimeconfig.cache
 C:\Users\car_v\OneDrive\Desktop\DkaizaProject\obj\Debug\net9.0\ref\DkaizaProject.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\MercadoPago.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\Newtonsoft.Json.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\System.Configuration.ConfigurationManager.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\System.Security.Permissions.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\System.Windows.Extensions.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\car_v\OneDrive\Desktop\DkaizaProject\bin\Debug\net9.0\app.db
