@@ -57,8 +57,47 @@
         margin: 0 auto;
     }
     
+    /* Botón Atrás */
+    .back-button-container {
+        max-width: 1100px;
+        margin: 0 auto 2rem auto;
+        padding: 0 2rem;
+    }
+    
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: 1px solid var(--border-mid);
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--ink-mid);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-back:hover {
+        background: var(--cream-dark);
+        border-color: var(--rose);
+        color: var(--rose);
+        transform: translateX(-3px);
+    }
+    
+    .btn-back i {
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .btn-back:hover i {
+        transform: translateX(-3px);
+    }
+    
     .services-section {
-        padding: 3rem 0 5rem;
+        padding: 0 0 5rem 0;
         background: var(--white);
     }
     
@@ -315,7 +354,7 @@
         margin-bottom: 1.5rem;
     }
     
-    /* Botón flotante */
+    /* Botón flotante Volver al inicio (oculto porque ya tenemos el botón Atrás) */
     .back-home-btn {
         position: fixed;
         bottom: 30px;
@@ -366,6 +405,11 @@
         .btn-reservar-servicio-item {
             justify-content: center;
         }
+        
+        .btn-back {
+            padding: 8px 16px;
+            font-size: 0.8rem;
+        }
     }
 </style>
 
@@ -378,11 +422,21 @@
     </div>
 </div>
 
+<!-- Botón Atrás -->
+
+
 <!-- Grid de Categorías -->
 <section class="services-section">
+    <br>
     <div class="container">
+        <a href="/" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+        Atras
+        </a>
+        <br><br>
+
         <div class="results-count">
-            <i class="tags"></i> <strong id="resultCount">0</strong> 
+            <i class="tags"></i> <strong id="resultCount">0</strong> categorías disponibles
         </div>
         
         <div class="row g-4" id="categoriasGrid">
@@ -420,7 +474,7 @@
                                                     <i class="far fa-clock"></i> @servicio.DuracionHoras hora@(servicio.DuracionHoras > 1 ? "s" : "")
                                                 </span>
                                                 <button onclick="reservarServicio(event, @servicio.Id)" class="btn-reservar-servicio-item">
-                                                    <i class="fas fa-calendar-alt"></i> Seleccionar
+                                                    <i class="fas fa-calendar-alt"></i> Reservar
                                                 </button>
                                             </div>
                                         </div>
@@ -452,7 +506,7 @@
     </div>
 </section>
 
-<!-- Botón flotante Volver al inicio -->
+<!-- Botón flotante Volver al inicio (opcional, puedes eliminarlo si prefieres solo el botón Atrás) -->
 <a href="/" class="back-home-btn" title="Volver al inicio">
     <i class="fas fa-home"></i>
 </a>
@@ -461,19 +515,6 @@
     function toggleCategoria(btn) {
         const categoriaCard = btn.closest('.categoria-card');
         const icon = btn.querySelector('i');
-        
-        // Cerrar todas las demás tarjetas (opcional - descomentar si quieres solo una expandida a la vez)
-        /*
-        document.querySelectorAll('.categoria-card').forEach(card => {
-            if (card !== categoriaCard && card.classList.contains('expanded')) {
-                const otherBtn = card.querySelector('.btn-expand-categoria i');
-                if (otherBtn) {
-                    card.classList.remove('expanded');
-                    otherBtn.style.transform = 'rotate(0deg)';
-                }
-            }
-        });
-        */
         
         // Toggle solo la tarjeta actual
         categoriaCard.classList.toggle('expanded');
