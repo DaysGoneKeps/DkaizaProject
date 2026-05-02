@@ -1,0 +1,92 @@
+# ===== .NET / Visual Studio =====
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.pdb
+*.dll.config
+*.exe.config
+
+# ===== Build output =====
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+[Bb]uilds/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# ===== EF Core / SQLite (DB local, se regenera con migraciones) =====
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+app.db
+app.db-journal
+
+# ===== ASP.NET Core =====
+**/Properties/launchSettings.local.json
+**/wwwroot/dist/
+appsettings.*.local.json
+
+# ===== Visual Studio specific =====
+.vs/
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# ===== Rider / VS Code =====
+.idea/
+.vscode/
+*.swp
+
+# ===== NuGet =====
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ===== User-specific files =====
+*.rsuser
+*.pidb
+*.svclog
+*.scc
+
+# ===== Test results =====
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+# ===== Misc =====
+*.log
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# ===== Archivos temporales del proyecto =====
+build-out.txt
+ef-update.txt
+ef-add.txt
+ef-output.txt
+db-update.txt
+db-list.txt
+db-check.txt
+migrations-list.txt
+state.txt
+gi.txt
