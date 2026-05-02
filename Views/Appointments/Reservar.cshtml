@@ -652,6 +652,13 @@ document.getElementById('btnPagarEfectivo').addEventListener('click', function (
     enviarReserva(this, 'efectivo', 'Procesando...', 'Pagar en efectivo (al asistir)');
 });
 
+window.addEventListener('pageshow', function (e) {
+    const btnMP = document.getElementById('btnPagarMP');
+    if (e.persisted && btnMP && btnMP.textContent.trim() === 'Procesando...') {
+        window.location.href = '/Payment/Success';
+    }
+});
+
 // ── Reanudar reserva pendiente ───────────────────────────────────────────
 async function resumePendingReserva() {
     const raw = sessionStorage.getItem('reservaPendiente');

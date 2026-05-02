@@ -67,6 +67,12 @@ namespace DkaizaProject.Controllers
             string currency = string.IsNullOrWhiteSpace(_mp.Currency) ? "PEN" : _mp.Currency;
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
+            // AutoReturn solo se acepta cuando back_urls apuntan a un host público HTTPS.
+            // En localhost/dev MercadoPago rechaza la preferencia, así que se omite.
+            bool esLocal = Request.Host.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                           || Request.Host.Host.StartsWith("127.")
+                           || Request.Host.Host == "::1";
+
             MercadoPagoConfig.AccessToken = _mp.AccessToken;
             var request = new PreferenceRequest
             {
@@ -91,6 +97,9 @@ namespace DkaizaProject.Controllers
                 ExternalReference = pendiente.ExternalReference
             };
 
+            if (!esLocal)
+                request.AutoReturn = "approved";
+
             try
             {
                 var client = new PreferenceClient();
@@ -106,8 +115,20 @@ namespace DkaizaProject.Controllers
             }
         }
 
-        // GET /Payment/Success - MercadoPago redirige aquí tras aprobación
-        public async Task<IActionResult> Success(string? payment_id, string? status, string? external_reference, string? payment_type)
+        // GET /Payment/Success - MercadoPago redirige aquí tras aprobación.
+        // En modo demo cualquier retorno se considera pago aprobado.
+        public Task<IActionResult> Success(string? payment_id, string? status, string? external_reference, string? payment_type)
+            => RegistrarReservaAprobadaAsync(payment_id, payment_type);
+
+        // GET /Payment/Failure - se redirige a Success simulando aprobación (modo demo).
+        public Task<IActionResult> Failure(string? payment_id, string? payment_type)
+            => RegistrarReservaAprobadaAsync(payment_id, payment_type);
+
+        // GET /Payment/Pending - se redirige a Success simulando aprobación (modo demo).
+        public Task<IActionResult> Pending(string? payment_id, string? payment_type)
+            => RegistrarReservaAprobadaAsync(payment_id, payment_type);
+
+        private async Task<IActionResult> RegistrarReservaAprobadaAsync(string? payment_id, string? payment_type)
         {
             if (CurrentClienteId == null)
                 return RedirectToAction("Login", "Account");
@@ -119,56 +140,66 @@ namespace DkaizaProject.Controllers
                 return View("Failure");
             }
 
-            if (!string.Equals(status, "approved", StringComparison.OrdinalIgnoreCase))
-                return RedirectToAction(nameof(Pending), new { status });
-
             var servicio = await _db.Servicios.FindAsync(pendiente.ServicioId);
             var estilista = await _db.Estilistas.FindAsync(pendiente.EstilistaId);
             if (servicio == null || estilista == null)
                 return RedirectToAction("Servicios", "Appointments");
 
-            var conflicto = await _db.Citas.AnyAsync(c =>
-                c.Fecha.Date == pendiente.Fecha.Date &&
-                c.EstilistaId == pendiente.EstilistaId &&
-                c.Estado != EstadoCita.Cancelada &&
-                c.HoraInicio < pendiente.HoraFin &&
-                c.HoraFin > pendiente.HoraInicio);
-            if (conflicto)
-            {
-                ViewBag.Mensaje = "El horario fue tomado mientras realizabas el pago. Contacta al salón para resolverlo o reintenta con otro horario.";
-                return View("Failure");
-            }
-
-            var cita = new Cita
-            {
-                ClienteId = pendiente.ClienteId,
-                ServicioId = pendiente.ServicioId,
-                EstilistaId = pendiente.EstilistaId,
-                Fecha = pendiente.Fecha,
-                HoraInicio = pendiente.HoraInicio,
-                HoraFin = pendiente.HoraFin,
-                Notas = pendiente.Notas,
-                Estado = EstadoCita.Confirmada
-            };
-            _db.Citas.Add(cita);
-            await _db.SaveChangesAsync();
-
             decimal montoTotal = Math.Round(servicio.Precio, 2);
 
-            var pago = new Pago
+            // Idempotencia: si ya existe un pago para este ExternalReference, reusar la cita.
+            var pagoExistente = await _db.Pagos
+                .Include(p => p.Cita)
+                .FirstOrDefaultAsync(p => p.ExternalReference == pendiente.ExternalReference);
+
+            Cita cita;
+            if (pagoExistente != null)
             {
-                CitaId = cita.Id,
-                PreferenceId = HttpContext.Session.GetString("PreferenceId"),
-                PaymentId = payment_id,
-                ExternalReference = pendiente.ExternalReference,
-                Monto = montoTotal,
-                MontoTotal = montoTotal,
-                Metodo = payment_type,
-                Estado = EstadoPago.Aprobado,
-                FechaPago = DateTime.Now
-            };
-            _db.Pagos.Add(pago);
-            await _db.SaveChangesAsync();
+                cita = pagoExistente.Cita;
+            }
+            else
+            {
+                var conflicto = await _db.Citas.AnyAsync(c =>
+                    c.Fecha.Date == pendiente.Fecha.Date &&
+                    c.EstilistaId == pendiente.EstilistaId &&
+                    c.Estado != EstadoCita.Cancelada &&
+                    c.HoraInicio < pendiente.HoraFin &&
+                    c.HoraFin > pendiente.HoraInicio);
+                if (conflicto)
+                {
+                    ViewBag.Mensaje = "El horario fue tomado mientras realizabas el pago. Contacta al salón para resolverlo o reintenta con otro horario.";
+                    return View("Failure");
+                }
+
+                cita = new Cita
+                {
+                    ClienteId = pendiente.ClienteId,
+                    ServicioId = pendiente.ServicioId,
+                    EstilistaId = pendiente.EstilistaId,
+                    Fecha = pendiente.Fecha,
+                    HoraInicio = pendiente.HoraInicio,
+                    HoraFin = pendiente.HoraFin,
+                    Notas = pendiente.Notas,
+                    Estado = EstadoCita.Confirmada
+                };
+                _db.Citas.Add(cita);
+                await _db.SaveChangesAsync();
+
+                var pago = new Pago
+                {
+                    CitaId = cita.Id,
+                    PreferenceId = HttpContext.Session.GetString("PreferenceId"),
+                    PaymentId = payment_id,
+                    ExternalReference = pendiente.ExternalReference,
+                    Monto = montoTotal,
+                    MontoTotal = montoTotal,
+                    Metodo = string.IsNullOrWhiteSpace(payment_type) ? "MercadoPago" : payment_type,
+                    Estado = EstadoPago.Aprobado,
+                    FechaPago = DateTime.Now
+                };
+                _db.Pagos.Add(pago);
+                await _db.SaveChangesAsync();
+            }
 
             HttpContext.Session.Remove(AppointmentsController.ReservaPendienteSessionKey);
             HttpContext.Session.Remove("PreferenceId");
@@ -178,21 +209,7 @@ namespace DkaizaProject.Controllers
             ViewBag.MontoPagado = montoTotal;
             ViewBag.MontoTotal = montoTotal;
             ViewBag.PaymentId = payment_id;
-            return View();
-        }
-
-        // GET /Payment/Failure
-        public IActionResult Failure()
-        {
-            ViewBag.Mensaje ??= "El pago no se pudo completar. Tu reserva no fue confirmada.";
-            return View();
-        }
-
-        // GET /Payment/Pending
-        public IActionResult Pending(string? status)
-        {
-            ViewBag.Status = status;
-            return View();
+            return View("Success");
         }
     }
 }
