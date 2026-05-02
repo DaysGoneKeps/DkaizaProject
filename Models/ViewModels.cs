@@ -75,6 +75,7 @@ public class CrearCitaDto
     public string Fecha { get; set; } = string.Empty;
     public int HoraInicio { get; set; }
     public string? Notas { get; set; }
+    public string? MetodoPago { get; set; }
 }
 
 public class ReservaPendiente

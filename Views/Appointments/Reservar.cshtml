@@ -66,7 +66,10 @@
                 <div class="confirm-row"><span>Estilista</span><strong id="conf-estilista">—</strong></div>
                 <div class="confirm-row"><span>Horario</span><strong id="conf-horario">—</strong></div>
                 <div class="confirm-row"><span>Precio</span><strong id="conf-precio">—</strong></div>
-                <button class="btn-confirm" id="btnConfirmar">Confirmar →</button>
+
+                <p class="payment-method-label">Selecciona el método de pago</p>
+                <button class="btn-confirm btn-pago-mp" id="btnPagarMP">Pagar con MercadoPago</button>
+                <button class="btn-confirm btn-pago-efectivo" id="btnPagarEfectivo">Pagar en efectivo</button>
             </div>
         </div>
 
@@ -74,8 +77,9 @@
         <div class="booking-step" id="step-success">
             <div class="success-block">
                 <div class="success-checkmark">✓</div>
-                <h2>¡Cita reservada!</h2>
+                <h2 id="success-title">¡Cita reservada!</h2>
                 <p id="success-resumen"></p>
+                <p id="success-mensaje" class="success-mensaje"></p>
                 <div class="success-actions">
                     <a href="/Appointments/MisCitas" class="btn-primary-lg">Ver mis citas</a>
                     <a href="/Appointments/Servicios" class="btn-ghost-lg">Reservar otra</a>
@@ -346,7 +350,38 @@
         background: var(--border-mid);
         cursor: not-allowed;
     }
-    
+
+    .payment-method-label {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-size: 13px;
+        color: var(--ink-light);
+        text-align: center;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-pago-mp {
+        margin-top: 0;
+    }
+
+    .btn-pago-efectivo {
+        margin-top: 0.75rem;
+        background: var(--white);
+        color: var(--ink);
+        border: 1px solid var(--border-mid);
+    }
+
+    .btn-pago-efectivo:hover {
+        background: var(--cream-dark);
+        border-color: var(--ink);
+    }
+
+    .success-mensaje {
+        font-size: 14px;
+        color: var(--ink-mid);
+        margin-top: 0.5rem;
+    }
+
     @@media (max-width: 768px) {
         .back-home-btn {
             bottom: 20px;
@@ -546,34 +581,75 @@ function fillConfirm() {
 }
 
 // ── Confirmar reserva ─────────────────────────────────────────────────────
-document.getElementById('btnConfirmar').addEventListener('click', async () => {
-    const btn = document.getElementById('btnConfirmar');
-    btn.disabled = true; btn.textContent = 'Procesando...';
+function buildReservaBody(metodoPago) {
     const f = sel.fecha;
     const fechaStr = `${f.y}-${String(f.m+1).padStart(2,'0')}-${String(f.d).padStart(2,'0')}`;
-    const body = {
+    return {
         servicioId: sel.servicio.id,
         estilistaId: sel.estilista.id,
         fecha: fechaStr,
         horaInicio: sel.horario.start,
-        notas: '' // Notas vacío (opcional)
+        notas: '',
+        metodoPago: metodoPago
     };
-    const res = await fetch('/Appointments/Crear', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-    const data = await res.json();
+}
+
+function buildResumenTexto() {
+    const f = sel.fecha;
+    const date = new Date(f.y, f.m, f.d);
+    return `${sel.servicio.nombre} con ${sel.estilista.nombre} el ${DIAS_LONG[date.getDay()]} ${f.d} de ${MONTHS[f.m]} · ${sel.horario.label}`;
+}
+
+async function enviarReserva(btn, metodoPago, etiquetaProcesando, etiquetaOriginal) {
+    const btnMP = document.getElementById('btnPagarMP');
+    const btnEf = document.getElementById('btnPagarEfectivo');
+    btnMP.disabled = true; btnEf.disabled = true;
+    btn.textContent = etiquetaProcesando;
+    const body = buildReservaBody(metodoPago);
+    let data;
+    try {
+        const res = await fetch('/Appointments/Crear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        data = await res.json();
+    } catch (err) {
+        alert('Error de red. Intenta nuevamente.');
+        btnMP.disabled = false; btnEf.disabled = false;
+        btn.textContent = etiquetaOriginal;
+        return;
+    }
+
     if (data.success && data.redirectUrl) {
         sessionStorage.removeItem('reservaPendiente');
         window.location.href = data.redirectUrl;
-    } else if (data.requiresLogin) {
+        return;
+    }
+    if (data.success && data.metodoPago === 'efectivo') {
+        sessionStorage.removeItem('reservaPendiente');
+        document.getElementById('success-title').textContent = '¡Cita reservada!';
+        document.getElementById('success-resumen').textContent = buildResumenTexto();
+        document.getElementById('success-mensaje').textContent = data.mensaje || 'Reserva realizada, realice el pago al asistir';
+        showStep('success');
+        return;
+    }
+    if (data.requiresLogin) {
         sessionStorage.setItem('reservaPendiente', JSON.stringify(body));
         window.location.href = '/Account/Login?returnUrl=/Appointments/Reservar?servicioId=' + sel.servicio.id;
-    } else {
-        alert(data.message || 'Error al reservar.');
-        btn.disabled = false; btn.textContent = 'Confirmar →';
+        return;
     }
+    alert(data.message || 'Error al reservar.');
+    btnMP.disabled = false; btnEf.disabled = false;
+    btn.textContent = etiquetaOriginal;
+}
+
+document.getElementById('btnPagarMP').addEventListener('click', function () {
+    enviarReserva(this, 'mercadopago', 'Procesando...', 'Pagar con MercadoPago');
+});
+
+document.getElementById('btnPagarEfectivo').addEventListener('click', function () {
+    enviarReserva(this, 'efectivo', 'Procesando...', 'Pagar en efectivo (al asistir)');
 });
 
 // ── Reanudar reserva pendiente ───────────────────────────────────────────

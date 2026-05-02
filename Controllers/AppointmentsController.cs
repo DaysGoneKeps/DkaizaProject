@@ -128,6 +128,47 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
             if (dto.HoraInicio < estilista.HoraFinDescanso && horaFin > estilista.HoraInicioDescanso)
                 return Json(new { success = false, message = "El horario coincide con el descanso del estilista." });
 
+            var metodo = (dto.MetodoPago ?? string.Empty).Trim().ToLowerInvariant();
+
+            if (metodo == "efectivo")
+            {
+                var cita = new Cita
+                {
+                    ClienteId = CurrentClienteId.Value,
+                    ServicioId = dto.ServicioId,
+                    EstilistaId = dto.EstilistaId,
+                    Fecha = fecha,
+                    HoraInicio = dto.HoraInicio,
+                    HoraFin = horaFin,
+                    Notas = dto.Notas,
+                    Estado = EstadoCita.Pendiente
+                };
+                _db.Citas.Add(cita);
+                await _db.SaveChangesAsync();
+
+                decimal montoTotal = Math.Round(servicio.Precio, 2);
+                var pago = new Pago
+                {
+                    CitaId = cita.Id,
+                    ExternalReference = Guid.NewGuid().ToString("N"),
+                    Monto = 0m,
+                    MontoTotal = montoTotal,
+                    Metodo = "Efectivo",
+                    Estado = EstadoPago.Pendiente
+                };
+                _db.Pagos.Add(pago);
+                await _db.SaveChangesAsync();
+
+                HttpContext.Session.Remove(ReservaPendienteSessionKey);
+
+                return Json(new
+                {
+                    success = true,
+                    metodoPago = "efectivo",
+                    mensaje = "Reserva realizada, realice el pago al asistir"
+                });
+            }
+
             var pendiente = new ReservaPendiente
             {
                 ClienteId = CurrentClienteId.Value,
@@ -144,6 +185,7 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
             return Json(new
             {
                 success = true,
+                metodoPago = "mercadopago",
                 redirectUrl = Url.Action("Iniciar", "Payment")
             });
         }
