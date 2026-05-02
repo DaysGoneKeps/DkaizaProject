@@ -88,7 +88,7 @@ namespace DkaizaProject.Controllers
         HttpContext.Session.SetString("ClienteNombre", cliente.NombreCompleto);
         HttpContext.Session.SetString("EsAdmin", "False");
 
-        TempData["Success"] = $"¡Bienvenida/o, {cliente.Nombre}! Tu cuenta fue creada exitosamente.";
+        TempData["Success"] = "Registro exitoso";
         return RedirectToAction("Index", "Home");
     }
 

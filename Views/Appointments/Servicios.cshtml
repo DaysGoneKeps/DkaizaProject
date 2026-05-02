@@ -12,7 +12,7 @@
         overflow: hidden;
         text-align: center;
     }
-    
+
     .services-hero::before {
         content: '✂';
         position: absolute;
@@ -22,7 +22,7 @@
         opacity: 0.05;
         font-family: var(--font-display);
     }
-    
+
     .services-hero::after {
         content: '✦';
         position: absolute;
@@ -32,7 +32,7 @@
         opacity: 0.05;
         font-family: var(--font-display);
     }
-    
+
     .services-eyebrow {
         font-size: 12px;
         letter-spacing: 0.2em;
@@ -41,7 +41,7 @@
         font-weight: 600;
         margin-bottom: 1rem;
     }
-    
+
     .services-title {
         font-family: var(--font-display);
         font-size: clamp(2rem, 5vw, 3rem);
@@ -49,21 +49,21 @@
         color: var(--ink);
         margin-bottom: 0.5rem;
     }
-    
-    .services-subtitle 
+
+    .services-subtitle
         color: var(--ink-light);
         font-size: 1rem;
         max-width: 500px;
         margin: 0 auto;
     }
-    
+
     /* Botón Atrás */
     .back-button-container {
         max-width: 1100px;
         margin: 0 auto 2rem auto;
         padding: 0 2rem;
     }
-    
+
     .btn-back {
         display: inline-flex;
         align-items: center;
@@ -79,28 +79,28 @@
         transition: all 0.3s ease;
         text-decoration: none;
     }
-    
+
     .btn-back:hover {
         background: var(--cream-dark);
         border-color: var(--rose);
         color: var(--rose);
         transform: translateX(-3px);
     }
-    
+
     .btn-back i {
         font-size: 0.85rem;
         transition: transform 0.2s ease;
     }
-    
+
     .btn-back:hover i {
         transform: translateX(-3px);
     }
-    
+
     .services-section {
         padding: 0 0 5rem 0;
         background: var(--white);
     }
-    
+
     /* Tarjeta de Categoría */
     .categoria-card {
         background: var(--white);
@@ -113,13 +113,13 @@
         flex-direction: column;
         box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
-    
+
     .categoria-card:hover {
         transform: translateY(-6px);
         border-color: var(--rose);
         box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
     }
-    
+
     .categoria-image {
         background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream-dark) 100%);
         padding: 1.5rem;
@@ -127,22 +127,22 @@
         position: relative;
         transition: all 0.3s ease;
     }
-    
+
     .categoria-card:hover .categoria-image {
         background: linear-gradient(135deg, var(--rose) 0%, var(--rose-dark) 100%);
     }
-    
+
     .categoria-image i {
         font-size: 3rem;
         color: var(--rose-dark);
         transition: all 0.3s ease;
     }
-    
+
     .categoria-card:hover .categoria-image i {
         color: white;
         transform: scale(1.1);
     }
-    
+
     .categoria-badge {
         position: absolute;
         top: 12px;
@@ -154,14 +154,14 @@
         padding: 4px 10px;
         border-radius: 20px;
     }
-    
+
     .categoria-content {
         padding: 1.25rem;
         flex: 1;
         display: flex;
         flex-direction: column;
     }
-    
+
     .categoria-name {
         font-family: var(--font-display);
         font-size: 1.25rem;
@@ -169,14 +169,14 @@
         color: var(--ink);
         margin-bottom: 0.5rem;
     }
-    
+
     .categoria-description {
         font-size: 0.8rem;
         color: var(--ink-light);
         line-height: 1.5;
         margin-bottom: 0.75rem;
     }
-    
+
     .categoria-count {
         font-size: 0.7rem;
         color: var(--rose-dark);
@@ -185,7 +185,7 @@
         align-items: center;
         gap: 5px;
     }
-    
+
     /* Servicios desplegables dentro de la tarjeta */
     .servicios-list {
         display: none;
@@ -193,16 +193,16 @@
         border-radius: var(--radius-sm);
         margin-top: 0;
     }
-    
+
     .categoria-card.expanded .servicios-list {
         display: block;
         margin-top: 1rem;
     }
-    
+
     .servicios-list-inner {
         padding: 0.75rem;
     }
-    
+
     .servicio-item {
         background: var(--white);
         border: 1px solid var(--border-mid);
@@ -211,16 +211,16 @@
         margin-bottom: 0.75rem;
         transition: all 0.2s ease;
     }
-    
+
     .servicio-item:last-child {
         margin-bottom: 0;
     }
-    
+
     .servicio-item:hover {
         border-color: var(--rose);
         box-shadow: var(--shadow);
     }
-    
+
     .servicio-item-header {
         display: flex;
         justify-content: space-between;
@@ -229,21 +229,21 @@
         flex-wrap: wrap;
         gap: 8px;
     }
-    
+
     .servicio-item-nombre {
         font-family: var(--font-display);
         font-size: 0.95rem;
         font-weight: 600;
         color: var(--ink);
     }
-    
+
     .servicio-item-precio {
         font-family: var(--font-display);
         font-size: 1rem;
         font-weight: 700;
         color: var(--rose-dark);
     }
-    
+
     .servicio-item-meta {
         display: flex;
         justify-content: space-between;
@@ -251,7 +251,7 @@
         gap: 12px;
         flex-wrap: wrap;
     }
-    
+
     .servicio-item-duracion {
         display: flex;
         align-items: center;
@@ -262,7 +262,7 @@
         border-radius: 50px;
         color: var(--ink-mid);
     }
-    
+
     .btn-reservar-servicio-item {
         background: var(--ink);
         color: white;
@@ -277,12 +277,12 @@
         align-items: center;
         gap: 6px;
     }
-    
+
     .btn-reservar-servicio-item:hover {
         background: var(--rose-dark);
         transform: translateY(-1px);
     }
-    
+
     /* Botón expandir - solo flecha */
     .btn-expand-categoria {
         width: 100%;
@@ -297,63 +297,63 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .btn-expand-categoria i {
         font-size: 1rem;
         color: var(--ink-mid);
         transition: transform 0.3s ease;
     }
-    
+
     .btn-expand-categoria:hover {
         background: var(--rose-light);
         border-color: var(--rose);
     }
-    
+
     .btn-expand-categoria:hover i {
         color: var(--rose);
     }
-    
+
     .categoria-card.expanded .btn-expand-categoria i {
         transform: rotate(180deg);
     }
-    
+
     .results-count {
         font-size: 0.85rem;
         color: var(--ink-light);
         margin-bottom: 1.5rem;
     }
-    
+
     .results-count strong {
         color: var(--rose-dark);
         font-size: 1rem;
     }
-    
+
     .categoria-col.hidden {
         display: none;
     }
-    
+
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
     }
-    
+
     .empty-icon {
         font-size: 3rem;
         margin-bottom: 1rem;
     }
-    
+
     .empty-state h3 {
         font-family: var(--font-display);
         font-size: 1.4rem;
         color: var(--ink);
         margin-bottom: 0.5rem;
     }
-    
+
     .empty-state p {
         color: var(--ink-light);
         margin-bottom: 1.5rem;
     }
-    
+
     /* Botón flotante Volver al inicio (oculto porque ya tenemos el botón Atrás) */
     .back-home-btn {
         position: fixed;
@@ -372,14 +372,46 @@
         z-index: 100;
         text-decoration: none;
     }
-    
+
     .back-home-btn:hover {
         background: var(--rose-dark);
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0,0,0,0.25);
         color: white;
     }
-    
+
+    .servicios-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-admin-crear {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--ink);
+        color: var(--white);
+        border: 1px solid var(--ink);
+        border-radius: 50px;
+        padding: 10px 22px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-admin-crear:hover {
+        background: var(--rose-dark);
+        border-color: var(--rose-dark);
+        color: var(--white);
+        transform: translateY(-2px);
+    }
+
     @@media (max-width: 768px) {
         .back-home-btn {
             bottom: 20px;
@@ -387,25 +419,25 @@
             width: 45px;
             height: 45px;
         }
-        
+
         .categoria-image i {
             font-size: 2.5rem;
         }
-        
+
         .servicio-item-header {
             flex-direction: column;
             align-items: flex-start;
         }
-        
+
         .servicio-item-meta {
             flex-direction: column;
             align-items: stretch;
         }
-        
+
         .btn-reservar-servicio-item {
             justify-content: center;
         }
-        
+
         .btn-back {
             padding: 8px 16px;
             font-size: 0.8rem;
@@ -429,22 +461,29 @@
 <section class="services-section">
     <br>
     <div class="container">
-        <a href="/" class="btn-back">
-        <i class="fas fa-arrow-left"></i>
-        Atras
-        </a>
-        <br><br>
+        <div class="servicios-toolbar">
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Atras
+            </a>
+            @if (Context.Session.GetString("EsAdmin") == "True")
+            {
+                <button type="button" onclick="mostrarModalNuevo()" class="btn-admin-crear">
+                    <i class="fas fa-plus"></i> Crear servicio
+                </button>
+            }
+        </div>
 
         <div class="results-count">
             <i class="tags"></i> <strong id="resultCount">0</strong> categorías disponibles
         </div>
-        
+
         <div class="row g-4" id="categoriasGrid">
             @foreach (var categoria in Model.Where(c => c.Activo && c.Servicios.Any(s => s.Activo)).OrderBy(c => c.Orden))
             {
                 var serviciosActivos = categoria.Servicios.Where(s => s.Activo).ToList();
                 if (!serviciosActivos.Any()) continue;
-                
+
                 <div class="col-lg-4 col-md-6 categoria-col">
                     <div class="categoria-card" data-categoria-id="@categoria.Id">
                         <div class="categoria-image">
@@ -454,11 +493,11 @@
                         <div class="categoria-content">
                             <h3 class="categoria-name">@categoria.Nombre</h3>
                             <p class="categoria-description">@(categoria.Descripcion ?? "Descubre nuestros servicios profesionales")</p>
-                            
+
                             <div class="categoria-count">
                                 <i class="fas fa-cut"></i> @serviciosActivos.Count servicio@(serviciosActivos.Count != 1 ? "s" : "") disponibles
                             </div>
-                            
+
                             <!-- Lista de servicios desplegable -->
                             <div class="servicios-list">
                                 <div class="servicios-list-inner">
@@ -474,14 +513,14 @@
                                                     <i class="far fa-clock"></i> @(servicio.DuracionHoras * 60) min
                                                 </span>
                                                 <button onclick="reservarServicio(event, @servicio.Id)" class="btn-reservar-servicio-item">
-                                                    <i class="fas fa-calendar-alt"></i> Seleccionar
+                                                    <i class="fas fa-calendar-alt"></i> Reservar
                                                 </button>
                                             </div>
                                         </div>
                                     }
                                 </div>
                             </div>
-                            
+
                             <!-- Botón solo con flecha -->
                             <button class="btn-expand-categoria" onclick="toggleCategoria(this)">
                                 <i class="fas fa-chevron-down"></i>
@@ -491,7 +530,7 @@
                 </div>
             }
         </div>
-        
+
         @if (!Model.Any(c => c.Activo && c.Servicios.Any(s => s.Activo)))
         {
             <div class="empty-state">
@@ -515,29 +554,29 @@
     function toggleCategoria(btn) {
         const categoriaCard = btn.closest('.categoria-card');
         const icon = btn.querySelector('i');
-        
+
         // Toggle solo la tarjeta actual
         categoriaCard.classList.toggle('expanded');
-        
+
         if (categoriaCard.classList.contains('expanded')) {
             icon.style.transform = 'rotate(180deg)';
         } else {
             icon.style.transform = 'rotate(0deg)';
         }
     }
-    
+
     function reservarServicio(event, servicioId) {
         event.stopPropagation();
         const btn = event.currentTarget;
         const originalHTML = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirigiendo...';
         btn.disabled = true;
-        
+
         setTimeout(() => {
             window.location.href = '/Appointments/Reservar?servicioId=' + servicioId;
         }, 300);
     }
-    
+
     // Contador de categorías visibles
     function updateResultCount() {
         const visibleCount = document.querySelectorAll('.categoria-col:not(.hidden)').length;
@@ -546,9 +585,205 @@
             resultCountSpan.innerHTML = '<i class="fas fa-tags"></i> <strong>' + visibleCount + '</strong> categorías disponibles';
         }
     }
-    
+
     // Inicializar contador
     document.addEventListener('DOMContentLoaded', function() {
         updateResultCount();
     });
 </script>
+
+@if (Context.Session.GetString("EsAdmin") == "True")
+{
+    <style>
+        .modal-simple { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; backdrop-filter: blur(4px); }
+        .modal-simple-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease; }
+        @@keyframes modalFadeIn { from { opacity: 0; transform: translate(-50%, -48%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+        .modal-simple-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border); background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream) 100%); border-radius: 20px 20px 0 0; }
+        .modal-simple-header h3 { margin: 0; font-family: var(--font-display); font-size: 1.3rem; color: var(--ink); }
+        .modal-simple-header h3 i { color: var(--rose-dark); margin-right: 8px; }
+        .modal-simple-header button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink-mid); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .modal-simple-header button:hover { background: rgba(0,0,0,0.1); color: var(--ink); }
+        .modal-simple-body { padding: 1.5rem 1.75rem; }
+        .ms-form-group { margin-bottom: 1rem; }
+        .ms-form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-mid); margin-bottom: 6px; font-weight: 600; }
+        .ms-form-group label i { color: var(--rose-dark); margin-right: 6px; }
+        .ms-form-group input, .ms-form-group select, .ms-form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border-mid); border-radius: 10px; font-size: 0.85rem; font-family: inherit; background: var(--cream); transition: all 0.2s; }
+        .ms-form-group input:focus, .ms-form-group select:focus, .ms-form-group textarea:focus { outline: none; border-color: var(--rose); background: white; box-shadow: 0 0 0 3px rgba(200, 169, 138, 0.2); }
+        .ms-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .ms-image-upload-area { border: 2px dashed var(--border-mid); border-radius: 16px; padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.3s ease; background: var(--cream); position: relative; }
+        .ms-image-upload-area:hover { border-color: var(--rose); background: var(--rose-light); }
+        .ms-image-upload-area.dragover { border-color: var(--rose-dark); background: var(--rose-light); }
+        .ms-image-upload-icon { font-size: 2.5rem; color: var(--rose-dark); margin-bottom: 0.5rem; }
+        .ms-image-upload-text { font-size: 0.85rem; color: var(--ink-mid); margin-bottom: 0.25rem; }
+        .ms-image-upload-hint { font-size: 0.65rem; color: var(--ink-light); }
+        .ms-image-preview { margin-top: 1rem; display: none; position: relative; text-align: center; }
+        .ms-image-preview img { width: 100px; height: 100px; object-fit: cover; border-radius: 12px; border: 2px solid var(--rose); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .ms-remove-image { position: absolute; top: -8px; right: calc(50% - 50px); background: #b83232; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .ms-remove-image:hover { background: #8b1a1a; transform: scale(1.1); }
+        .ms-estado-info { background: var(--cream-dark); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; }
+        .ms-estado-info i { font-size: 1.2rem; color: var(--rose-dark); }
+        .ms-estado-info span { font-size: 0.8rem; color: var(--ink-mid); }
+        .ms-estado-info strong { color: var(--rose-dark); }
+        .ms-btn-submit { width: 100%; background: var(--ink); color: white; border: none; border-radius: 50px; padding: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .ms-btn-submit:hover { background: var(--rose-dark); transform: translateY(-2px); }
+    </style>
+
+    <div id="modalNuevo" class="modal-simple">
+        <div class="modal-simple-content">
+            <div class="modal-simple-header">
+                <h3><i class="fas fa-plus-circle"></i> Nuevo servicio</h3>
+                <button type="button" onclick="cerrarModalNuevo()">✕</button>
+            </div>
+            <div class="modal-simple-body">
+                <form id="formNuevo" asp-action="CrearServicio" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <div class="ms-form-group">
+                        <label><i class="fas fa-tag"></i> Nombre del Servicio *</label>
+                        <input type="text" name="Nombre" required placeholder="Ej: Corte de cabello" />
+                    </div>
+
+                    <div class="ms-form-group">
+                        <label><i class="fas fa-folder"></i> Categoría</label>
+                        <select name="CategoriaServicioId">
+                            <option value="">Seleccionar categoría</option>
+                            @foreach (var cat in Model.Where(c => c.Activo))
+                            {
+                                <option value="@cat.Id">@cat.Nombre</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="ms-form-group">
+                        <label><i class="fas fa-align-left"></i> Descripción</label>
+                        <textarea name="Descripcion" rows="2" placeholder="Describe el servicio..."></textarea>
+                    </div>
+
+                    <div class="ms-row-2">
+                        <div class="ms-form-group">
+                            <label><i class="far fa-clock"></i> Duración *</label>
+                            <select name="DuracionHoras">
+                                <option value="1">60 minutos</option>
+                                <option value="2">120 minutos</option>
+                                <option value="3">180 minutos</option>
+                            </select>
+                        </div>
+                        <div class="ms-form-group">
+                            <label><i class="fas fa-money-bill-wave"></i> Costo *</label>
+                            <input type="number" name="Precio" min="0" step="0.50" required placeholder="Ej: 35.00" />
+                        </div>
+                    </div>
+
+                    <div class="ms-form-group">
+                        <label><i class="fas fa-image"></i> Imagen del servicio</label>
+                        <div class="ms-image-upload-area" id="uploadAreaNuevo" onclick="document.getElementById('imagenInputNuevo').click()">
+                            <i class="fas fa-cloud-upload-alt ms-image-upload-icon"></i>
+                            <div class="ms-image-upload-text">Subir Imagen</div>
+                            <div class="ms-image-upload-hint">PNG o JPG (máx 2MB)</div>
+                        </div>
+                        <input type="file" name="Imagen" id="imagenInputNuevo" accept="image/*" style="display: none;" onchange="previewImagenNuevo(this)" />
+                        <div id="previewContainerNuevo" class="ms-image-preview">
+                            <img id="previewImageNuevo" src="" alt="Vista previa" />
+                            <button type="button" class="ms-remove-image" onclick="removerImagenNuevo()">✕</button>
+                        </div>
+                    </div>
+
+                    <div class="ms-form-group">
+                        <label><i class="fas fa-toggle-on"></i> Estado</label>
+                        <div class="ms-estado-info">
+                            <i class="fas fa-check-circle"></i>
+                            <span>El servicio se creará como <strong>Activo</strong> y estará disponible para reservas</span>
+                        </div>
+                        <input type="hidden" name="Activo" value="true" />
+                    </div>
+
+                    <button type="submit" class="ms-btn-submit">
+                        <i class="fas fa-save"></i> Registrar servicio
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarModalNuevo() {
+            document.getElementById('modalNuevo').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            document.getElementById('formNuevo').reset();
+            removerImagenNuevo();
+        }
+
+        function cerrarModalNuevo() {
+            document.getElementById('modalNuevo').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function previewImagenNuevo(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImageNuevo').src = e.target.result;
+                    document.getElementById('previewContainerNuevo').style.display = 'block';
+                    document.getElementById('uploadAreaNuevo').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removerImagenNuevo() {
+            document.getElementById('imagenInputNuevo').value = '';
+            document.getElementById('previewContainerNuevo').style.display = 'none';
+            document.getElementById('uploadAreaNuevo').style.display = 'block';
+        }
+
+        function mostrarToastServicio(mensaje, tipo) {
+            var toastViejo = document.getElementById('toast-servicio');
+            if (toastViejo) toastViejo.remove();
+            var toast = document.createElement('div');
+            toast.id = 'toast-servicio';
+            toast.textContent = mensaje;
+            toast.style.cssText = 'position: fixed; bottom: 30px; right: 30px; background: ' + (tipo === 'success' ? '#1a7a4a' : '#b83232') + '; color: white; padding: 14px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; z-index: 99999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);';
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.remove(); }, 3000);
+        }
+
+        window.addEventListener('click', function(e) {
+            if (e.target === document.getElementById('modalNuevo')) cerrarModalNuevo();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var area = document.getElementById('uploadAreaNuevo');
+            if (area) {
+                area.addEventListener('dragover', function(e) { e.preventDefault(); area.classList.add('dragover'); });
+                area.addEventListener('dragleave', function() { area.classList.remove('dragover'); });
+                area.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    area.classList.remove('dragover');
+                    var files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        document.getElementById('imagenInputNuevo').files = files;
+                        previewImagenNuevo(document.getElementById('imagenInputNuevo'));
+                    }
+                });
+            }
+
+            document.getElementById('formNuevo').addEventListener('submit', function(e) {
+                e.preventDefault();
+                var form = this;
+                var formData = new FormData(form);
+                fetch(form.action, { method: 'POST', body: formData })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            mostrarToastServicio(data.message || 'Servicio creado', 'success');
+                            cerrarModalNuevo();
+                            setTimeout(function() { location.reload(); }, 1200);
+                        } else {
+                            mostrarToastServicio(data.message || 'Error al guardar', 'error');
+                        }
+                    })
+                    .catch(function() { mostrarToastServicio('Error en la solicitud', 'error'); });
+            });
+        });
+    </script>
+}

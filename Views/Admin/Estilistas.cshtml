@@ -895,16 +895,28 @@
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 if (data.success) {
+                    mostrarToastEstilista(data.message || 'Estilista registrada correctamente', 'success');
                     cerrarModalNuevo();
-                    location.reload();
+                    setTimeout(function() { location.reload(); }, 1200);
                 } else {
-                    alert(data.message || 'Error al crear estilista');
+                    mostrarToastEstilista(data.message || 'Error al crear estilista', 'error');
                 }
             })
             .catch(function() {
-                alert('Error en la solicitud');
+                mostrarToastEstilista('Error en la solicitud', 'error');
             });
         });
+
+        function mostrarToastEstilista(mensaje, tipo) {
+            var toastViejo = document.getElementById('toast-estilista');
+            if (toastViejo) toastViejo.remove();
+            var toast = document.createElement('div');
+            toast.id = 'toast-estilista';
+            toast.textContent = mensaje;
+            toast.style.cssText = 'position: fixed; bottom: 30px; right: 30px; background: ' + (tipo === 'success' ? '#1a7a4a' : '#b83232') + '; color: white; padding: 14px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; z-index: 99999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);';
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.remove(); }, 3000);
+        }
 
         console.log('Admin estilistas cargado correctamente');
     });
