@@ -592,27 +592,19 @@
 </div>
 
 <script>
-    // Funciones para el modal nuevo
+    // ── Modal Nuevo ──────────────────────────────────────────────────────
     function mostrarModalNuevo() {
-        var modal = document.getElementById('modalNuevo');
-        if (modal) {
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-            // Resetear formulario
-            document.getElementById('formNuevo').reset();
-            removerImagenNuevo();
-        }
+        document.getElementById('modalNuevo').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        document.getElementById('formNuevo').reset();
+        removerImagenNuevo();
     }
-    
+
     function cerrarModalNuevo() {
-        var modal = document.getElementById('modalNuevo');
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        document.getElementById('modalNuevo').style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
-    
-    // Preview imagen nuevo
+
     function previewImagenNuevo(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -620,65 +612,48 @@
                 document.getElementById('previewImageNuevo').src = e.target.result;
                 document.getElementById('previewContainerNuevo').style.display = 'block';
                 document.getElementById('uploadAreaNuevo').style.display = 'none';
-            }
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
-    
+
     function removerImagenNuevo() {
         document.getElementById('imagenInputNuevo').value = '';
         document.getElementById('previewContainerNuevo').style.display = 'none';
         document.getElementById('uploadAreaNuevo').style.display = 'block';
     }
-    
-    // Funciones para el modal editar
+
+    // ── Modal Editar ─────────────────────────────────────────────────────
     function mostrarModalEditar(id) {
         fetch('/Admin/ObtenerServicio/' + id)
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                if (data.success) {
-                    document.getElementById('editId').value = data.servicio.id;
-                    document.getElementById('editNombre').value = data.servicio.nombre;
-                    document.getElementById('editCategoria').value = data.servicio.categoriaServicioId || '';
-                    document.getElementById('editDesc').value = data.servicio.descripcion || '';
-                    document.getElementById('editDur').value = data.servicio.duracionHoras;
-                    document.getElementById('editPrecio').value = data.servicio.precio;
-                    
-                    // Estado
-                    if (data.servicio.estado === 'Activo') {
-                        document.getElementById('editEstadoActivo').checked = true;
-                    } else {
-                        document.getElementById('editEstadoPendiente').checked = true;
-                    }
-                    
-                    var modal = document.getElementById('modalEditar');
-                    if (modal) {
-                        modal.style.display = 'block';
-                        document.body.style.overflow = 'hidden';
-                    }
-                    
-                    // Resetear imagen preview
-                    removerImagenEditar();
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { alert('Error al cargar el servicio'); return; }
+                document.getElementById('editId').value        = data.servicio.id;
+                document.getElementById('editNombre').value    = data.servicio.nombre;
+                document.getElementById('editCategoria').value = data.servicio.categoriaServicioId || '';
+                document.getElementById('editDesc').value      = data.servicio.descripcion || '';
+                document.getElementById('editDur').value       = data.servicio.duracionHoras;
+                document.getElementById('editPrecio').value    = data.servicio.precio;
+
+                if (data.servicio.activo === true) {
+                    document.getElementById('editEstadoActivo').checked = true;
                 } else {
-                    alert('Error al cargar el servicio');
+                    document.getElementById('editEstadoPendiente').checked = true;
                 }
+
+                removerImagenEditar();
+                document.getElementById('modalEditar').style.display = 'block';
+                document.body.style.overflow = 'hidden';
             })
-            .catch(function(error) {
-                console.error('Error:', error);
-                alert('Error al cargar el servicio');
-            });
+            .catch(() => alert('Error al cargar el servicio'));
     }
-    
+
     function cerrarModalEditar() {
-        var modal = document.getElementById('modalEditar');
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        document.getElementById('modalEditar').style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
-    
+
     function previewImagenEditar(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -686,79 +661,126 @@
                 document.getElementById('previewImageEditar').src = e.target.result;
                 document.getElementById('previewContainerEditar').style.display = 'block';
                 document.getElementById('uploadAreaEditar').style.display = 'none';
-            }
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
-    
+
     function removerImagenEditar() {
         document.getElementById('imagenInputEditar').value = '';
         document.getElementById('previewContainerEditar').style.display = 'none';
         document.getElementById('uploadAreaEditar').style.display = 'block';
     }
-    
-    // Función para eliminar servicio
+
+    // ── Eliminar servicio ────────────────────────────────────────────────
     function eliminarServicio(id, nombre) {
-        if (!confirm(`¿Eliminar permanentemente el servicio "${nombre}"? Esta acción no se puede deshacer.`)) return;
-        
+        if (!confirm(`¿Eliminar permanentemente el servicio "${nombre}"?`)) return;
+
         fetch('/Admin/EliminarServicio/' + id, { method: 'POST' })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
+            .then(r => r.json())
+            .then(data => {
                 if (data.success) {
-                    location.reload();
+                    mostrarToast(data.message, 'success');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    alert(data.message || 'Error al eliminar el servicio');
+                    mostrarToast(data.message || 'Error al eliminar', 'error');
                 }
             })
-            .catch(function(error) {
-                alert('Error en la solicitud');
-            });
+            .catch(() => mostrarToast('Error en la solicitud', 'error'));
     }
-    
-    // Drag & drop para imágenes
+
+    // ── Envío AJAX de formularios ────────────────────────────────────────
+    function enviarFormularioAjax(formId, onSuccess) {
+        var form = document.getElementById(formId);
+        var formData = new FormData(form);
+
+        // Convierte el radio Estado → booleano Activo que espera el controller
+        var estadoVal = formData.get('Estado');
+        formData.delete('Estado');
+        formData.set('Activo', estadoVal === 'Activo' ? 'true' : 'false');
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                mostrarToast(data.message, 'success');
+                onSuccess();
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                mostrarToast(data.message || 'Error al guardar', 'error');
+            }
+        })
+        .catch(() => mostrarToast('Error en la solicitud', 'error'));
+    }
+
+    // ── Toast de notificación ────────────────────────────────────────────
+    function mostrarToast(mensaje, tipo) {
+        // Elimina toast anterior si existe
+        var toastViejo = document.getElementById('toast-admin');
+        if (toastViejo) toastViejo.remove();
+
+        var toast = document.createElement('div');
+        toast.id = 'toast-admin';
+        toast.textContent = mensaje;
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: ${tipo === 'success' ? '#1a7a4a' : '#b83232'};
+            color: white;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 99999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ── Drag & Drop ──────────────────────────────────────────────────────
     function setupDragAndDrop(areaId, inputId, previewFunc) {
         var area = document.getElementById(areaId);
         if (!area) return;
-        
-        area.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            area.classList.add('dragover');
-        });
-        
-        area.addEventListener('dragleave', function(e) {
-            area.classList.remove('dragover');
-        });
-        
-        area.addEventListener('drop', function(e) {
+        area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+        area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+        area.addEventListener('drop', e => {
             e.preventDefault();
             area.classList.remove('dragover');
             var files = e.dataTransfer.files;
             if (files.length > 0) {
                 document.getElementById(inputId).files = files;
-                if (previewFunc) previewFunc(document.getElementById(inputId));
+                previewFunc(document.getElementById(inputId));
             }
         });
     }
-    
-    // Cerrar modal al hacer clic fuera
-    window.onclick = function(event) {
-        var modalNuevo = document.getElementById('modalNuevo');
-        var modalEditar = document.getElementById('modalEditar');
-        
-        if (event.target === modalNuevo) {
-            cerrarModalNuevo();
-        }
-        if (event.target === modalEditar) {
-            cerrarModalEditar();
-        }
-    }
-    
-    // Inicializar drag & drop
+
+    // ── Cerrar modal al hacer clic fuera ─────────────────────────────────
+    window.onclick = function(e) {
+        if (e.target === document.getElementById('modalNuevo')) cerrarModalNuevo();
+        if (e.target === document.getElementById('modalEditar')) cerrarModalEditar();
+    };
+
+    // ── Inicializar ──────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
-        setupDragAndDrop('uploadAreaNuevo', 'imagenInputNuevo', function(input) { previewImagenNuevo(input); });
-        setupDragAndDrop('uploadAreaEditar', 'imagenInputEditar', function(input) { previewImagenEditar(input); });
-        console.log('Admin servicios cargado correctamente');
+        setupDragAndDrop('uploadAreaNuevo', 'imagenInputNuevo', previewImagenNuevo);
+        setupDragAndDrop('uploadAreaEditar', 'imagenInputEditar', previewImagenEditar);
+
+        // ✅ CLAVE: interceptar submit del formulario NUEVO
+        document.getElementById('formNuevo').addEventListener('submit', function(e) {
+            e.preventDefault(); // evita que recargue la página
+            enviarFormularioAjax('formNuevo', cerrarModalNuevo);
+        });
+
+        // ✅ CLAVE: interceptar submit del formulario EDITAR
+        document.getElementById('formEditar').addEventListener('submit', function(e) {
+            e.preventDefault(); // evita que recargue la página
+            enviarFormularioAjax('formEditar', cerrarModalEditar);
+        });
     });
 </script>

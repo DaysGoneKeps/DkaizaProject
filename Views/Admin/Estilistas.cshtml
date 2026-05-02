@@ -720,7 +720,6 @@
 </div>
 
 <script>
-   
     function mostrarModalNuevo() {
         var modal = document.getElementById('modalNuevo');
         if (modal) {
@@ -738,7 +737,6 @@
             document.body.style.overflow = 'auto';
         }
     }
-    
     
     function previewFotoNuevo(input) {
         if (input.files && input.files[0]) {
@@ -774,7 +772,6 @@
                     document.getElementById('editInicioDescanso').value = data.estilista.horaInicioDescanso;
                     document.getElementById('editFinDescanso').value = data.estilista.horaFinDescanso;
                     
-                    // Estado (Activo es bool)
                     if (data.estilista.activo === true) {
                         document.getElementById('editActivoTrue').checked = true;
                     } else {
@@ -884,6 +881,31 @@
     document.addEventListener('DOMContentLoaded', function() {
         setupDragAndDrop('uploadAreaNuevo', 'fotoInputNuevo', function(input) { previewFotoNuevo(input); });
         setupDragAndDrop('uploadAreaEditar', 'fotoInputEditar', function(input) { previewFotoEditar(input); });
+
+        // ==================== SUBMIT FORM NUEVO (FETCH) ====================
+        document.getElementById('formNuevo').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            fetch('/Admin/CrearEstilista', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    cerrarModalNuevo();
+                    location.reload();
+                } else {
+                    alert(data.message || 'Error al crear estilista');
+                }
+            })
+            .catch(function() {
+                alert('Error en la solicitud');
+            });
+        });
+
         console.log('Admin estilistas cargado correctamente');
     });
 </script>
