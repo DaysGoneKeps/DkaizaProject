@@ -214,6 +214,12 @@ namespace DkaizaProject.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<byte[]>("FotoBytes")
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("FotoContentType")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("HoraFinDescanso")
                         .HasColumnType("INTEGER");
 
@@ -268,28 +274,6 @@ namespace DkaizaProject.Migrations
                             HoraInicioDescanso = 15,
                             HoraInicioTrabajo = 10,
                             Nombre = "Carolina Rojas"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Activo = true,
-                            Especialidad = "Manicure y Pedicure",
-                            HoraFinDescanso = 15,
-                            HoraFinTrabajo = 20,
-                            HoraInicioDescanso = 14,
-                            HoraInicioTrabajo = 10,
-                            Nombre = "Daniela Méndez"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Activo = true,
-                            Especialidad = "Maquillaje Profesional",
-                            HoraFinDescanso = 16,
-                            HoraFinTrabajo = 21,
-                            HoraInicioDescanso = 15,
-                            HoraInicioTrabajo = 11,
-                            Nombre = "Valentina Soto"
                         });
                 });
 

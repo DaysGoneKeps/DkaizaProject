@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DkaizaProject")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3bc69ca0a56507ca59ed8719f6f98b8c7e2b0f1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18d02edf6e54234441ea28b56f2b7f833e70c5bd")]
 [assembly: System.Reflection.AssemblyProductAttribute("DkaizaProject")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DkaizaProject")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

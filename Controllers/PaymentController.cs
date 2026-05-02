@@ -38,49 +38,11 @@ namespace DkaizaProject.Controllers
             return string.IsNullOrEmpty(raw) ? null : JsonSerializer.Deserialize<ReservaPendiente>(raw);
         }
 
-        // GET /Payment/Checkout
-        public async Task<IActionResult> Checkout()
-        {
-            if (CurrentClienteId == null)
-                return RedirectToAction("Login", "Account");
+        // GET /Payment/Checkout - mantenido como fallback: redirige al inicio del pago
+        public IActionResult Checkout() => RedirectToAction(nameof(Iniciar));
 
-            var pendiente = GetReservaPendiente();
-            if (pendiente == null || pendiente.ClienteId != CurrentClienteId.Value)
-                return RedirectToAction("Servicios", "Appointments");
-
-            var servicio = await _db.Servicios.FindAsync(pendiente.ServicioId);
-            var estilista = await _db.Estilistas.FindAsync(pendiente.EstilistaId);
-            if (servicio == null || estilista == null)
-                return RedirectToAction("Servicios", "Appointments");
-
-            decimal porcentaje = Math.Clamp(_mp.PorcentajeSenal, 1, 100);
-            decimal montoSenal = Math.Round(servicio.Precio * porcentaje / 100m, 2);
-            bool configOk = !string.IsNullOrWhiteSpace(_mp.AccessToken)
-                && !_mp.AccessToken.StartsWith("PEGA_AQUI");
-
-            ViewBag.TokenLen = _mp.AccessToken?.Length ?? 0;
-            ViewBag.TokenPrefix = string.IsNullOrEmpty(_mp.AccessToken)
-                ? "(vacio)"
-                : _mp.AccessToken.Substring(0, Math.Min(12, _mp.AccessToken.Length));
-
-            var vm = new CheckoutViewModel
-            {
-                Servicio = servicio,
-                Estilista = estilista,
-                Fecha = pendiente.Fecha,
-                HoraInicio = pendiente.HoraInicio,
-                HoraFin = pendiente.HoraFin,
-                MontoTotal = servicio.Precio,
-                MontoSenal = montoSenal,
-                PorcentajeSenal = (int)porcentaje,
-                Currency = string.IsNullOrWhiteSpace(_mp.Currency) ? "PEN" : _mp.Currency,
-                ConfigurationOk = configOk
-            };
-            return View(vm);
-        }
-
-        // POST /Payment/Iniciar - crea preferencia y redirige a MercadoPago
-        [HttpPost, ValidateAntiForgeryToken]
+        // GET /Payment/Iniciar - crea preferencia por el monto total y redirige a MercadoPago
+        [HttpGet]
         public async Task<IActionResult> Iniciar()
         {
             if (CurrentClienteId == null)
@@ -93,7 +55,7 @@ namespace DkaizaProject.Controllers
             if (string.IsNullOrWhiteSpace(_mp.AccessToken) || _mp.AccessToken.StartsWith("PEGA_AQUI"))
             {
                 TempData["PaymentError"] = "MercadoPago no está configurado. Pega tu Access Token de TEST en appsettings.json (sección MercadoPago).";
-                return RedirectToAction(nameof(Checkout));
+                return RedirectToAction("Servicios", "Appointments");
             }
 
             var servicio = await _db.Servicios.FindAsync(pendiente.ServicioId);
@@ -101,8 +63,7 @@ namespace DkaizaProject.Controllers
             if (servicio == null || estilista == null)
                 return RedirectToAction("Servicios", "Appointments");
 
-            decimal porcentaje = Math.Clamp(_mp.PorcentajeSenal, 1, 100);
-            decimal montoSenal = Math.Round(servicio.Precio * porcentaje / 100m, 2);
+            decimal montoTotal = Math.Round(servicio.Precio, 2);
             string currency = string.IsNullOrWhiteSpace(_mp.Currency) ? "PEN" : _mp.Currency;
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
@@ -114,11 +75,11 @@ namespace DkaizaProject.Controllers
                     new PreferenceItemRequest
                     {
                         Id = pendiente.ExternalReference,
-                        Title = $"Señal {porcentaje}% - {servicio.Nombre} con {estilista.Nombre}",
+                        Title = $"{servicio.Nombre} con {estilista.Nombre}",
                         Description = $"Reserva {pendiente.Fecha:dd/MM/yyyy} {pendiente.HoraInicio:D2}:00",
                         Quantity = 1,
                         CurrencyId = currency,
-                        UnitPrice = montoSenal
+                        UnitPrice = montoTotal
                     }
                 },
                 BackUrls = new PreferenceBackUrlsRequest
@@ -135,13 +96,13 @@ namespace DkaizaProject.Controllers
                 var client = new PreferenceClient();
                 var preference = await client.CreateAsync(request);
                 HttpContext.Session.SetString("PreferenceId", preference.Id);
-                HttpContext.Session.SetString("MontoSenalPendiente", montoSenal.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                HttpContext.Session.SetString("MontoPagoPendiente", montoTotal.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 return Redirect(preference.InitPoint);
             }
             catch (Exception ex)
             {
                 TempData["PaymentError"] = "No se pudo iniciar el pago: " + ex.Message;
-                return RedirectToAction(nameof(Checkout));
+                return RedirectToAction("Servicios", "Appointments");
             }
         }
 
@@ -192,10 +153,7 @@ namespace DkaizaProject.Controllers
             _db.Citas.Add(cita);
             await _db.SaveChangesAsync();
 
-            decimal montoSenal = 0m;
-            var montoRaw = HttpContext.Session.GetString("MontoSenalPendiente");
-            if (!string.IsNullOrEmpty(montoRaw))
-                decimal.TryParse(montoRaw, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out montoSenal);
+            decimal montoTotal = Math.Round(servicio.Precio, 2);
 
             var pago = new Pago
             {
@@ -203,8 +161,8 @@ namespace DkaizaProject.Controllers
                 PreferenceId = HttpContext.Session.GetString("PreferenceId"),
                 PaymentId = payment_id,
                 ExternalReference = pendiente.ExternalReference,
-                Monto = montoSenal,
-                MontoTotal = servicio.Precio,
+                Monto = montoTotal,
+                MontoTotal = montoTotal,
                 Metodo = payment_type,
                 Estado = EstadoPago.Aprobado,
                 FechaPago = DateTime.Now
@@ -214,11 +172,11 @@ namespace DkaizaProject.Controllers
 
             HttpContext.Session.Remove(AppointmentsController.ReservaPendienteSessionKey);
             HttpContext.Session.Remove("PreferenceId");
-            HttpContext.Session.Remove("MontoSenalPendiente");
+            HttpContext.Session.Remove("MontoPagoPendiente");
 
             ViewBag.Resumen = $"{servicio.Nombre} con {estilista.Nombre} el {cita.Fecha:dd/MM/yyyy} de {cita.HoraInicio:D2}:00 a {cita.HoraFin:D2}:00";
-            ViewBag.MontoPagado = montoSenal;
-            ViewBag.MontoTotal = servicio.Precio;
+            ViewBag.MontoPagado = montoTotal;
+            ViewBag.MontoTotal = montoTotal;
             ViewBag.PaymentId = payment_id;
             return View();
         }

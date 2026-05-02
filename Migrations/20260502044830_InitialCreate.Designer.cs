@@ -11,14 +11,99 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DkaizaProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260429105708_AddPagos")]
-    partial class AddPagos
+    [Migration("20260502044830_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
+
+            modelBuilder.Entity("DkaizaProject.Models.CategoriaServicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Icono")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CategoriasServicios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activo = true,
+                            Descripcion = "Cortes, peinados y tratamientos capilares",
+                            Icono = "fa-cut",
+                            Nombre = "Cabello",
+                            Orden = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Activo = true,
+                            Descripcion = "Tintes, mechas y balayage",
+                            Icono = "fa-palette",
+                            Nombre = "Coloración",
+                            Orden = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            Descripcion = "Keratina, hidratación y más",
+                            Icono = "fa-spa",
+                            Nombre = "Tratamientos",
+                            Orden = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            Descripcion = "Recogidos, ondas y planchado",
+                            Icono = "fa-hand-sparkles",
+                            Nombre = "Peinados",
+                            Orden = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            Descripcion = "Manicure y pedicure profesional",
+                            Icono = "fa-hand-peace",
+                            Nombre = "Manos y Pies",
+                            Orden = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Activo = true,
+                            Descripcion = "Maquillaje social y profesional",
+                            Icono = "fa-brush",
+                            Nombre = "Maquillaje",
+                            Orden = 6
+                        });
+                });
 
             modelBuilder.Entity("DkaizaProject.Models.Cita", b =>
                 {
@@ -115,7 +200,7 @@ namespace DkaizaProject.Migrations
                             FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nombre = "Admin",
                             PasswordHash = "$2a$11$eC3MeRvFgm5TqxeMK4xxYuZGPth0aElF2fqklF.G/mQEVZJ3fsbwK",
-                            Telefono = "000-000-0000"
+                            Telefono = "999-999-999"
                         });
                 });
 
@@ -130,6 +215,12 @@ namespace DkaizaProject.Migrations
 
                     b.Property<string>("Especialidad")
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("FotoBytes")
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("FotoContentType")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("HoraFinDescanso")
@@ -158,12 +249,12 @@ namespace DkaizaProject.Migrations
                         {
                             Id = 1,
                             Activo = true,
-                            Especialidad = "Coloración",
+                            Especialidad = "Coloración y Balayage",
                             HoraFinDescanso = 13,
                             HoraFinTrabajo = 22,
                             HoraInicioDescanso = 12,
                             HoraInicioTrabajo = 10,
-                            Nombre = "Estilista 1"
+                            Nombre = "María González"
                         },
                         new
                         {
@@ -174,18 +265,18 @@ namespace DkaizaProject.Migrations
                             HoraFinTrabajo = 22,
                             HoraInicioDescanso = 13,
                             HoraInicioTrabajo = 10,
-                            Nombre = "Estilista 2"
+                            Nombre = "Laura Fernández"
                         },
                         new
                         {
                             Id = 3,
                             Activo = true,
-                            Especialidad = "Tratamientos",
+                            Especialidad = "Tratamientos y Keratina",
                             HoraFinDescanso = 16,
                             HoraFinTrabajo = 22,
                             HoraInicioDescanso = 15,
                             HoraInicioTrabajo = 10,
-                            Nombre = "Estilista 3"
+                            Nombre = "Carolina Rojas"
                         });
                 });
 
@@ -247,12 +338,21 @@ namespace DkaizaProject.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CategoriaServicioId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Descripcion")
                         .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("DuracionHoras")
                         .HasColumnType("INTEGER");
+
+                    b.Property<byte[]>("ImagenBytes")
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("ImagenContentType")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -264,6 +364,8 @@ namespace DkaizaProject.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoriaServicioId");
+
                     b.ToTable("Servicios");
 
                     b.HasData(
@@ -271,15 +373,127 @@ namespace DkaizaProject.Migrations
                         {
                             Id = 1,
                             Activo = true,
-                            Descripcion = "Corte personalizado",
+                            CategoriaServicioId = 1,
+                            Descripcion = "Corte personalizado según tu estilo y tipo de cabello",
                             DuracionHoras = 1,
                             Nombre = "Corte de cabello",
                             Precio = 35m
                         },
                         new
                         {
+                            Id = 7,
+                            Activo = true,
+                            CategoriaServicioId = 1,
+                            Descripcion = "Corte especial para niños hasta 12 años",
+                            DuracionHoras = 1,
+                            Nombre = "Corte infantil",
+                            Precio = 25m
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Activo = true,
+                            CategoriaServicioId = 1,
+                            Descripcion = "Técnica de corte con navaja para texturizar",
+                            DuracionHoras = 1,
+                            Nombre = "Corte con navaja",
+                            Precio = 45m
+                        },
+                        new
+                        {
                             Id = 2,
                             Activo = true,
+                            CategoriaServicioId = 2,
+                            Descripcion = "Coloración completa con productos de alta calidad",
+                            DuracionHoras = 2,
+                            Nombre = "Tinte completo",
+                            Precio = 90m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Activo = true,
+                            CategoriaServicioId = 2,
+                            Descripcion = "Técnica de iluminación para un look natural",
+                            DuracionHoras = 2,
+                            Nombre = "Mechas / Balayage",
+                            Precio = 110m
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Activo = true,
+                            CategoriaServicioId = 2,
+                            Descripcion = "Mechas finas para dar luminosidad",
+                            DuracionHoras = 2,
+                            Nombre = "Reflejos",
+                            Precio = 95m
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Activo = true,
+                            CategoriaServicioId = 2,
+                            Descripcion = "Tintes en colores vibrantes (rosa, azul, morado)",
+                            DuracionHoras = 3,
+                            Nombre = "Color fantasía",
+                            Precio = 130m
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Activo = true,
+                            CategoriaServicioId = 2,
+                            Descripcion = "Neutralización de tonos no deseados",
+                            DuracionHoras = 1,
+                            Nombre = "Matizado",
+                            Precio = 50m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Activo = true,
+                            CategoriaServicioId = 3,
+                            Descripcion = "Tratamiento alisante que nutre y repara",
+                            DuracionHoras = 2,
+                            Nombre = "Alisado keratina",
+                            Precio = 130m
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Activo = true,
+                            CategoriaServicioId = 3,
+                            Descripcion = "Tratamiento intensivo para cabello seco",
+                            DuracionHoras = 1,
+                            Nombre = "Hidratación profunda",
+                            Precio = 45m
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Activo = true,
+                            CategoriaServicioId = 3,
+                            Descripcion = "Tratamiento reconstructivo antioxidante",
+                            DuracionHoras = 2,
+                            Nombre = "Botox capilar",
+                            Precio = 120m
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Activo = true,
+                            CategoriaServicioId = 3,
+                            Descripcion = "Reparación de cabello dañado químicamente",
+                            DuracionHoras = 2,
+                            Nombre = "Reconstrucción capilar",
+                            Precio = 110m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Activo = true,
+                            CategoriaServicioId = 4,
                             Descripcion = "Lavado + peinado profesional",
                             DuracionHoras = 1,
                             Nombre = "Lavado y peinado",
@@ -287,35 +501,119 @@ namespace DkaizaProject.Migrations
                         },
                         new
                         {
-                            Id = 3,
+                            Id = 15,
                             Activo = true,
-                            Descripcion = "Coloración completa",
+                            CategoriaServicioId = 4,
+                            Descripcion = "Recogido o semirecogido para ocasiones especiales",
                             DuracionHoras = 2,
-                            Nombre = "Tinte completo",
+                            Nombre = "Peinado de novia",
+                            Precio = 80m
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Activo = true,
+                            CategoriaServicioId = 4,
+                            Descripcion = "Ondas definidas o sueltas según tu preferencia",
+                            DuracionHoras = 1,
+                            Nombre = "Ondas y rulos",
+                            Precio = 50m
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Activo = true,
+                            CategoriaServicioId = 4,
+                            Descripcion = "Alisado con plancha y protección térmica",
+                            DuracionHoras = 1,
+                            Nombre = "Planchado profesional",
+                            Precio = 35m
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Activo = true,
+                            CategoriaServicioId = 5,
+                            Descripcion = "Limpieza, corte y esmaltado",
+                            DuracionHoras = 1,
+                            Nombre = "Manicure clásico",
+                            Precio = 35m
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Activo = true,
+                            CategoriaServicioId = 5,
+                            Descripcion = "Cuidado completo de pies",
+                            DuracionHoras = 1,
+                            Nombre = "Pedicure clásico",
+                            Precio = 40m
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Activo = true,
+                            CategoriaServicioId = 5,
+                            Descripcion = "Esmaltado semipermanente en uñas",
+                            DuracionHoras = 1,
+                            Nombre = "Manicure con gelish",
+                            Precio = 50m
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Activo = true,
+                            CategoriaServicioId = 5,
+                            Descripcion = "Esmaltado semipermanente en pies",
+                            DuracionHoras = 1,
+                            Nombre = "Pedicure con gelish",
+                            Precio = 55m
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Activo = true,
+                            CategoriaServicioId = 5,
+                            Descripcion = "Ambos servicios con descuento especial",
+                            DuracionHoras = 2,
+                            Nombre = "Combo Manicure + Pedicure",
+                            Precio = 65m
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Activo = true,
+                            CategoriaServicioId = 6,
+                            Descripcion = "Maquillaje para eventos y ocasiones especiales",
+                            DuracionHoras = 1,
+                            Nombre = "Maquillaje social",
+                            Precio = 60m
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Activo = true,
+                            CategoriaServicioId = 6,
+                            Descripcion = "Maquillaje profesional para tu día especial",
+                            DuracionHoras = 2,
+                            Nombre = "Maquillaje de novia",
+                            Precio = 120m
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Activo = true,
+                            CategoriaServicioId = 6,
+                            Descripcion = "Diseños creativos y caracterización",
+                            DuracionHoras = 2,
+                            Nombre = "Maquillaje artístico",
                             Precio = 90m
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Activo = true,
-                            Descripcion = "Técnica de iluminación",
-                            DuracionHoras = 2,
-                            Nombre = "Mechas / Balayage",
-                            Precio = 110m
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Activo = true,
-                            Descripcion = "Tratamiento alisante",
-                            DuracionHoras = 2,
-                            Nombre = "Alisado keratina",
-                            Precio = 130m
                         },
                         new
                         {
                             Id = 6,
                             Activo = true,
+                            CategoriaServicioId = 3,
                             Descripcion = "Tinte + corte + peinado",
                             DuracionHoras = 3,
                             Nombre = "Tratamiento completo",
@@ -557,6 +855,16 @@ namespace DkaizaProject.Migrations
                     b.Navigation("Cita");
                 });
 
+            modelBuilder.Entity("DkaizaProject.Models.Servicio", b =>
+                {
+                    b.HasOne("DkaizaProject.Models.CategoriaServicio", "Categoria")
+                        .WithMany("Servicios")
+                        .HasForeignKey("CategoriaServicioId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Categoria");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -606,6 +914,11 @@ namespace DkaizaProject.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DkaizaProject.Models.CategoriaServicio", b =>
+                {
+                    b.Navigation("Servicios");
                 });
 
             modelBuilder.Entity("DkaizaProject.Models.Cita", b =>

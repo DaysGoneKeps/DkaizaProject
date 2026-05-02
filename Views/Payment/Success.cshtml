@@ -11,8 +11,7 @@
             <p>@ViewBag.Resumen</p>
 
             <div class="confirm-box" style="margin-top:1.5rem; text-align:left;">
-                <div class="confirm-row"><span>Señal pagada</span><strong>S/ @(((decimal)(ViewBag.MontoPagado ?? 0m)).ToString("0.00"))</strong></div>
-                <div class="confirm-row"><span>Saldo en el salón</span><strong>S/ @(((decimal)(ViewBag.MontoTotal ?? 0m) - (decimal)(ViewBag.MontoPagado ?? 0m)).ToString("0.00"))</strong></div>
+                <div class="confirm-row"><span>Monto pagado</span><strong>S/ @(((decimal)(ViewBag.MontoPagado ?? 0m)).ToString("0.00"))</strong></div>
                 @if (!string.IsNullOrEmpty(ViewBag.PaymentId as string))
                 {
                     <div class="confirm-row"><span>ID de pago MercadoPago</span><strong>@ViewBag.PaymentId</strong></div>

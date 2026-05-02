@@ -144,7 +144,7 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
             return Json(new
             {
                 success = true,
-                redirectUrl = Url.Action("Checkout", "Payment")
+                redirectUrl = Url.Action("Iniciar", "Payment")
             });
         }
 
