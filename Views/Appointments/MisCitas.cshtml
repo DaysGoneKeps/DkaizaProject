@@ -51,6 +51,10 @@
                             </div>
                             <div class="cita-right">
                                 <span class="estado-badge estado-@cita.Estado.ToString().ToLower()">@cita.Estado</span>
+                                <a class="btn-reprogramar"
+   href="/Appointments/Reservar?servicioId=@cita.ServicioId&citaId=@cita.Id&reprogramar=true">
+    Reprogramar
+</a>
                                 <button class="btn-cancelar" data-id="@cita.Id">Cancelar</button>
                             </div>
                         </div>

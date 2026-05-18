@@ -76,6 +76,8 @@ public class CrearCitaDto
     public int HoraInicio { get; set; }
     public string? Notas { get; set; }
     public string? MetodoPago { get; set; }
+     public int? CitaId { get; set; }
+    public bool Reprogramando { get; set; }
 }
 
 public class ReservaPendiente

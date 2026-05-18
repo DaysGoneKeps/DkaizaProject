@@ -114,6 +114,55 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
                 return Json(new { success = false, message = "Datos inválidos." });
 
             int horaFin = dto.HoraInicio + servicio.DuracionHoras;
+            // 🔥 REPROGRAMAR CITA
+if (dto.Reprogramando && dto.CitaId.HasValue)
+{
+    var cita = await _db.Citas
+        .FirstOrDefaultAsync(c =>
+            c.Id == dto.CitaId.Value &&
+            c.ClienteId == CurrentClienteId.Value);
+
+    if (cita == null)
+    {
+        return Json(new
+        {
+            success = false,
+            message = "Cita no encontrada"
+        });
+    }
+
+    // validar conflicto EXCLUYENDO la misma cita
+    var conflictoReprogramacion = await _db.Citas.AnyAsync(c =>
+        c.Id != cita.Id &&
+        c.Fecha.Date == fecha.Date &&
+        c.EstilistaId == dto.EstilistaId &&
+        c.Estado != EstadoCita.Cancelada &&
+        c.HoraInicio < horaFin &&
+        c.HoraFin > dto.HoraInicio);
+
+    if (conflictoReprogramacion)
+    {
+        return Json(new
+        {
+            success = false,
+            message = "El horario ya fue reservado"
+        });
+    }
+
+    // 🔥 ACTUALIZAR
+    cita.ServicioId = dto.ServicioId;
+    cita.EstilistaId = dto.EstilistaId;
+    cita.Fecha = fecha;
+    cita.HoraInicio = dto.HoraInicio;
+    cita.HoraFin = horaFin;
+
+    await _db.SaveChangesAsync();
+
+    return Json(new
+    {
+        success = true
+    });
+}
 
             var conflicto = await _db.Citas.AnyAsync(c =>
                 c.Fecha.Date == fecha.Date &&

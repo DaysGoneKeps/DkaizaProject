@@ -67,9 +67,28 @@
                 <div class="confirm-row"><span>Horario</span><strong id="conf-horario">—</strong></div>
                 <div class="confirm-row"><span>Precio</span><strong id="conf-precio">—</strong></div>
 
-                <p class="payment-method-label">Selecciona el método de pago</p>
-                <button class="btn-confirm btn-pago-mp" id="btnPagarMP">Pagar con MercadoPago</button>
-                <button class="btn-confirm btn-pago-efectivo" id="btnPagarEfectivo">Pagar en efectivo</button>
+                <div id="paymentSection">
+
+    <p class="payment-method-label">
+        Selecciona el método de pago
+    </p>
+
+    <button class="btn-confirm btn-pago-mp" id="btnPagarMP">
+        Pagar con MercadoPago
+    </button>
+
+    <button class="btn-confirm btn-pago-efectivo" id="btnPagarEfectivo">
+        Pagar en efectivo
+    </button>
+
+</div>
+
+<button
+    class="btn-confirm"
+    id="btnConfirmarReprogramacion"
+    style="display:none;">
+    Confirmar reprogramación
+</button>
             </div>
         </div>
 
@@ -424,6 +443,8 @@ let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 
 const urlParams = new URLSearchParams(window.location.search);
+const esReprogramacion =
+    urlParams.get('reprogramar') === 'true';
 const servicioId = urlParams.get('servicioId');
 
 // ── Cargar servicio seleccionado ─────────────────────────────────────────
@@ -651,6 +672,42 @@ document.getElementById('btnPagarMP').addEventListener('click', function () {
 document.getElementById('btnPagarEfectivo').addEventListener('click', function () {
     enviarReserva(this, 'efectivo', 'Procesando...', 'Pagar en efectivo (al asistir)');
 });
+const btnReprogramacion = document.getElementById('btnConfirmarReprogramacion');
+
+if (btnReprogramacion) {
+
+    btnReprogramacion.onclick = async function () {
+
+    const body = buildReservaBody('reprogramacion');
+
+    body.reprogramando = true;
+
+    body.citaId = urlParams.get('citaId');
+
+    const res = await fetch('/Appointments/Crear', {
+
+        method: 'POST',
+
+        headers: {
+            'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+        window.location.href = '/Appointments/MisCitas';
+
+    } else {
+
+        alert(data.message || 'Error al reprogramar');
+    }
+};
+
+}
 
 window.addEventListener('pageshow', function (e) {
     const btnMP = document.getElementById('btnPagarMP');
@@ -691,7 +748,14 @@ async function resumePendingReserva() {
     showStep(4);
 }
 
+if (esReprogramacion) {
 
+    document.getElementById('paymentSection')
+        .style.display = 'none';
+
+    document.getElementById('btnConfirmarReprogramacion')
+        .style.display = 'block';
+}
 // Inicializar
 renderCalendar();
 loadSelectedService().then(() => resumePendingReserva());
