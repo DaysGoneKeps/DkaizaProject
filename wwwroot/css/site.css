@@ -1304,6 +1304,35 @@ a:hover {
   align-items: flex-end;
   gap: 8px;
 }
+.btn-reprogramar {
+  border: 1px solid var(--border-mid);
+  background: none;
+  color: var(--desert-rock);
+
+  padding: 5px 12px;
+
+  border-radius: 50px;
+
+  font-size: 12px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  font-family: var(--font-body);
+
+  transition: all 0.2s;
+
+  text-decoration: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-reprogramar:hover {
+  background: var(--cream-dark);
+  color: var(--ink);
+}
 
 .btn-cancelar {
   border: 1px solid #f5c6c6;
