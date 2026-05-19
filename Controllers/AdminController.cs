@@ -434,5 +434,72 @@ public async Task<IActionResult> EditarServicio(
                 .ToListAsync();
             return View(citas);
         }
+    public async Task<IActionResult> AgendaDiaria()
+{
+    var check = AdminOnly(); if (check != null) return check;
+ 
+    var hoy = DateTime.Today;
+ 
+    var estilistas = await _db.Estilistas
+        .Where(e => e.Activo)
+        .OrderBy(e => e.Nombre)
+        .ToListAsync();
+ 
+    var citas = await _db.Citas
+        .Include(c => c.Cliente)
+        .Include(c => c.Servicio)
+        .Include(c => c.Estilista)
+        .Where(c => c.Fecha.Date == hoy && c.Estado != EstadoCita.Cancelada)
+        .OrderBy(c => c.EstilistaId)
+        .ThenBy(c => c.HoraInicio)
+        .ToListAsync();
+ 
+    ViewBag.FechaSeleccionada = hoy.ToString("yyyy-MM-dd");
+    ViewBag.EstilistasAgenda = estilistas;
+    return View(citas);
+}
+ 
+// GET /Admin/AgendaDiariaData?fecha=2025-06-15&estilistaId=0
+// Endpoint AJAX: devuelve citas en JSON para la fecha y estilista indicados
+[HttpGet]
+public async Task<IActionResult> AgendaDiariaData(string fecha, int estilistaId = 0)
+{
+    var check = AdminOnly();
+    if (check != null) return Json(new { success = false, message = "No autorizado" });
+ 
+    if (!DateTime.TryParse(fecha, out var fechaSeleccionada))
+        return Json(new { success = false, message = "Fecha inválida" });
+ 
+    var query = _db.Citas
+        .Include(c => c.Cliente)
+        .Include(c => c.Servicio)
+        .Include(c => c.Estilista)
+        .Where(c => c.Fecha.Date == fechaSeleccionada.Date && c.Estado != EstadoCita.Cancelada);
+ 
+    if (estilistaId > 0)
+        query = query.Where(c => c.EstilistaId == estilistaId);
+ 
+    var citas = await query
+        .OrderBy(c => c.EstilistaId)
+        .ThenBy(c => c.HoraInicio)
+        .ToListAsync();
+ 
+    var resultado = citas.Select(c => new
+    {
+        c.Id,
+        Cliente = c.Cliente.Nombre,
+        Servicio = c.Servicio.Nombre,
+        Estilista = c.Estilista.Nombre,
+        EstilistaId = c.EstilistaId,
+        HoraInicio = $"{c.HoraInicio:D2}:00",
+        HoraFin = $"{c.HoraFin:D2}:00",
+        Estado = c.Estado.ToString(),
+        Notas = c.Notas ?? ""
+    });
+ 
+    return Json(new { success = true, citas = resultado });
+}
+ 
+        
     }
 }
