@@ -46,6 +46,7 @@ public enum EstadoCita
     Pendiente,
     Confirmada,
     Cancelada,
-    Completada
+    Completada,
+    EnProceso
 }
 }

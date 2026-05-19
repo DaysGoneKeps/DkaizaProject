@@ -51,6 +51,12 @@ public class ApplicationDbContext : IdentityDbContext
             .HasForeignKey<Pago>(p => p.CitaId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        mb.Entity<Cliente>()
+            .HasOne(c => c.Estilista)
+            .WithMany()
+            .HasForeignKey(c => c.EstilistaId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // ==================== SEED DATA ====================
         
         // 1. Categorías de Servicios

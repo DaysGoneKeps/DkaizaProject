@@ -1,0 +1,145 @@
+@model DkaizaProject.Models.Cita
+@{
+    ViewData["Title"] = "Detalle de cita";
+    Layout = "_Layout";
+
+    string EstadoTexto(DkaizaProject.Models.EstadoCita e) => e switch
+    {
+        DkaizaProject.Models.EstadoCita.Pendiente => "Pendiente",
+        DkaizaProject.Models.EstadoCita.Confirmada => "Pendiente",
+        DkaizaProject.Models.EstadoCita.EnProceso => "En proceso",
+        DkaizaProject.Models.EstadoCita.Completada => "Finalizada",
+        DkaizaProject.Models.EstadoCita.Cancelada => "Cancelada",
+        _ => e.ToString()
+    };
+
+    string EstadoClase(DkaizaProject.Models.EstadoCita e) => e switch
+    {
+        DkaizaProject.Models.EstadoCita.EnProceso => "estado-enproceso",
+        DkaizaProject.Models.EstadoCita.Completada => "estado-finalizada",
+        DkaizaProject.Models.EstadoCita.Cancelada => "estado-cancelada",
+        _ => "estado-pendiente"
+    };
+}
+
+<style>
+    .det-page { padding: 2rem 0 4rem; }
+    .det-back { color: var(--ink-mid); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 1.25rem; }
+    .det-back:hover { color: var(--rose-dark); }
+    .det-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; max-width: 720px; }
+    .det-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .det-header h1 { font-family: var(--font-display); font-size: 1.5rem; color: var(--ink); margin: 0 0 0.25rem 0; }
+    .det-header .sub { color: var(--ink-mid); font-size: 0.85rem; margin: 0; }
+    .det-badge { font-size: 0.75rem; padding: 5px 14px; border-radius: 50px; font-weight: 500; }
+    .estado-pendiente { background: #fff3cd; color: #856404; }
+    .estado-enproceso { background: #cce5ff; color: #004085; }
+    .estado-finalizada { background: #eafaf1; color: #1a7a4a; }
+    .estado-cancelada { background: #fdf0f0; color: #b83232; }
+    .det-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.5rem 0; }
+    @@media (max-width: 600px) { .det-grid { grid-template-columns: 1fr; } }
+    .det-field { background: var(--cream); border-radius: var(--radius-md); padding: 0.9rem 1rem; }
+    .det-field .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-mid); margin-bottom: 0.35rem; font-weight: 600; }
+    .det-field .value { color: var(--ink); font-size: 0.95rem; font-weight: 500; }
+    .det-field .value i { color: var(--rose-dark); margin-right: 6px; }
+    .det-notas {
+        background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream) 100%);
+        border-left: 4px solid var(--rose-dark);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.25rem;
+        margin: 1.5rem 0;
+    }
+    .det-notas .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rose-dark); font-weight: 600; margin-bottom: 0.4rem; }
+    .det-notas .value { color: var(--ink); font-size: 0.9rem; line-height: 1.5; }
+    .det-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .btn-action { border: none; border-radius: 50px; padding: 10px 22px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
+    .btn-iniciar { background: #004085; color: white; }
+    .btn-iniciar:hover { background: #002752; }
+    .btn-finalizar { background: #1a7a4a; color: white; }
+    .btn-finalizar:hover { background: #0f5234; }
+</style>
+
+<div class="det-page">
+    <div class="container">
+        <a href="/Estilista" class="det-back"><i class="fas fa-arrow-left"></i> Volver a mis citas</a>
+
+        <div class="det-card">
+            <div class="det-header">
+                <div>
+                    <h1>@Model.Servicio.Nombre</h1>
+                    <p class="sub">Cita #@Model.Id · creada el @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+                <span class="det-badge @EstadoClase(Model.Estado)" id="estadoBadge">@EstadoTexto(Model.Estado)</span>
+            </div>
+
+            <div class="det-grid">
+                <div class="det-field">
+                    <div class="label">Cliente</div>
+                    <div class="value"><i class="fas fa-user"></i> @Model.Cliente.NombreCompleto</div>
+                </div>
+                <div class="det-field">
+                    <div class="label">Teléfono</div>
+                    <div class="value"><i class="fas fa-phone"></i> @(string.IsNullOrEmpty(Model.Cliente.Telefono) ? "—" : Model.Cliente.Telefono)</div>
+                </div>
+                <div class="det-field">
+                    <div class="label">Fecha</div>
+                    <div class="value"><i class="far fa-calendar"></i> @Model.Fecha.ToString("dddd dd 'de' MMMM 'de' yyyy")</div>
+                </div>
+                <div class="det-field">
+                    <div class="label">Horario</div>
+                    <div class="value"><i class="far fa-clock"></i> @Model.HoraInicio:00 — @Model.HoraFin:00</div>
+                </div>
+                <div class="det-field">
+                    <div class="label">Servicio</div>
+                    <div class="value"><i class="fas fa-spa"></i> @Model.Servicio.Nombre</div>
+                </div>
+                <div class="det-field">
+                    <div class="label">Precio</div>
+                    <div class="value"><i class="fas fa-tag"></i> S/ @Model.Servicio.Precio</div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Notas))
+            {
+                <div class="det-notas">
+                    <div class="label"><i class="fas fa-sticky-note"></i> Observaciones del cliente</div>
+                    <div class="value">@Model.Notas</div>
+                </div>
+            }
+
+            <div class="det-actions">
+                @if (Model.Estado == DkaizaProject.Models.EstadoCita.Pendiente || Model.Estado == DkaizaProject.Models.EstadoCita.Confirmada)
+                {
+                    <button class="btn-action btn-iniciar" onclick="cambiarEstado(@Model.Id, 'EnProceso')">
+                        <i class="fas fa-play"></i> Iniciar atención
+                    </button>
+                }
+                @if (Model.Estado == DkaizaProject.Models.EstadoCita.EnProceso)
+                {
+                    <button class="btn-action btn-finalizar" onclick="cambiarEstado(@Model.Id, 'Completada')">
+                        <i class="fas fa-check"></i> Finalizar atención
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function cambiarEstado(id, nuevoEstado) {
+        var token = document.querySelector('input[name="__RequestVerificationToken"]');
+        var fd = new FormData();
+        fd.append('id', id);
+        fd.append('nuevoEstado', nuevoEstado);
+        if (token) fd.append('__RequestVerificationToken', token.value);
+
+        fetch('/Estilista/CambiarEstado', { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) { location.reload(); }
+                else { alert(data.message || 'Error'); }
+            })
+            .catch(function() { alert('Error en la solicitud'); });
+    }
+</script>
+
+@Html.AntiForgeryToken()

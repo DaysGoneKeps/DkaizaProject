@@ -526,20 +526,33 @@
 
             <!-- Menú principal -->
             <div class="collapse navbar-collapse" id="navbarMain">
+                @{
+                    var esEstilistaNav = Context.Session.GetString("EsEstilista") == "True";
+                    var esAdminNav = Context.Session.GetString("EsAdmin") == "True";
+                }
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/">Inicio</a>
                     </li>
-                    <li class="nav-item">
-                        @if (Context.Session.GetString("EsAdmin") == "True")
-                        {
-                            <a class="nav-link" href="/Admin/Servicios">Servicios</a>
-                        }
-                        else
-                        {
-                            <a class="nav-link" href="/Appointments/Servicios">Servicios</a>
-                        }
-                    </li>
+                    @if (esEstilistaNav)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Estilista">Mis citas</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            @if (esAdminNav)
+                            {
+                                <a class="nav-link" href="/Admin/Servicios">Servicios</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link" href="/Appointments/Servicios">Servicios</a>
+                            }
+                        </li>
+                    }
                     <li class="nav-item">
                         <a class="nav-link" href="/Home/Nosotros">Nosotros</a>
                     </li>
@@ -549,16 +562,22 @@
                 <div class="navbar-actions">
                     @if (Context.Session.GetInt32("ClienteId") != null)
                     {
-                        <a href="/Appointments/Reservar" class="btn btn-reservar">
-                            <i class="fas fa-calendar-alt"></i> Reservar
-                        </a>
-                        <!--<a href="/Appointments/MisCitas" class="btn btn-mis-citas">
-                            <i class="fas fa-clock"></i> Mis citas
-                        </a>-->
-                        @if (Context.Session.GetString("EsAdmin") == "True")
+                        @if (!esEstilistaNav)
+                        {
+                            <a href="/Appointments/Reservar" class="btn btn-reservar">
+                                <i class="fas fa-calendar-alt"></i> Reservar
+                            </a>
+                        }
+                        @if (esAdminNav)
                         {
                             <a href="/Admin" class="btn btn-admin">
                                 <i class="fas fa-shield-alt"></i> Admin
+                            </a>
+                        }
+                        @if (esEstilistaNav)
+                        {
+                            <a href="/Estilista" class="btn btn-mis-citas">
+                                <i class="fas fa-clock"></i> Mis citas
                             </a>
                         }
                         
@@ -578,10 +597,20 @@
                                     <i class="fas fa-user"></i>
                                     Mi Perfil
                                 </a>
-                                <a href="/Appointments/MisCitas" class="dropdown-item">
-                                    <i class="fas fa-calendar-check"></i>
-                                    Mis Citas
-                                </a>
+                                @if (esEstilistaNav)
+                                {
+                                    <a href="/Estilista" class="dropdown-item">
+                                        <i class="fas fa-calendar-check"></i>
+                                        Citas asignadas
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="/Appointments/MisCitas" class="dropdown-item">
+                                        <i class="fas fa-calendar-check"></i>
+                                        Mis Citas
+                                    </a>
+                                }
                                 <div class="dropdown-divider"></div>
                                 <a href="/Account/Logout" class="dropdown-item logout">
                                     <i class="fas fa-sign-out-alt"></i>
