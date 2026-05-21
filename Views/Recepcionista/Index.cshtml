@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Recepción";
+    Layout = "_Layout";
+    var saldo = (decimal)(ViewBag.SaldoCaja ?? 0m);
+    var pendientes = ViewBag.Pendientes as List<DkaizaProject.Models.Pago> ?? new List<DkaizaProject.Models.Pago>();
+}
+
+<style>
+    .rec-page { padding: 2rem 0 4rem; }
+    .rec-header { margin-bottom: 1.5rem; }
+    .rec-header h1 { font-family: var(--font-display); font-size: 1.8rem; color: var(--ink); margin: 0; }
+    .rec-grid-top { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @@media (max-width: 900px) { .rec-grid-top { grid-template-columns: 1fr; } }
+    .card-caja { background: linear-gradient(135deg, var(--ink) 0%, var(--rose-dark) 100%); color: white; border-radius: var(--radius-lg); padding: 1.5rem; }
+    .card-caja .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.8; margin-bottom: 0.5rem; }
+    .card-caja .monto { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; line-height: 1; }
+    .card-caja .sub { font-size: 0.75rem; opacity: 0.8; margin-top: 0.5rem; }
+    .card-buscar { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+    .card-buscar h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--ink); margin: 0 0 1rem 0; }
+    .buscar-row { display: flex; gap: 0.5rem; }
+    .buscar-row input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border-mid); border-radius: 10px; font-size: 0.9rem; background: var(--cream); }
+    .buscar-row input:focus { outline: none; border-color: var(--rose); background: white; }
+    .btn-rec { background: var(--ink); color: white; border: none; border-radius: 50px; padding: 10px 22px; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-rec:hover { background: var(--rose-dark); }
+    .btn-rec.green { background: #1a7a4a; }
+    .btn-rec.green:hover { background: #0f5234; }
+    .panel-cita { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; display: none; }
+    .panel-cita.shown { display: block; }
+    .panel-cita-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .panel-cita-header h3 { font-family: var(--font-display); font-size: 1.2rem; margin: 0; color: var(--ink); }
+    .panel-cita-header .sub { font-size: 0.8rem; color: var(--ink-mid); margin: 0; }
+    .badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 50px; font-weight: 500; }
+    .badge-pendiente { background: #fff3cd; color: #856404; }
+    .badge-pagada { background: #eafaf1; color: #1a7a4a; }
+    .badge-otro { background: #cce5ff; color: #004085; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; }
+    @@media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+    .info-cell { background: var(--cream); padding: 0.7rem 0.9rem; border-radius: 10px; }
+    .info-cell .l { font-size: 0.65rem; text-transform: uppercase; color: var(--ink-mid); letter-spacing: 0.08em; margin-bottom: 3px; }
+    .info-cell .v { font-size: 0.9rem; color: var(--ink); font-weight: 500; }
+    .pago-section { border-top: 1px solid var(--border); padding-top: 1.25rem; }
+    .form-pago { display: grid; grid-template-columns: 140px 1fr auto; gap: 0.75rem; align-items: end; }
+    @@media (max-width: 600px) { .form-pago { grid-template-columns: 1fr; } }
+    .form-pago label { display: block; font-size: 0.7rem; text-transform: uppercase; color: var(--ink-mid); margin-bottom: 4px; font-weight: 600; letter-spacing: 0.05em; }
+    .form-pago input, .form-pago select { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border-mid); border-radius: 10px; font-size: 0.85rem; background: var(--cream); }
+    .pendientes-section h3 { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); margin: 0 0 1rem 0; }
+    .pend-table { width: 100%; border-collapse: collapse; background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .pend-table th { background: var(--cream-dark); text-align: left; padding: 0.75rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: var(--ink-mid); font-weight: 600; }
+    .pend-table td { padding: 0.85rem 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--ink); }
+    .empty-pend { text-align: center; padding: 2rem; color: var(--ink-mid); }
+    .mensaje-banner { padding: 12px 16px; border-radius: 10px; margin-bottom: 1rem; font-size: 0.85rem; display: none; }
+    .mensaje-banner.shown { display: block; }
+    .mensaje-banner.ok { background: #eafaf1; color: #1a7a4a; border-left: 4px solid #1a7a4a; }
+    .mensaje-banner.err { background: #fdf0f0; color: #b83232; border-left: 4px solid #b83232; }
+</style>
+
+<div class="rec-page">
+    <div class="container">
+        <div class="rec-header">
+            <p class="section-eyebrow">Panel de recepción</p>
+            <h1>Registro y validación de pagos</h1>
+        </div>
+
+        @Html.AntiForgeryToken()
+        <div id="mensajeBanner" class="mensaje-banner"></div>
+
+        <div class="rec-grid-top">
+            <div class="card-caja">
+                <div class="label">Saldo de caja del día</div>
+                <div class="monto">S/ @saldo.ToString("F2")</div>
+                <div class="sub">@DateTime.Today.ToString("dddd dd 'de' MMMM 'de' yyyy")</div>
+            </div>
+
+            <div class="card-buscar">
+                <h3><i class="fas fa-search"></i> Buscar cita por código</h3>
+                <div class="buscar-row">
+                    <input type="number" id="codigoCita" placeholder="Ej: 12" />
+                    <button class="btn-rec" onclick="buscarCita()"><i class="fas fa-search"></i> Buscar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="panelCita" class="panel-cita">
+            <div class="panel-cita-header">
+                <div>
+                    <h3 id="citaServicio"></h3>
+                    <p class="sub" id="citaSub"></p>
+                </div>
+                <span id="citaBadge" class="badge"></span>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-cell"><div class="l">Cliente</div><div class="v" id="citaCliente"></div></div>
+                <div class="info-cell"><div class="l">Teléfono</div><div class="v" id="citaTelefono"></div></div>
+                <div class="info-cell"><div class="l">Fecha</div><div class="v" id="citaFecha"></div></div>
+                <div class="info-cell"><div class="l">Horario</div><div class="v" id="citaHorario"></div></div>
+                <div class="info-cell"><div class="l">Estilista</div><div class="v" id="citaEstilista"></div></div>
+                <div class="info-cell"><div class="l">Precio</div><div class="v" id="citaPrecio"></div></div>
+            </div>
+
+            <div class="pago-section" id="pagoSection"></div>
+        </div>
+
+        <div class="pendientes-section">
+            <h3><i class="fas fa-clock"></i> Pagos pendientes de validar (@pendientes.Count)</h3>
+            @if (!pendientes.Any())
+            {
+                <div class="empty-pend">No hay pagos pendientes.</div>
+            }
+            else
+            {
+                <table class="pend-table">
+                    <thead>
+                        <tr><th>Cita</th><th>Cliente</th><th>Servicio</th><th>Método</th><th>Monto</th><th>Acción</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in pendientes)
+                        {
+                            <tr id="row-@p.Id">
+                                <td>#@p.CitaId</td>
+                                <td>@p.Cita.Cliente.NombreCompleto</td>
+                                <td>@p.Cita.Servicio.Nombre</td>
+                                <td>@(p.Metodo ?? "—")</td>
+                                <td>S/ @p.MontoTotal.ToString("F2")</td>
+                                <td><button class="btn-rec green" onclick="validarPago(@p.Id)"><i class="fas fa-check"></i> Validar pago</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/recepcionista.js" asp-append-version="true"></script>
+}

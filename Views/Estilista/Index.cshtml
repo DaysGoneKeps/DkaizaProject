@@ -1,0 +1,105 @@
+@model List<DkaizaProject.Models.Cita>
+@{
+    ViewData["Title"] = "Mis citas asignadas";
+    Layout = "_Layout";
+
+    string EstadoTexto(DkaizaProject.Models.EstadoCita e) => e switch
+    {
+        DkaizaProject.Models.EstadoCita.Pendiente => "Pendiente",
+        DkaizaProject.Models.EstadoCita.Confirmada => "Pendiente",
+        DkaizaProject.Models.EstadoCita.EnProceso => "En proceso",
+        DkaizaProject.Models.EstadoCita.Completada => "Finalizada",
+        DkaizaProject.Models.EstadoCita.Cancelada => "Cancelada",
+        _ => e.ToString()
+    };
+
+    string EstadoClase(DkaizaProject.Models.EstadoCita e) => e switch
+    {
+        DkaizaProject.Models.EstadoCita.EnProceso => "estado-enproceso",
+        DkaizaProject.Models.EstadoCita.Completada => "estado-finalizada",
+        DkaizaProject.Models.EstadoCita.Cancelada => "estado-cancelada",
+        _ => "estado-pendiente"
+    };
+}
+
+<style>
+    .est-page { padding: 2rem 0 4rem; }
+    .est-header { margin-bottom: 2rem; }
+    .est-header h1 { font-family: var(--font-display); font-size: 1.8rem; color: var(--ink); margin: 0; }
+    .est-list { display: flex; flex-direction: column; gap: 1rem; }
+    .est-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        gap: 1.25rem;
+        align-items: center;
+        transition: all 0.2s;
+    }
+    .est-card:hover { box-shadow: var(--shadow-lg); border-color: var(--rose); }
+    .est-date { text-align: center; background: var(--rose-light); border-radius: var(--radius-md); padding: 0.5rem; }
+    .est-date .day { display: block; font-size: 1.6rem; font-weight: 700; color: var(--ink); line-height: 1; }
+    .est-date .month { display: block; font-size: 0.7rem; text-transform: uppercase; color: var(--rose-dark); letter-spacing: 0.1em; margin-top: 4px; }
+    .est-info h3 { font-family: var(--font-display); font-size: 1.05rem; color: var(--ink); margin: 0 0 4px 0; }
+    .est-info p { margin: 2px 0; color: var(--ink-mid); font-size: 0.85rem; }
+    .est-info .cliente { font-weight: 500; color: var(--ink); }
+    .est-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+    .est-badge { font-size: 0.7rem; padding: 4px 12px; border-radius: 50px; font-weight: 500; }
+    .estado-pendiente { background: #fff3cd; color: #856404; }
+    .estado-enproceso { background: #cce5ff; color: #004085; }
+    .estado-finalizada { background: #eafaf1; color: #1a7a4a; }
+    .estado-cancelada { background: #fdf0f0; color: #b83232; }
+    .btn-detalle {
+        background: var(--ink); color: white; border: none; border-radius: 50px;
+        padding: 6px 16px; font-size: 0.75rem; cursor: pointer; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-detalle:hover { background: var(--rose-dark); color: white; }
+    .empty-est { text-align: center; padding: 4rem 2rem; color: var(--ink-mid); }
+    .empty-est .icon { font-size: 3rem; margin-bottom: 1rem; }
+</style>
+
+<div class="est-page">
+    <div class="container">
+        <div class="est-header">
+            <p class="section-eyebrow">Panel del estilista</p>
+            <h1>Citas asignadas</h1>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-est">
+                <div class="icon">📅</div>
+                <h3>No tienes citas asignadas</h3>
+                <p>Cuando se te asignen citas aparecerán aquí.</p>
+            </div>
+        }
+        else
+        {
+            <div class="est-list">
+                @foreach (var c in Model)
+                {
+                    <div class="est-card">
+                        <div class="est-date">
+                            <span class="day">@c.Fecha.Day</span>
+                            <span class="month">@c.Fecha.ToString("MMM").ToUpper()</span>
+                        </div>
+                        <div class="est-info">
+                            <h3>@c.Servicio.Nombre</h3>
+                            <p class="cliente"><i class="fas fa-user"></i> @c.Cliente.NombreCompleto</p>
+                            <p><i class="far fa-clock"></i> @c.HoraInicio:00 — @c.HoraFin:00</p>
+                        </div>
+                        <div class="est-actions">
+                            <span class="est-badge @EstadoClase(c.Estado)">@EstadoTexto(c.Estado)</span>
+                            <a href="/Estilista/DetalleCita/@c.Id" class="btn-detalle">
+                                <i class="fas fa-eye"></i> Ver detalle
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

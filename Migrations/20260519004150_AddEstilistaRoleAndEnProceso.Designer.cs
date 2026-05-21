@@ -3,6 +3,7 @@ using System;
 using DkaizaProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DkaizaProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260519004150_AddEstilistaRoleAndEnProceso")]
+    partial class AddEstilistaRoleAndEnProceso
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -169,9 +172,6 @@ namespace DkaizaProject.Migrations
                     b.Property<bool>("EsEstilista")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("EsRecepcionista")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int?>("EstilistaId")
                         .HasColumnType("INTEGER");
 
@@ -206,24 +206,10 @@ namespace DkaizaProject.Migrations
                             Email = "admin@salon.com",
                             EsAdmin = true,
                             EsEstilista = false,
-                            EsRecepcionista = false,
                             FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Nombre = "Admin",
                             PasswordHash = "$2a$11$eC3MeRvFgm5TqxeMK4xxYuZGPth0aElF2fqklF.G/mQEVZJ3fsbwK",
                             Telefono = "999-999-999"
-                        },
-                        new
-                        {
-                            Id = 1000,
-                            Apellido = "Dkaiza",
-                            Email = "recepcion@dkaiza.com",
-                            EsAdmin = false,
-                            EsEstilista = false,
-                            EsRecepcionista = true,
-                            FechaRegistro = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Nombre = "Recepcion",
-                            PasswordHash = "$2a$11$rImcKUDCn6N6xavnKyabG.NFBP/BWszxCHLiu3IPkVii7A6JUWEC6",
-                            Telefono = ""
                         });
                 });
 
@@ -326,9 +312,6 @@ namespace DkaizaProject.Migrations
                     b.Property<DateTime?>("FechaPago")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("FechaValidacion")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Metodo")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -339,10 +322,6 @@ namespace DkaizaProject.Migrations
                     b.Property<decimal>("MontoTotal")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("NumeroOperacion")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("PaymentId")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
@@ -350,12 +329,6 @@ namespace DkaizaProject.Migrations
                     b.Property<string>("PreferenceId")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("Validado")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ValidadoPorClienteId")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

@@ -32,6 +32,13 @@ namespace DkaizaProject.Models
 
     public bool EsAdmin { get; set; } = false;
 
+    public bool EsEstilista { get; set; } = false;
+
+    public bool EsRecepcionista { get; set; } = false;
+
+    public int? EstilistaId { get; set; }
+    public Estilista? Estilista { get; set; }
+
     public ICollection<Cita> Citas { get; set; } = new List<Cita>();
 
     public string NombreCompleto => $"{Nombre} {Apellido}";

@@ -321,12 +321,11 @@ public async Task<IActionResult> EditarServicio(
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearEstilista([FromForm] Estilista model, IFormFile? Foto)
         {
-            var check = AdminOnly(); 
+            var check = AdminOnly();
             if (check != null) return Json(new { success = false, message = "No autorizado" });
 
             try
             {
-                // Manejar la foto
                 if (Foto != null && Foto.Length > 0)
                 {
                     if (Foto.Length > 2 * 1024 * 1024)
@@ -343,12 +342,58 @@ public async Task<IActionResult> EditarServicio(
                 model.Activo = true;
                 _db.Estilistas.Add(model);
                 await _db.SaveChangesAsync();
-                return Json(new { success = true, message = $"Estilista '{model.Nombre}' creado correctamente" });
+
+                var (email, password) = await GenerarCredencialesEstilistaAsync(model.Nombre);
+                var partes = model.Nombre.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                var cliente = new Cliente
+                {
+                    Nombre = partes[0],
+                    Apellido = partes.Length > 1 ? partes[1] : "",
+                    Email = email,
+                    Telefono = "",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                    EsAdmin = false,
+                    EsEstilista = true,
+                    EstilistaId = model.Id,
+                    FechaRegistro = DateTime.UtcNow
+                };
+                _db.Clientes.Add(cliente);
+                await _db.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Estilista '{model.Nombre}' creado correctamente",
+                    credenciales = new { email, password }
+                });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Error al crear estilista: " + ex.Message });
             }
+        }
+
+        private async Task<(string email, string password)> GenerarCredencialesEstilistaAsync(string nombreCompleto)
+        {
+            var soloLetras = new string((nombreCompleto ?? "").ToLowerInvariant()
+                .Where(c => c >= 'a' && c <= 'z').ToArray());
+            if (soloLetras.Length < 4) soloLetras = (soloLetras + "user").Substring(0, 4);
+            var baseNombre = soloLetras.Substring(0, 4);
+
+            var rng = new Random();
+            string email;
+            int intentos = 0;
+            do
+            {
+                email = $"{baseNombre}{rng.Next(100, 1000)}@dkaiza.com";
+                intentos++;
+            } while (await _db.Clientes.AnyAsync(c => c.Email == email) && intentos < 20);
+
+            var prefijoPwd = (baseNombre.Length >= 3 ? baseNombre.Substring(0, 3) : baseNombre + "x");
+            prefijoPwd = char.ToUpperInvariant(prefijoPwd[0]) + prefijoPwd.Substring(1);
+            var password = $"{prefijoPwd}{rng.Next(1000, 10000)}";
+
+            return (email, password);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
