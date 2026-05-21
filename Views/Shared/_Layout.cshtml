@@ -529,6 +529,7 @@
                 @{
                     var esEstilistaNav = Context.Session.GetString("EsEstilista") == "True";
                     var esAdminNav = Context.Session.GetString("EsAdmin") == "True";
+                    var esRecepcionistaNav = Context.Session.GetString("EsRecepcionista") == "True";
                 }
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
@@ -538,6 +539,12 @@
                     {
                         <li class="nav-item">
                             <a class="nav-link" href="/Estilista">Mis citas</a>
+                        </li>
+                    }
+                    else if (esRecepcionistaNav)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Recepcionista">Recepción</a>
                         </li>
                     }
                     else
@@ -562,7 +569,7 @@
                 <div class="navbar-actions">
                     @if (Context.Session.GetInt32("ClienteId") != null)
                     {
-                        @if (!esEstilistaNav)
+                        @if (!esEstilistaNav && !esRecepcionistaNav)
                         {
                             <a href="/Appointments/Reservar" class="btn btn-reservar">
                                 <i class="fas fa-calendar-alt"></i> Reservar
@@ -578,6 +585,12 @@
                         {
                             <a href="/Estilista" class="btn btn-mis-citas">
                                 <i class="fas fa-clock"></i> Mis citas
+                            </a>
+                        }
+                        @if (esRecepcionistaNav)
+                        {
+                            <a href="/Recepcionista" class="btn btn-mis-citas">
+                                <i class="fas fa-cash-register"></i> Recepción
                             </a>
                         }
                         
@@ -602,6 +615,13 @@
                                     <a href="/Estilista" class="dropdown-item">
                                         <i class="fas fa-calendar-check"></i>
                                         Citas asignadas
+                                    </a>
+                                }
+                                else if (esRecepcionistaNav)
+                                {
+                                    <a href="/Recepcionista" class="dropdown-item">
+                                        <i class="fas fa-cash-register"></i>
+                                        Panel de recepción
                                     </a>
                                 }
                                 else

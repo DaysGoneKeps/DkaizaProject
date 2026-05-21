@@ -47,6 +47,7 @@ public enum EstadoCita
     Confirmada,
     Cancelada,
     Completada,
-    EnProceso
+    EnProceso,
+    Pagada
 }
 }

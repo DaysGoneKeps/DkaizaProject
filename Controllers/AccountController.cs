@@ -45,11 +45,15 @@ namespace DkaizaProject.Controllers
         HttpContext.Session.SetString("ClienteNombre", cliente.NombreCompleto);
         HttpContext.Session.SetString("EsAdmin", cliente.EsAdmin.ToString());
         HttpContext.Session.SetString("EsEstilista", cliente.EsEstilista.ToString());
+        HttpContext.Session.SetString("EsRecepcionista", cliente.EsRecepcionista.ToString());
         if (cliente.EsEstilista && cliente.EstilistaId.HasValue)
             HttpContext.Session.SetInt32("EstilistaId", cliente.EstilistaId.Value);
 
         if (cliente.EsEstilista)
             return RedirectToAction("Index", "Estilista");
+
+        if (cliente.EsRecepcionista)
+            return RedirectToAction("Index", "Recepcionista");
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);

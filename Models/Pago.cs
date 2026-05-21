@@ -35,6 +35,15 @@ namespace DkaizaProject.Models
 
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
         public DateTime? FechaPago { get; set; }
+
+        [MaxLength(50)]
+        public string? NumeroOperacion { get; set; }
+
+        public bool Validado { get; set; } = false;
+
+        public DateTime? FechaValidacion { get; set; }
+
+        public int? ValidadoPorClienteId { get; set; }
     }
 
     public enum EstadoPago

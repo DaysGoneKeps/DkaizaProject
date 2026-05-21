@@ -130,6 +130,18 @@ public class ApplicationDbContext : IdentityDbContext
                 PasswordHash = "$2a$11$eC3MeRvFgm5TqxeMK4xxYuZGPth0aElF2fqklF.G/mQEVZJ3fsbwK",
                 EsAdmin = true,
                 FechaRegistro = new DateTime(2024, 1, 1)
+            },
+            new Cliente
+            {
+                Id = 1000,
+                Nombre = "Recepcion",
+                Apellido = "Dkaiza",
+                Email = "recepcion@dkaiza.com",
+                Telefono = "",
+                PasswordHash = "$2a$11$rImcKUDCn6N6xavnKyabG.NFBP/BWszxCHLiu3IPkVii7A6JUWEC6",
+                EsAdmin = false,
+                EsRecepcionista = true,
+                FechaRegistro = new DateTime(2024, 1, 1)
             }
         );
     }

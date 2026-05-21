@@ -34,6 +34,8 @@ namespace DkaizaProject.Models
 
     public bool EsEstilista { get; set; } = false;
 
+    public bool EsRecepcionista { get; set; } = false;
+
     public int? EstilistaId { get; set; }
     public Estilista? Estilista { get; set; }
 
