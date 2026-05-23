@@ -1,0 +1,556 @@
+@model List<DkaizaProject.Models.Cita>
+@{
+    ViewData["Title"] = "Agenda Diaria";
+    Layout = "_Layout";
+    var estilistas = ViewBag.EstilistasAgenda as List<DkaizaProject.Models.Estilista> ?? new();
+    var fechaHoy = ViewBag.FechaSeleccionada as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+    :root {
+        --cream:      #F5F0EA;
+        --cream-dark: #EDE6DC;
+        --brown:      #7B5C3E;
+        --brown-mid:  #A0785A;
+        --brown-light:#C4A882;
+        --rose:       #C4808A;
+        --text:       #2C1A0E;
+        --text-mid:   #6B4C35;
+        --text-muted: #A08060;
+        --white:      #FFFFFF;
+        --border:     #DDD4C6;
+        --pending:    #C4808A;
+        --confirm:    #7B9E7B;
+        --complete:   #7A8EA0;
+        --cancel:     #B0876A;
+        --shadow:     0 2px 12px rgba(123,92,62,.10);
+        --shadow-lg:  0 8px 32px rgba(123,92,62,.16);
+    }
+
+    /* Forzar fondo crema en toda la página */
+    .ag-page {
+        background: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        width: 100%;
+    }
+
+    /* Hero centrado */
+    .ag-hero {
+        background: var(--cream-dark);
+        text-align: center;
+        padding: 3rem 2rem 2.5rem;
+        border-bottom: 1px solid var(--border);
+        width: 100%;
+    }
+
+    .ag-hero-eyebrow {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--brown-light);
+        margin: 0 0 .6rem;
+    }
+
+    .ag-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 .5rem;
+        line-height: 1.15;
+    }
+
+    .ag-hero p {
+        color: var(--text-muted);
+        font-size: .95rem;
+        margin: 0;
+    }
+
+    /* Contenedor principal centrado */
+    .ag-body {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Toolbar */
+    .ag-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .ag-back {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        font-size: .88rem;
+        font-weight: 500;
+        color: var(--text-mid);
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 50px;
+        padding: .45rem 1.1rem;
+        text-decoration: none;
+        transition: all .2s;
+    }
+
+    .ag-back:hover { border-color: var(--brown-light); color: var(--brown); text-decoration: none; }
+
+    /* Controles */
+    .ag-controls {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .ag-control-group { display: flex; flex-direction: column; gap: 4px; }
+
+    .ag-controls label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .ag-controls input[type="date"],
+    .ag-controls select {
+        background: var(--cream);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 10px;
+        padding: .5rem 1rem;
+        font-family: 'DM Sans', sans-serif;
+        font-size: .92rem;
+        cursor: pointer;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+        min-width: 180px;
+    }
+
+    .ag-controls input[type="date"]:focus,
+    .ag-controls select:focus {
+        border-color: var(--brown-light);
+        box-shadow: 0 0 0 3px rgba(196,168,130,.2);
+    }
+
+    /* Stats */
+    .ag-stats {
+        display: flex;
+        gap: .8rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.8rem;
+        align-items: center;
+        font-size: .85rem;
+        color: var(--text-muted);
+    }
+
+    .ag-stats strong { color: var(--brown); font-weight: 700; font-size: .97rem; }
+    .ag-stats-sep { color: var(--border); }
+
+    /* Grid */
+    .ag-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.3rem;
+    }
+
+    /* Card */
+    .ag-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: box-shadow .25s, transform .25s;
+    }
+
+    .ag-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+
+    .ag-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
+        background: var(--cream-dark);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .ag-avatar {
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--brown-light), var(--brown-mid));
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1rem; color: var(--white);
+        flex-shrink: 0; overflow: hidden;
+        border: 2px solid var(--white);
+        box-shadow: 0 2px 6px rgba(123,92,62,.2);
+    }
+
+    .ag-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .ag-est-name {
+        font-weight: 600; font-size: .95rem; color: var(--text);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .ag-est-esp { font-size: .73rem; color: var(--text-muted); margin-top: 1px; }
+
+    .ag-badge {
+        margin-left: auto;
+        background: var(--rose); color: var(--white);
+        border-radius: 20px; padding: 3px 11px;
+        font-size: .73rem; font-weight: 700; text-align: center;
+    }
+
+    .ag-badge.zero {
+        background: transparent; color: var(--text-muted);
+        border: 1px solid var(--border);
+    }
+
+    /* Citas */
+    .ag-citas-list { padding: .3rem 0; }
+
+    .ag-cita-item {
+        display: flex; align-items: center; gap: .85rem;
+        padding: .7rem 1.2rem; cursor: pointer;
+        transition: background .15s;
+        border-left: 3px solid transparent;
+    }
+
+    .ag-cita-item:hover { background: var(--cream); border-left-color: var(--brown-light); }
+
+    .ag-hora {
+        font-size: .78rem; color: var(--brown); font-weight: 700;
+        min-width: 48px; font-variant-numeric: tabular-nums;
+    }
+
+    .ag-cita-info { flex: 1; min-width: 0; }
+
+    .ag-cita-cliente {
+        font-size: .88rem; font-weight: 600; color: var(--text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .ag-cita-servicio {
+        font-size: .73rem; color: var(--text-muted);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .ag-estado {
+        font-size: .67rem; font-weight: 600; border-radius: 20px;
+        padding: 2px 8px; text-transform: uppercase; letter-spacing: .4px; flex-shrink: 0;
+    }
+
+    .estado-Pendiente  { background: rgba(196,128,138,.15); color: var(--pending); }
+    .estado-Confirmada { background: rgba(123,158,123,.15); color: var(--confirm); }
+    .estado-Cancelada  { background: rgba(176,135,106,.15); color: var(--cancel);  }
+    .estado-Completada { background: rgba(122,142,160,.15); color: var(--complete);}
+
+    .ag-empty {
+        padding: 1.4rem; text-align: center;
+        color: var(--text-muted); font-size: .83rem; font-style: italic;
+    }
+
+    /* Sin resultados */
+    .ag-no-results {
+        grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: var(--text-muted);
+    }
+
+    .ag-no-results svg { display: block; margin: 0 auto 1rem; opacity: .35; }
+
+    .ag-no-results p {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.15rem; color: var(--text-mid);
+    }
+
+    /* Loading */
+    .ag-loading { grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted); }
+
+    .spinner {
+        width: 34px; height: 34px;
+        border: 3px solid var(--border); border-top-color: var(--brown);
+        border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1rem;
+    }
+
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Panel lateral */
+    .ag-panel-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(44,26,14,.35); z-index: 1000;
+        backdrop-filter: blur(3px);
+    }
+
+    .ag-panel-overlay.open { display: block; }
+
+    .ag-panel {
+        position: fixed; top: 0; right: -440px;
+        width: 390px; max-width: 95vw; height: 100vh;
+        background: var(--white); border-left: 1px solid var(--border);
+        z-index: 1001; padding: 2.2rem 2rem;
+        transition: right .32s cubic-bezier(.4,0,.2,1);
+        overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem;
+        box-shadow: -8px 0 32px rgba(123,92,62,.12);
+    }
+
+    .ag-panel.open { right: 0; }
+
+    .ag-panel-close {
+        position: absolute; top: 1.2rem; right: 1.2rem;
+        background: var(--cream); border: 1px solid var(--border);
+        color: var(--text-muted); border-radius: 50%;
+        width: 34px; height: 34px; cursor: pointer; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; transition: all .2s;
+    }
+
+    .ag-panel-close:hover { border-color: var(--brown-light); color: var(--brown); }
+
+    .ag-panel-eyebrow {
+        font-size: .68rem; font-weight: 600; letter-spacing: 2px;
+        text-transform: uppercase; color: var(--brown-light);
+    }
+
+    .ag-panel-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem; color: var(--text); margin: .2rem 0 0;
+    }
+
+    .ag-panel-label {
+        font-size: .68rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 3px;
+    }
+
+    .ag-panel-value { font-size: .95rem; font-weight: 500; color: var(--text); }
+
+    .ag-panel-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    .ag-panel-block {
+        background: var(--cream); border-radius: 12px;
+        padding: .9rem 1.1rem; border: 1px solid var(--border);
+    }
+</style>
+
+<div class="ag-page">
+    <div class="ag-hero">
+        <p class="ag-hero-eyebrow">Panel de administración</p>
+        <h1>Agenda Diaria</h1>
+        <p>Visualiza y organiza las citas de tus estilistas activos</p>
+    </div>
+
+    <div class="ag-body">
+        <div class="ag-toolbar">
+            <a href="/Admin" class="ag-back">← Atrás</a>
+        </div>
+
+        <div class="ag-controls">
+            <div class="ag-control-group">
+                <label>Fecha</label>
+                <input type="date" id="filtroFecha" value="@fechaHoy" />
+            </div>
+            <div class="ag-control-group">
+                <label>Estilista</label>
+                <select id="filtroEstilista">
+                    <option value="0">Todos los estilistas</option>
+                    @foreach (var e in estilistas)
+                    {
+                        <option value="@e.Id">@e.Nombre</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="ag-stats">
+            <span> <strong id="statTotal">@Model.Count</strong> citas programadas</span>
+            <span class="ag-stats-sep">·</span>
+            <span> <strong id="statEstilistas">@estilistas.Count</strong> estilistas activos</span>
+        </div>
+
+        <div class="ag-grid" id="agendaGrid">
+            @* El grid se renderiza con JavaScript *@
+        </div>
+    </div>
+</div>
+
+<div class="ag-panel-overlay" id="panelOverlay" onclick="cerrarPanel()"></div>
+<div class="ag-panel" id="panelDetalle">
+    <button class="ag-panel-close" onclick="cerrarPanel()">✕</button>
+    <div>
+        <div class="ag-panel-eyebrow">Detalle de cita</div>
+        <p class="ag-panel-title" id="pdCliente">—</p>
+    </div>
+    <hr class="ag-panel-divider" />
+    <div class="ag-panel-block">
+        <div class="ag-panel-label">Servicio</div>
+        <div class="ag-panel-value" id="pdServicio">—</div>
+    </div>
+    <div class="ag-panel-block">
+        <div class="ag-panel-label">Estilista</div>
+        <div class="ag-panel-value" id="pdEstilista">—</div>
+    </div>
+    <div style="display:flex;gap:.7rem">
+        <div class="ag-panel-block" style="flex:1">
+            <div class="ag-panel-label">Horario</div>
+            <div class="ag-panel-value" id="pdHorario">—</div>
+        </div>
+        <div class="ag-panel-block" style="flex:1">
+            <div class="ag-panel-label">Estado</div>
+            <div id="pdEstadoWrap"></div>
+        </div>
+    </div>
+    <div id="pdNotasWrap" style="display:none">
+        <hr class="ag-panel-divider" />
+        <div class="ag-panel-label">Notas</div>
+        <div class="ag-panel-value" id="pdNotas" style="color:var(--text-muted);font-size:.88rem">—</div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function traducirEstado(e) {
+        return { Pendiente: 'Pendiente', Confirmada: 'Confirmada', Cancelada: 'Cancelada', Completada: 'Completada' }[e] || e;
+    }
+
+    function renderGrid(citas, estilistas) {
+        const grid = document.getElementById('agendaGrid');
+        const filtroEst = parseInt(document.getElementById('filtroEstilista').value);
+
+        const grupos = {};
+        estilistas.forEach(e => grupos[e.id] = { estilista: e, citas: [] });
+        citas.forEach(c => { if (grupos[c.estilistaId]) grupos[c.estilistaId].citas.push(c); });
+
+        let html = '';
+        Object.values(grupos).forEach(g => {
+            if (filtroEst > 0 && g.estilista.id !== filtroEst) return;
+            if (g.citas.length === 0 && filtroEst === 0) return;
+
+            const inicial = g.estilista.nombre.charAt(0).toUpperCase();
+            const foto = g.estilista.tieneFoto
+                ? `<img src="/Admin/FotoEstilista/${g.estilista.id}" alt="${g.estilista.nombre}" />`
+                : inicial;
+
+            html += `
+            <div class="ag-card">
+                <div class="ag-card-header">
+                    <div class="ag-avatar">${foto}</div>
+                    <div>
+                        <div class="ag-est-name">${g.estilista.nombre}</div>
+                        <div class="ag-est-esp">${g.estilista.especialidad || 'Estilista'}</div>
+                    </div>
+                    <span class="ag-badge ${g.citas.length === 0 ? 'zero' : ''}">${g.citas.length}</span>
+                </div>
+                <div class="ag-citas-list">
+                    ${g.citas.length === 0
+                        ? '<div class="ag-empty">Sin citas para este día</div>'
+                        : g.citas.map(c => `
+                            <div class="ag-cita-item" onclick='abrirPanel(${JSON.stringify(c)})'>
+                                <span class="ag-hora">${c.horaInicio}</span>
+                                <div class="ag-cita-info">
+                                    <div class="ag-cita-cliente">${c.cliente}</div>
+                                    <div class="ag-cita-servicio">${c.servicio}</div>
+                                </div>
+                                <span class="ag-estado estado-${c.estado}">${traducirEstado(c.estado)}</span>
+                            </div>`).join('')
+                    }
+                </div>
+            </div>`;
+        });
+
+        if (!html) {
+            html = `<div class="ag-no-results">
+                        <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#C4A882" stroke-width="1.3">
+                            <rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                            <path d="M9 16l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p>No hay citas programadas para este día</p>
+                    </div>`;
+        }
+
+        grid.innerHTML = html;
+        document.getElementById('statTotal').textContent = citas.length;
+    }
+
+    let estilistasCached = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        estilistas.Select(e => new {
+            id = e.Id,
+            nombre = e.Nombre,
+            especialidad = e.Especialidad,
+            tieneFoto = e.FotoBytes != null
+        })
+    ));
+
+    async function cargarAgenda() {
+        const fecha = document.getElementById('filtroFecha').value;
+        const estId = document.getElementById('filtroEstilista').value;
+        document.getElementById('agendaGrid').innerHTML =
+            '<div class="ag-loading"><div class="spinner"></div><p>Cargando agenda...</p></div>';
+        try {
+            const resp = await fetch(`/Admin/AgendaDiariaData?fecha=${fecha}&estilistaId=${estId}`);
+            const data = await resp.json();
+            if (data.success) renderGrid(data.citas, estilistasCached);
+            else document.getElementById('agendaGrid').innerHTML =
+                '<div class="ag-no-results"><p>Error al cargar la agenda</p></div>';
+        } catch {
+            document.getElementById('agendaGrid').innerHTML =
+                '<div class="ag-no-results"><p>Error de conexión</p></div>';
+        }
+    }
+
+    function abrirPanel(cita) {
+        document.getElementById('pdCliente').textContent = cita.cliente;
+        document.getElementById('pdServicio').textContent = cita.servicio;
+        document.getElementById('pdEstilista').textContent = cita.estilista;
+        document.getElementById('pdHorario').textContent = `${cita.horaInicio} – ${cita.horaFin}`;
+        document.getElementById('pdEstadoWrap').innerHTML =
+            `<span class="ag-estado estado-${cita.estado}" style="font-size:.78rem">${traducirEstado(cita.estado)}</span>`;
+        const notasWrap = document.getElementById('pdNotasWrap');
+        if (cita.notas) {
+            document.getElementById('pdNotas').textContent = cita.notas;
+            notasWrap.style.display = 'block';
+        } else {
+            notasWrap.style.display = 'none';
+        }
+        document.getElementById('panelOverlay').classList.add('open');
+        document.getElementById('panelDetalle').classList.add('open');
+    }
+
+    function cerrarPanel() {
+        document.getElementById('panelOverlay').classList.remove('open');
+        document.getElementById('panelDetalle').classList.remove('open');
+    }
+
+    document.getElementById('filtroFecha').addEventListener('change', cargarAgenda);
+    document.getElementById('filtroEstilista').addEventListener('change', cargarAgenda);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const citasIniciales = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.Select(c => new {
+                id = c.Id,
+                cliente = c.Cliente.Nombre,
+                servicio = c.Servicio.Nombre,
+                estilista = c.Estilista.Nombre,
+                estilistaId = c.EstilistaId,
+                horaInicio = $"{c.HoraInicio:D2}:00",
+                horaFin = $"{c.HoraFin:D2}:00",
+                estado = c.Estado.ToString(),
+                notas = c.Notas ?? ""
+            })
+        ));
+        renderGrid(citasIniciales, estilistasCached);
+        setInterval(cargarAgenda, 30000);
+    });
+</script>
+}
