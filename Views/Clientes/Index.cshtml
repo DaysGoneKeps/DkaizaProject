@@ -1,0 +1,66 @@
+@model IEnumerable<DkaizaProject.Models.Cliente>
+
+<div class="admin-page">
+
+    <div class="container">
+
+        <div class="page-header">
+
+            <div>
+
+                <p class="section-eyebrow">
+                    CLIENTES
+                </p>
+
+                <h1>
+                    Clientes registrados
+                </h1>
+
+            </div>
+
+        </div>
+
+        <div class="admin-table-wrap">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Nombre completo</th>
+                        <th>Email</th>
+                        <th>Telefono</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @item.NombreCompleto
+                            </td>
+
+                            <td>
+                                @item.Email
+                            </td>
+
+                            <td>
+                                @item.Telefono
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
