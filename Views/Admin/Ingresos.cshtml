@@ -29,48 +29,34 @@
 
     body { background: var(--cream); }
 
-    /* Hero */
+
     .ing-hero {
-        background: var(--cream-dark);
-        text-align: center;
-        padding: 3rem 2rem 2.5rem;
-        border-bottom: 1px solid var(--border);
+        background: var(--cream-dark); text-align: center;
+        padding: 3rem 2rem 2.5rem; border-bottom: 1px solid var(--border);
     }
     .ing-hero-eyebrow {
-        font-family: 'DM Sans', sans-serif;
-        font-size: .72rem; font-weight: 600;
-        letter-spacing: 2.5px; text-transform: uppercase;
-        color: var(--brown-light); margin: 0 0 .6rem;
+        font-family: 'DM Sans', sans-serif; font-size: .72rem; font-weight: 600;
+        letter-spacing: 2.5px; text-transform: uppercase; color: var(--brown-light); margin: 0 0 .6rem;
     }
     .ing-hero h1 {
         font-family: 'Playfair Display', serif;
-        font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 700;
-        color: var(--text); margin: 0 0 .5rem;
+        font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 700; color: var(--text); margin: 0 0 .5rem;
     }
     .ing-hero p { color: var(--text-muted); font-size: .95rem; margin: 0; }
 
-    /* Body */
-    .ing-body {
-        max-width: 1100px; margin: 0 auto;
-        padding: 2rem 1.5rem 4rem;
-        font-family: 'DM Sans', sans-serif;
-    }
+    .ing-body { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; font-family: 'DM Sans', sans-serif; }
 
-    /* Toolbar */
-    .ing-toolbar {
-        display: flex; align-items: center;
-        justify-content: space-between; margin-bottom: 1.5rem;
-    }
+    .ing-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+
     .ing-back {
         display: inline-flex; align-items: center; gap: .4rem;
         font-size: .88rem; font-weight: 500; color: var(--text-mid);
         background: var(--white); border: 1px solid var(--border);
-        border-radius: 50px; padding: .45rem 1.1rem;
-        text-decoration: none; transition: all .2s;
+        border-radius: 50px; padding: .45rem 1.1rem; text-decoration: none; transition: all .2s;
     }
     .ing-back:hover { border-color: var(--brown-light); color: var(--brown); text-decoration: none; }
 
-    /* Filtros */
+
     .ing-filters {
         background: var(--white); border: 1px solid var(--border);
         border-radius: 16px; padding: 1.2rem 1.5rem;
@@ -79,142 +65,103 @@
     }
     .ing-filter-group { display: flex; flex-direction: column; gap: 4px; }
     .ing-filters label {
-        font-size: .7rem; font-weight: 600;
-        letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted);
+        font-size: .7rem; font-weight: 600; letter-spacing: 1.5px;
+        text-transform: uppercase; color: var(--text-muted);
     }
     .ing-filters input[type="date"] {
-        background: var(--cream); border: 1px solid var(--border);
-        color: var(--text); border-radius: 10px; padding: .5rem 1rem;
-        font-family: 'DM Sans', sans-serif; font-size: .92rem;
-        cursor: pointer; outline: none; min-width: 160px;
+        background: var(--cream); border: 1px solid var(--border); color: var(--text);
+        border-radius: 10px; padding: .5rem 1rem; font-family: 'DM Sans', sans-serif;
+        font-size: .92rem; cursor: pointer; outline: none; min-width: 160px;
         transition: border-color .2s, box-shadow .2s;
     }
     .ing-filters input[type="date"]:focus {
-        border-color: var(--brown-light);
-        box-shadow: 0 0 0 3px rgba(196,168,130,.2);
+        border-color: var(--brown-light); box-shadow: 0 0 0 3px rgba(196,168,130,.2);
     }
     .ing-btn {
-        background: var(--brown); color: var(--white);
-        border: none; border-radius: 10px;
-        padding: .55rem 1.4rem; font-family: 'DM Sans', sans-serif;
-        font-size: .92rem; font-weight: 600; cursor: pointer;
-        transition: background .2s, transform .15s;
+        background: var(--brown); color: var(--white); border: none; border-radius: 10px;
+        padding: .55rem 1.4rem; font-family: 'DM Sans', sans-serif; font-size: .92rem;
+        font-weight: 600; cursor: pointer; transition: background .2s, transform .15s;
         display: inline-flex; align-items: center; gap: .4rem;
     }
     .ing-btn:hover { background: var(--brown-mid); transform: translateY(-1px); }
+    .ing-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
     .ing-btn-outline {
-        background: transparent; color: var(--brown);
-        border: 1.5px solid var(--brown); border-radius: 10px;
-        padding: .5rem 1.2rem; font-family: 'DM Sans', sans-serif;
-        font-size: .88rem; font-weight: 600; cursor: pointer;
-        transition: all .2s; display: inline-flex; align-items: center; gap: .4rem;
+        background: transparent; color: var(--brown); border: 1.5px solid var(--brown);
+        border-radius: 10px; padding: .5rem 1.2rem; font-family: 'DM Sans', sans-serif;
+        font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .2s;
+        display: inline-flex; align-items: center; gap: .4rem;
     }
     .ing-btn-outline:hover { background: var(--cream-dark); }
+    .ing-btn-outline:disabled { opacity: .4; cursor: not-allowed; }
 
     /* Tarjetas resumen */
-    .ing-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem; margin-bottom: 1.8rem;
-    }
+    .ing-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.8rem; }
+
     .ing-sum-card {
         background: var(--white); border: 1px solid var(--border);
-        border-radius: 16px; padding: 1.3rem 1.5rem;
-        box-shadow: var(--shadow);
+        border-radius: 16px; padding: 1.3rem 1.5rem; box-shadow: var(--shadow);
     }
-    .ing-sum-label {
-        font-size: .72rem; font-weight: 600; letter-spacing: 1.5px;
-        text-transform: uppercase; color: var(--text-muted); margin-bottom: .4rem;
-    }
-    .ing-sum-value {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.9rem; font-weight: 700; color: var(--brown);
-        line-height: 1.1;
-    }
+    .ing-sum-label { font-size: .72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: .4rem; }
+    .ing-sum-value { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 700; color: var(--brown); line-height: 1.1; transition: transform .2s; }
     .ing-sum-value.highlight { color: var(--success); }
     .ing-sum-sub { font-size: .78rem; color: var(--text-muted); margin-top: .3rem; }
 
-    /* Tabla */
-    .ing-table-wrap {
-        background: var(--white); border: 1px solid var(--border);
-        border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
+    /* Total oculto hasta calcular */
+    .ing-total-hidden { display: none; }
+    .ing-total-placeholder {
+        font-family: 'DM Sans', sans-serif; font-size: 1rem;
+        color: var(--text-muted); font-style: italic;
     }
+
+    /* Tabla */
+    .ing-table-wrap { background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
     .ing-table-header {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border);
-        background: var(--cream-dark);
+        padding: 1.1rem 1.5rem; border-bottom: 1px solid var(--border); background: var(--cream-dark);
     }
-    .ing-table-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.1rem; color: var(--text); font-weight: 600;
-    }
-    table.ing-table {
-        width: 100%; border-collapse: collapse;
-        font-family: 'DM Sans', sans-serif; font-size: .88rem;
-    }
+    .ing-table-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text); font-weight: 600; }
+
+    table.ing-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: .88rem; }
     .ing-table thead th {
-        font-size: .68rem; font-weight: 600; letter-spacing: 1.2px;
-        text-transform: uppercase; color: var(--text-muted);
-        padding: .8rem 1.2rem; text-align: left;
-        border-bottom: 1px solid var(--border);
-        background: var(--cream);
+        font-size: .68rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+        color: var(--text-muted); padding: .8rem 1.2rem; text-align: left;
+        border-bottom: 1px solid var(--border); background: var(--cream);
     }
-    .ing-table tbody tr {
-        border-bottom: 1px solid rgba(221,212,198,.5);
-        transition: background .12s;
-    }
+    .ing-table tbody tr { border-bottom: 1px solid rgba(221,212,198,.5); transition: background .12s; }
     .ing-table tbody tr:last-child { border-bottom: none; }
     .ing-table tbody tr:hover { background: var(--cream); }
-    .ing-table td {
-        padding: .85rem 1.2rem; color: var(--text); vertical-align: middle;
-    }
-    .ing-table td.monto {
-        font-weight: 700; color: var(--brown);
-        font-variant-numeric: tabular-nums;
-    }
+    .ing-table td { padding: .85rem 1.2rem; color: var(--text); vertical-align: middle; }
+    .ing-table td.monto { font-weight: 700; color: var(--brown); font-variant-numeric: tabular-nums; }
     .ing-table td.hora { color: var(--text-muted); font-size: .82rem; }
-    .ing-metodo {
-        display: inline-block;
-        background: rgba(123,92,62,.1); color: var(--brown);
-        border-radius: 20px; padding: 2px 10px;
-        font-size: .72rem; font-weight: 600;
-    }
+    .ing-metodo { display: inline-block; background: rgba(123,92,62,.1); color: var(--brown); border-radius: 20px; padding: 2px 10px; font-size: .72rem; font-weight: 600; }
 
-    /* Fila de total */
-    .ing-total-row td {
-        font-weight: 700; background: var(--cream-dark);
-        border-top: 2px solid var(--border);
-        font-family: 'Playfair Display', serif;
-        font-size: 1rem;
-    }
+    /* Fila total — oculta hasta calcular */
+    .ing-total-row { display: none; }
+    .ing-total-row td { font-weight: 700; background: var(--cream-dark); border-top: 2px solid var(--border); font-family: 'Playfair Display', serif; font-size: 1rem; }
     .ing-total-row td.monto { font-size: 1.1rem; color: var(--success); }
+    .ing-total-row.visible { display: table-row; }
 
-    /* Sin datos */
-    .ing-empty {
-        text-align: center; padding: 3.5rem 2rem; color: var(--text-muted);
-    }
+    .ing-empty { text-align: center; padding: 3.5rem 2rem; color: var(--text-muted); }
     .ing-empty svg { display: block; margin: 0 auto 1rem; opacity: .35; }
-    .ing-empty p {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.1rem; color: var(--text-mid);
-    }
+    .ing-empty p { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--text-mid); }
 
-    /* Loading */
+
     .ing-loading { text-align: center; padding: 3rem; color: var(--text-muted); }
-    .spinner {
-        width: 34px; height: 34px;
-        border: 3px solid var(--border); border-top-color: var(--brown);
-        border-radius: 50%; animation: spin .7s linear infinite;
-        margin: 0 auto .8rem;
-    }
+    .spinner { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--brown); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto .8rem; }
     @@keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Print */
-    @@media print {
-        .ing-toolbar, .ing-filters, .ing-btn, .ing-btn-outline { display: none !important; }
-        .ing-hero, .ing-body { background: white !important; }
-        .ing-table-wrap { box-shadow: none; border: 1px solid #ccc; }
+    /* Toast */
+    .ing-toast {
+        position: fixed; bottom: 2rem; right: 2rem;
+        background: var(--brown); color: var(--white);
+        padding: .8rem 1.4rem; border-radius: 12px;
+        font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 500;
+        box-shadow: var(--shadow-lg); z-index: 999;
+        transform: translateY(20px); opacity: 0;
+        transition: all .3s; pointer-events: none;
     }
+    .ing-toast.show { transform: translateY(0); opacity: 1; }
 </style>
 
 <div class="ing-hero">
@@ -227,10 +174,11 @@
 
     <div class="ing-toolbar">
         <a href="/Admin" class="ing-back">← Atrás</a>
-        <button class="ing-btn-outline" onclick="window.print()">🖨️ Imprimir reporte</button>
+        <button class="ing-btn-outline" id="btnExportPdf" onclick="exportarPDF()" disabled>
+             Exportar PDF
+        </button>
     </div>
 
-  
     <div class="ing-filters">
         <div class="ing-filter-group">
             <label>Desde</label>
@@ -240,12 +188,8 @@
             <label>Hasta</label>
             <input type="date" id="filtroHasta" value="@fechaHasta" />
         </div>
-        <button class="ing-btn" onclick="generarReporte()">
-             Generar Reporte
-        </button>
-        <button class="ing-btn-outline" onclick="calcularTotal()">
-             Calcular Total
-        </button>
+        <button class="ing-btn" onclick="generarReporte()"> Generar Reporte</button>
+        <button class="ing-btn-outline" id="btnCalcular" onclick="calcularTotal()" disabled> Calcular Total</button>
     </div>
 
 
@@ -253,9 +197,9 @@
         <div class="ing-sum-card">
             <div class="ing-sum-label">Total de ingresos</div>
             <div class="ing-sum-value highlight" id="sumTotal">
-                S/ @totalInicial.ToString("N2")
+                <span class="ing-total-placeholder">Presiona "Calcular Total"</span>
             </div>
-            <div class="ing-sum-sub" id="sumPeriodo">Hoy</div>
+            <div class="ing-sum-sub" id="sumPeriodo">—</div>
         </div>
         <div class="ing-sum-card">
             <div class="ing-sum-label">Pagos registrados</div>
@@ -265,14 +209,13 @@
         <div class="ing-sum-card">
             <div class="ing-sum-label">Promedio por pago</div>
             <div class="ing-sum-value" id="sumPromedio">
-                S/ @(Model.Count > 0 ? (totalInicial / Model.Count).ToString("N2") : "0.00")
+                <span class="ing-total-placeholder">—</span>
             </div>
             <div class="ing-sum-sub">Por transacción</div>
         </div>
     </div>
 
-
-    <div class="ing-table-wrap">
+    <div class="ing-table-wrap" id="reporteContent">
         <div class="ing-table-header">
             <span class="ing-table-title">Detalle de pagos</span>
             <span style="font-size:.8rem;color:var(--text-muted)" id="labelPeriodo">
@@ -288,7 +231,7 @@
                         <path d="M2 10h20" stroke-linecap="round"/>
                         <circle cx="7" cy="15" r="1" fill="#C4A882"/>
                     </svg>
-                    <p>No hay pagos registrados para este período</p>
+                    <p>No hay pagos para este período</p>
                 </div>
             }
             else
@@ -296,22 +239,15 @@
                 <table class="ing-table">
                     <thead>
                         <tr>
-                            <th>Hora</th>
-                            <th>Cliente</th>
-                            <th>Servicio</th>
-                            <th>Estilista</th>
-                            <th>Método</th>
-                            <th>Monto</th>
+                            <th>Hora</th><th>Cliente</th><th>Servicio</th>
+                            <th>Estilista</th><th>Método</th><th>Monto</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var p in Model)
                         {
                             <tr>
-                                <td class="hora">
-                                    @p.FechaPago?.ToString("dd/MM")<br/>
-                                    <strong>@p.FechaPago?.ToString("HH:mm")</strong>
-                                </td>
+                                <td class="hora">@p.FechaPago?.ToString("dd/MM")<br/><strong>@p.FechaPago?.ToString("HH:mm")</strong></td>
                                 <td>@p.Cita?.Cliente?.Nombre</td>
                                 <td>@p.Cita?.Servicio?.Nombre</td>
                                 <td>@p.Cita?.Estilista?.Nombre</td>
@@ -321,9 +257,9 @@
                         }
                     </tbody>
                     <tfoot>
-                        <tr class="ing-total-row">
+                        <tr class="ing-total-row" id="filaTotal">
                             <td colspan="5">Total del período</td>
-                            <td class="monto">S/ @Model.Sum(p => p.MontoTotal).ToString("N2")</td>
+                            <td class="monto" id="filaTotalMonto">—</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -332,14 +268,37 @@
     </div>
 </div>
 
+<div class="ing-toast" id="toast"></div>
+
 @section Scripts {
+{{-- jsPDF + html2canvas desde CDN --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script>
+    let totalCalculado = null;
+    let periodoTexto = '';
+
+    function toast(msg, dur = 2800) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), dur);
+    }
+
+    // ── Generar reporte ───────────────────────────────────────────────
     async function generarReporte() {
         const desde = document.getElementById('filtroDesde').value;
         const hasta = document.getElementById('filtroHasta').value;
+        if (!desde || !hasta) { toast('⚠️ Selecciona ambas fechas.'); return; }
+        if (desde > hasta)    { toast('⚠️ "Desde" no puede ser mayor que "Hasta".'); return; }
 
-        if (!desde || !hasta) { alert('Selecciona ambas fechas.'); return; }
-        if (desde > hasta) { alert('La fecha "Desde" no puede ser mayor que "Hasta".'); return; }
+        // Resetear estado
+        totalCalculado = null;
+        document.getElementById('sumTotal').innerHTML    = '<span class="ing-total-placeholder">Presiona "Calcular Total"</span>';
+        document.getElementById('sumPromedio').innerHTML = '<span class="ing-total-placeholder">—</span>';
+        document.getElementById('btnCalcular').disabled  = true;
+        document.getElementById('btnExportPdf').disabled = true;
 
         document.getElementById('tablaContainer').innerHTML =
             '<div class="ing-loading"><div class="spinner"></div><p>Generando reporte...</p></div>';
@@ -354,14 +313,29 @@
                 return;
             }
 
-            actualizarResumen(data);
-            renderTabla(data.pagos);
+            // Actualizar cantidad (sin mostrar total aún)
+            document.getElementById('sumCantidad').textContent = data.cantidad;
 
-            // Actualizar label de período
-            const dF = new Date(desde + 'T00:00:00').toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric' });
-            const dH = new Date(hasta + 'T00:00:00').toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric' });
+            renderTabla(data.pagos, data.total);
+
+            // Guardar total para cuando presionen Calcular
+            totalCalculado = data.total;
+            window._pagosCargados = data.pagos;
+
+            // Actualizar período
+            const dF = fmtFecha(desde);
+            const dH = fmtFecha(hasta);
+            periodoTexto = desde === hasta ? dF : `${dF} al ${dH}`;
             document.getElementById('labelPeriodo').textContent = desde === hasta ? dF : `${dF} — ${dH}`;
-            document.getElementById('sumPeriodo').textContent = desde === hasta ? dF : `${dF} al ${dH}`;
+            document.getElementById('sumPeriodo').textContent = periodoTexto;
+
+            // Habilitar botones solo si hay datos
+            if (data.cantidad > 0) {
+                document.getElementById('btnCalcular').disabled  = false;
+                document.getElementById('btnExportPdf').disabled = false;
+            }
+
+            toast(`✅ Reporte generado: ${data.cantidad} pagos encontrados`);
 
         } catch {
             document.getElementById('tablaContainer').innerHTML =
@@ -369,32 +343,175 @@
         }
     }
 
+    // ── Calcular total (se muestra recién al presionar) ───────────────
     function calcularTotal() {
-        // Re-suma desde la tabla actual (útil si el usuario quiere confirmación visual)
-        const celdas = document.querySelectorAll('.ing-table tbody .monto');
-        let total = 0;
-        celdas.forEach(c => {
-            const val = parseFloat(c.textContent.replace('S/', '').replace(',', '').trim());
-            if (!isNaN(val)) total += val;
+        if (totalCalculado === null) { toast('Genera el reporte primero.'); return; }
+
+        const cantidad = parseInt(document.getElementById('sumCantidad').textContent) || 0;
+
+        document.getElementById('sumTotal').textContent =
+            `S/ ${formatNum(totalCalculado)}`;
+        document.getElementById('sumPromedio').textContent =
+            cantidad > 0 ? `S/ ${(totalCalculado / cantidad).toFixed(2)}` : 'S/ 0.00';
+
+        // Mostrar fila de total en la tabla
+        const filaTotal = document.getElementById('filaTotal');
+        if (filaTotal) {
+            document.getElementById('filaTotalMonto').textContent = `S/ ${formatNum(totalCalculado)}`;
+            filaTotal.classList.add('visible');
+        }
+
+        // Animación
+        const el = document.getElementById('sumTotal');
+        el.style.transform = 'scale(1.1)';
+        setTimeout(() => el.style.transform = '', 350);
+
+        toast(` Total calculado: S/ ${formatNum(totalCalculado)}`);
+    }
+
+    // ── Exportar PDF ──────────────────────────────────────────────────
+    async function exportarPDF() {
+        if (!window._pagosCargados || window._pagosCargados.length === 0) {
+            toast('No hay datos para exportar.'); return;
+        }
+
+        toast('⏳ Generando PDF...');
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+        const margen  = 15;
+        const ancho   = 210 - margen * 2;
+        let   y       = margen;
+
+        // ── Encabezado ──
+        doc.setFillColor(237, 230, 220);
+        doc.rect(0, 0, 210, 35, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(44, 26, 14);
+        doc.text("D'KAIZA Beauty Salon", margen, 14);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(123, 92, 62);
+        doc.text('REPORTE DE INGRESOS', margen, 21);
+
+        doc.setFontSize(9);
+        doc.setTextColor(160, 128, 96);
+        doc.text(`Período: ${periodoTexto}`, margen, 28);
+        doc.text(`Generado: ${new Date().toLocaleDateString('es-PE', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}`, 210 - margen, 28, { align: 'right' });
+
+        y = 44;
+
+        // ── Resumen chips ──
+        const cantidad = parseInt(document.getElementById('sumCantidad').textContent) || window._pagosCargados.length;
+        const chips = [
+            { label: 'Pagos registrados', value: `${cantidad}` },
+            { label: 'Total del período',  value: totalCalculado !== null ? `S/ ${formatNum(totalCalculado)}` : 'Sin calcular' },
+        ];
+
+        chips.forEach((ch, i) => {
+            const x = margen + i * 92;
+            doc.setFillColor(255, 255, 255);
+            doc.setDrawColor(221, 212, 198);
+            doc.roundedRect(x, y, 85, 18, 3, 3, 'FD');
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(160, 128, 96);
+            doc.text(ch.label.toUpperCase(), x + 5, y + 6);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+            doc.setTextColor(ch.label.includes('Total') ? 123 : 44, ch.label.includes('Total') ? 158 : 26, ch.label.includes('Total') ? 123 : 14);
+            doc.text(ch.value, x + 5, y + 14);
         });
-        document.getElementById('sumTotal').textContent = `S/ ${total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
-        document.getElementById('sumCantidad').textContent = celdas.length;
-        document.getElementById('sumPromedio').textContent =
-            celdas.length > 0 ? `S/ ${(total / celdas.length).toFixed(2)}` : 'S/ 0.00';
 
-        // Highlight animado
-        document.getElementById('sumTotal').style.transform = 'scale(1.08)';
-        setTimeout(() => document.getElementById('sumTotal').style.transform = '', 300);
+        y += 26;
+
+        // ── Encabezados tabla ──
+        const cols = ['Fecha', 'Hora', 'Cliente', 'Servicio', 'Método', 'Monto'];
+        const widths = [18, 12, 38, 48, 28, 22];
+        const rowH = 8;
+
+        doc.setFillColor(237, 230, 220);
+        doc.rect(margen, y, ancho, rowH, 'F');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(123, 92, 62);
+
+        let xCol = margen + 2;
+        cols.forEach((col, i) => {
+            doc.text(col, xCol, y + 5.5);
+            xCol += widths[i];
+        });
+        y += rowH;
+
+        // ── Filas ──
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+        window._pagosCargados.forEach((p, idx) => {
+            if (y > 270) { doc.addPage(); y = margen; }
+
+            if (idx % 2 === 0) {
+                doc.setFillColor(250, 247, 243);
+                doc.rect(margen, y, ancho, rowH, 'F');
+            }
+
+            doc.setTextColor(44, 26, 14);
+            const row = [p.fechaPago, p.horaPago, truncar(p.cliente, 22), truncar(p.servicio, 28), p.metodo, `S/ ${parseFloat(p.monto).toFixed(2)}`];
+            xCol = margen + 2;
+            row.forEach((val, i) => {
+                if (i === 5) {
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(123, 92, 62);
+                }
+                doc.text(String(val), xCol, y + 5.5);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(44, 26, 14);
+                xCol += widths[i];
+            });
+
+            // línea divisoria suave
+            doc.setDrawColor(221, 212, 198);
+            doc.line(margen, y + rowH, margen + ancho, y + rowH);
+            y += rowH;
+        });
+
+        // ── Fila total (si fue calculado) ──
+        if (totalCalculado !== null) {
+            y += 2;
+            doc.setFillColor(237, 230, 220);
+            doc.rect(margen, y, ancho, rowH + 1, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(44, 26, 14);
+            doc.text('TOTAL DEL PERÍODO', margen + 2, y + 6);
+            doc.setTextColor(123, 158, 123);
+            doc.text(`S/ ${formatNum(totalCalculado)}`, margen + ancho - 2, y + 6, { align: 'right' });
+        }
+
+        // ── Pie de página ──
+        const totalPags = doc.getNumberOfPages();
+        for (let i = 1; i <= totalPags; i++) {
+            doc.setPage(i);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(160, 128, 96);
+            doc.text(`D'KAIZA Beauty Salon — Reporte confidencial`, margen, 292);
+            doc.text(`Página ${i} de ${totalPags}`, 210 - margen, 292, { align: 'right' });
+        }
+
+        const periodo = periodoTexto.replace(/ /g, '_').replace(/\//g, '-');
+        doc.save(`Reporte_Ingresos_${periodo}.pdf`);
+        toast('✅ PDF descargado correctamente');
     }
 
-    function actualizarResumen(data) {
-        document.getElementById('sumTotal').textContent = `S/ ${parseFloat(data.total).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
-        document.getElementById('sumCantidad').textContent = data.cantidad;
-        document.getElementById('sumPromedio').textContent =
-            data.cantidad > 0 ? `S/ ${(data.total / data.cantidad).toFixed(2)}` : 'S/ 0.00';
+    // ── Helpers ──────────────────────────────────────────────────────
+    function formatNum(n) {
+        return parseFloat(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
-    function renderTabla(pagos) {
+    function fmtFecha(iso) {
+        const [y, m, d] = iso.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    function truncar(str, max) {
+        return str && str.length > max ? str.substring(0, max - 1) + '…' : (str || '—');
+    }
+
+    function renderTabla(pagos, total) {
         if (pagos.length === 0) {
             document.getElementById('tablaContainer').innerHTML = `
                 <div class="ing-empty">
@@ -408,7 +525,7 @@
             return;
         }
 
-        const total = pagos.reduce((s, p) => s + p.monto, 0);
+
 
         const filas = pagos.map(p => `
             <tr>
@@ -424,19 +541,15 @@
             <table class="ing-table">
                 <thead>
                     <tr>
-                        <th>Hora</th>
-                        <th>Cliente</th>
-                        <th>Servicio</th>
-                        <th>Estilista</th>
-                        <th>Método</th>
-                        <th>Monto</th>
+                        <th>Hora</th><th>Cliente</th><th>Servicio</th>
+                        <th>Estilista</th><th>Método</th><th>Monto</th>
                     </tr>
                 </thead>
                 <tbody>${filas}</tbody>
                 <tfoot>
-                    <tr class="ing-total-row">
+                    <tr class="ing-total-row" id="filaTotal">
                         <td colspan="5">Total del período</td>
-                        <td class="monto">S/ ${total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</td>
+                        <td class="monto" id="filaTotalMonto">—</td>
                     </tr>
                 </tfoot>
             </table>`;
