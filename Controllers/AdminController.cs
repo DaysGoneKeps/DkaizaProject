@@ -506,9 +506,9 @@ public async Task<IActionResult> EditarServicio(
  
 // GET /Admin/AgendaDiariaData?fecha=2025-06-15&estilistaId=0
 // Endpoint AJAX: devuelve citas en JSON para la fecha y estilista indicados
-[HttpGet]
-public async Task<IActionResult> AgendaDiariaData(string fecha, int estilistaId = 0)
-{
+    [HttpGet]
+    public async Task<IActionResult> AgendaDiariaData(string fecha, int estilistaId = 0)
+    {
     var check = AdminOnly();
     if (check != null) return Json(new { success = false, message = "No autorizado" });
  
@@ -543,8 +543,86 @@ public async Task<IActionResult> AgendaDiariaData(string fecha, int estilistaId 
     });
  
     return Json(new { success = true, citas = resultado });
-}
- 
-        
+    }
+    // GET /Admin/Ingresos
+    public async Task<IActionResult> Ingresos()
+    {
+        var check = AdminOnly(); if (check != null) return check;
+    
+        // Carga inicial: día de hoy
+        var hoy = DateTime.Today;
+    
+        var pagos = await _db.Pagos
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Servicio)
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Cliente)
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Estilista)
+            .Where(p => p.Estado == EstadoPago.Aprobado
+                    && p.FechaPago.HasValue
+                    && p.FechaPago.Value.Date == hoy)
+            .OrderByDescending(p => p.FechaPago)
+            .ToListAsync();
+    
+        ViewBag.FechaDesde = hoy.ToString("yyyy-MM-dd");
+        ViewBag.FechaHasta = hoy.ToString("yyyy-MM-dd");
+        ViewBag.TotalIngresos = pagos.Sum(p => p.MontoTotal);
+    
+        return View(pagos);
+    }
+    
+    // GET /Admin/IngresosData?desde=2025-06-01&hasta=2025-06-30
+    [HttpGet]
+    public async Task<IActionResult> IngresosData(string desde, string hasta)
+    {
+        var check = AdminOnly();
+        if (check != null) return Json(new { success = false, message = "No autorizado" });
+    
+        if (!DateTime.TryParse(desde, out var fechaDesde) ||
+            !DateTime.TryParse(hasta, out var fechaHasta))
+            return Json(new { success = false, message = "Fechas inválidas" });
+    
+        // Normalizar: desde = inicio del día, hasta = fin del día
+        fechaDesde = fechaDesde.Date;
+        fechaHasta = fechaHasta.Date.AddDays(1).AddTicks(-1);
+    
+        var pagos = await _db.Pagos
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Servicio)
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Cliente)
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Estilista)
+            .Where(p => p.Estado == EstadoPago.Aprobado
+                    && p.FechaPago.HasValue
+                    && p.FechaPago.Value >= fechaDesde
+                    && p.FechaPago.Value <= fechaHasta)
+            .OrderByDescending(p => p.FechaPago)
+            .ToListAsync();
+    
+        var resultado = pagos.Select(p => new
+        {
+            p.Id,
+            Servicio   = p.Cita?.Servicio?.Nombre ?? "—",
+            Cliente    = p.Cita?.Cliente?.Nombre ?? "—",
+            Estilista  = p.Cita?.Estilista?.Nombre ?? "—",
+            Monto      = p.MontoTotal,
+            Metodo     = p.Metodo ?? "MercadoPago",
+            FechaPago  = p.FechaPago!.Value.ToString("dd/MM/yyyy"),
+            HoraPago   = p.FechaPago!.Value.ToString("HH:mm"),
+            PaymentId  = p.PaymentId ?? "—"
+        });
+    
+        return Json(new
+        {
+            success = true,
+            pagos = resultado,
+            total = pagos.Sum(p => p.MontoTotal),
+            cantidad = pagos.Count
+        });
+        }
+    
+            
     }
 }
