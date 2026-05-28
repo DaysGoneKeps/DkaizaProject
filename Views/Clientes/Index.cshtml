@@ -1,5 +1,14 @@
 @model IEnumerable<DkaizaProject.Models.Cliente>
 
+<style>
+    .admin-table tr.clickable { cursor: pointer; transition: background 0.15s; }
+    .admin-table tr.clickable:hover td { background: var(--rose-light); }
+    .admin-table tr.clickable td:last-child { color: var(--rose-dark); font-size: 0.78rem; opacity: 0; transition: opacity 0.15s; text-align: right; }
+    .admin-table tr.clickable:hover td:last-child { opacity: 1; }
+    .hint-bar { background: var(--cream); border-left: 3px solid var(--rose); padding: 10px 14px; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; color: var(--ink-mid); }
+    .empty-row td { text-align: center; padding: 2rem; color: var(--ink-light); font-style: italic; }
+</style>
+
 <div class="admin-page">
 
     <div class="container">
@@ -20,6 +29,10 @@
 
         </div>
 
+        <div class="hint-bar">
+            <i class="fas fa-info-circle"></i> Seleccione un cliente para registrar un servicio y procesar su pago.
+        </div>
+
         <div class="admin-table-wrap">
 
             <table class="admin-table">
@@ -29,30 +42,42 @@
                     <tr>
                         <th>Nombre completo</th>
                         <th>Email</th>
-                        <th>Telefono</th>
+                        <th>Teléfono</th>
+                        <th style="width: 180px;"></th>
                     </tr>
 
                 </thead>
 
                 <tbody>
 
-                    @foreach (var item in Model)
+                    @if (!Model.Any())
                     {
-                        <tr>
+                        <tr class="empty-row"><td colspan="4">No hay clientes registrados todavía.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="clickable" onclick="window.location.href='/Clientes/RegistrarServicio/@item.Id'">
 
-                            <td>
-                                @item.NombreCompleto
-                            </td>
+                                <td>
+                                    @item.NombreCompleto
+                                </td>
 
-                            <td>
-                                @item.Email
-                            </td>
+                                <td>
+                                    @item.Email
+                                </td>
 
-                            <td>
-                                @item.Telefono
-                            </td>
+                                <td>
+                                    @item.Telefono
+                                </td>
 
-                        </tr>
+                                <td>
+                                    <i class="fas fa-arrow-right"></i> Registrar servicio
+                                </td>
+
+                            </tr>
+                        }
                     }
 
                 </tbody>

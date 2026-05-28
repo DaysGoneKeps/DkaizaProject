@@ -40,9 +40,34 @@ namespace DkaizaProject.Controllers
                 .Take(50)
                 .ToListAsync();
 
+            var corteTicks = HttpContext.Session.GetString("HistorialCorte");
+            DateTime corte = !string.IsNullOrEmpty(corteTicks) && long.TryParse(corteTicks, out var t)
+                ? new DateTime(t)
+                : DateTime.MinValue;
+
+            var historial = await _db.Pagos
+                .Include(p => p.Cita).ThenInclude(c => c.Cliente)
+                .Include(p => p.Cita).ThenInclude(c => c.Servicio)
+                .Where(p => p.Validado && p.FechaValidacion != null && p.FechaValidacion > corte)
+                .OrderByDescending(p => p.FechaValidacion)
+                .Take(100)
+                .ToListAsync();
+
             ViewBag.SaldoCaja = saldoCaja;
             ViewBag.Pendientes = pendientes;
+            ViewBag.Historial = historial;
             return View();
+        }
+
+        // POST /Recepcionista/LimpiarHistorial
+        [HttpPost, ValidateAntiForgeryToken]
+        public IActionResult LimpiarHistorial()
+        {
+            var check = RecepcionistaOnly();
+            if (check != null) return Json(new { success = false, message = "No autorizado" });
+
+            HttpContext.Session.SetString("HistorialCorte", DateTime.Now.Ticks.ToString());
+            return Json(new { success = true, message = "Historial limpiado" });
         }
 
         // POST /Recepcionista/BuscarCita

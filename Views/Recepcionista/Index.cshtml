@@ -3,6 +3,7 @@
     Layout = "_Layout";
     var saldo = (decimal)(ViewBag.SaldoCaja ?? 0m);
     var pendientes = ViewBag.Pendientes as List<DkaizaProject.Models.Pago> ?? new List<DkaizaProject.Models.Pago>();
+    var historial = ViewBag.Historial as List<DkaizaProject.Models.Pago> ?? new List<DkaizaProject.Models.Pago>();
 }
 
 <style>
@@ -48,6 +49,24 @@
     .pend-table th { background: var(--cream-dark); text-align: left; padding: 0.75rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: var(--ink-mid); font-weight: 600; }
     .pend-table td { padding: 0.85rem 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--ink); }
     .empty-pend { text-align: center; padding: 2rem; color: var(--ink-mid); }
+    .tabs-bar { display: flex; align-items: center; gap: 0.25rem; border-bottom: 2px solid var(--border); margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: none; padding: 12px 20px; font-size: 0.9rem; font-family: var(--font-body); color: var(--ink-mid); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.active { color: var(--ink); border-bottom-color: var(--rose-dark); font-weight: 600; }
+    .tab-btn .badge-count { background: var(--cream-dark); color: var(--ink-mid); padding: 2px 9px; border-radius: 50px; font-size: 0.72rem; font-weight: 600; }
+    .tab-btn.active .badge-count { background: var(--rose-dark); color: white; }
+    .tab-actions { margin-left: auto; padding-bottom: 6px; }
+    .tab-panel { display: none; }
+    .tab-panel.shown { display: block; }
+    .historial-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+    .historial-head h3 { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); margin: 0; }
+    .btn-limpiar { background: transparent; color: var(--ink-mid); border: 1.5px solid var(--border-mid); border-radius: 50px; padding: 8px 18px; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-limpiar:hover { background: #fdf0f0; color: #b83232; border-color: #b83232; }
+    .btn-limpiar:disabled { opacity: 0.5; cursor: not-allowed; }
+    .hist-table { width: 100%; border-collapse: collapse; background: white; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
+    .hist-table th { background: #eafaf1; text-align: left; padding: 0.75rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #1a7a4a; font-weight: 600; }
+    .hist-table td { padding: 0.85rem 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--ink); }
+    .hist-op { font-family: monospace; color: #1a7a4a; font-weight: 600; }
     .mensaje-banner { padding: 12px 16px; border-radius: 10px; margin-bottom: 1rem; font-size: 0.85rem; display: none; }
     .mensaje-banner.shown { display: block; }
     .mensaje-banner.ok { background: #eafaf1; color: #1a7a4a; border-left: 4px solid #1a7a4a; }
@@ -101,8 +120,23 @@
             <div class="pago-section" id="pagoSection"></div>
         </div>
 
-        <div class="pendientes-section">
-            <h3><i class="fas fa-clock"></i> Pagos pendientes de validar (@pendientes.Count)</h3>
+        <div class="tabs-bar">
+            <button class="tab-btn active" data-tab="pendientes" onclick="cambiarTab('pendientes')">
+                <i class="fas fa-clock"></i> Pagos pendientes
+                <span class="badge-count" id="tabCountPend">@pendientes.Count</span>
+            </button>
+            <button class="tab-btn" data-tab="historial" onclick="cambiarTab('historial')">
+                <i class="fas fa-check-circle"></i> Historial validados
+                <span class="badge-count" id="tabCountHist">@historial.Count</span>
+            </button>
+            <div class="tab-actions" id="tabActionHistorial" style="display: none;">
+                <button class="btn-limpiar" id="btnLimpiarHistorial" onclick="limpiarHistorial()" @(historial.Any() ? "" : "disabled")>
+                    <i class="fas fa-trash-alt"></i> Limpiar historial
+                </button>
+            </div>
+        </div>
+
+        <div class="tab-panel shown" id="panel-pendientes">
             @if (!pendientes.Any())
             {
                 <div class="empty-pend">No hay pagos pendientes.</div>
@@ -123,6 +157,35 @@
                                 <td>@(p.Metodo ?? "—")</td>
                                 <td>S/ @p.MontoTotal.ToString("F2")</td>
                                 <td><button class="btn-rec green" onclick="validarPago(@p.Id)"><i class="fas fa-check"></i> Validar pago</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="tab-panel" id="panel-historial">
+            @if (!historial.Any())
+            {
+                <div class="empty-pend">No hay pagos validados para mostrar.</div>
+            }
+            else
+            {
+                <table class="hist-table">
+                    <thead>
+                        <tr><th>N° Operación</th><th>Cita</th><th>Cliente</th><th>Servicio</th><th>Método</th><th>Monto</th><th>Validado</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in historial)
+                        {
+                            <tr>
+                                <td class="hist-op">@(p.NumeroOperacion ?? "—")</td>
+                                <td>#@p.CitaId</td>
+                                <td>@p.Cita.Cliente.NombreCompleto</td>
+                                <td>@p.Cita.Servicio.Nombre</td>
+                                <td>@(p.Metodo ?? "—")</td>
+                                <td>S/ @p.MontoTotal.ToString("F2")</td>
+                                <td>@(p.FechaValidacion?.ToString("dd/MM HH:mm") ?? "—")</td>
                             </tr>
                         }
                     </tbody>

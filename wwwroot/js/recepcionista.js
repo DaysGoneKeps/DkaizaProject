@@ -115,6 +115,35 @@
             .catch(function () { mensaje('Error en la solicitud', 'err'); });
     };
 
+    window.cambiarTab = function (tab) {
+        document.querySelectorAll('.tab-btn').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+        });
+        document.querySelectorAll('.tab-panel').forEach(function (p) {
+            p.classList.toggle('shown', p.id === 'panel-' + tab);
+        });
+        var action = document.getElementById('tabActionHistorial');
+        if (action) action.style.display = (tab === 'historial') ? 'block' : 'none';
+    };
+
+    window.limpiarHistorial = function () {
+        if (!confirm('¿Limpiar el historial de pagos validados? Los registros seguirán existiendo en la base de datos pero ya no se mostrarán aquí.')) return;
+        var fd = new FormData();
+        fd.append('__RequestVerificationToken', token());
+
+        fetch('/Recepcionista/LimpiarHistorial', { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    mensaje(data.message, 'ok');
+                    setTimeout(function () { location.reload(); }, 600);
+                } else {
+                    mensaje(data.message || 'Error', 'err');
+                }
+            })
+            .catch(function () { mensaje('Error en la solicitud', 'err'); });
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         var input = document.getElementById('codigoCita');
         if (input) input.addEventListener('keypress', function (e) { if (e.key === 'Enter') { e.preventDefault(); buscarCita(); } });
