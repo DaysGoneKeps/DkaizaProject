@@ -30,6 +30,9 @@ public string Telefono { get; set; } = string.Empty;
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
 
+    [MaxLength(100)]
+    public string? PasswordTemporal { get; set; }
+
     public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
     public bool EsAdmin { get; set; } = false;

@@ -12,9 +12,20 @@ public class HomeController : Controller
 
     public HomeController(ApplicationDbContext db) => _db = db;
 
+    private IActionResult? RedirectIfRestrictedRole()
+    {
+        if (HttpContext.Session.GetString("EsEstilista") == "True")
+            return RedirectToAction("Index", "Estilista");
+        if (HttpContext.Session.GetString("EsRecepcionista") == "True")
+            return RedirectToAction("Index", "Recepcionista");
+        return null;
+    }
+
     // Página principal (Index)
     public async Task<IActionResult> Index()
     {
+        var redirect = RedirectIfRestrictedRole(); if (redirect != null) return redirect;
+
         var servicios = await _db.Servicios.Where(s => s.Activo).ToListAsync();
         return View("~/Views/Home/Index.cshtml", servicios);
     }
@@ -22,11 +33,13 @@ public class HomeController : Controller
     // Página para explorar servicios (todos los servicios)
     public async Task<IActionResult> Servicios()
     {
+        var redirect = RedirectIfRestrictedRole(); if (redirect != null) return redirect;
+
         var servicios = await _db.Servicios
             .Where(s => s.Activo)
             .OrderBy(s => s.Nombre)
             .ToListAsync();
-        
+
         return View("~/Views/Home/Servicios.cshtml", servicios);
     }
 

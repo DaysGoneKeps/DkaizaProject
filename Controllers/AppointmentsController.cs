@@ -16,21 +16,34 @@ namespace DkaizaProject.Controllers
 
         public const string ReservaPendienteSessionKey = "ReservaPendiente";
 
+        private IActionResult? RedirectIfRestrictedRole()
+        {
+            if (HttpContext.Session.GetString("EsEstilista") == "True")
+                return RedirectToAction("Index", "Estilista");
+            if (HttpContext.Session.GetString("EsRecepcionista") == "True")
+                return RedirectToAction("Index", "Recepcionista");
+            return null;
+        }
+
         // ✅ NUEVO: Página para explorar servicios
         public async Task<IActionResult> Servicios()
         {
+            var redirect = RedirectIfRestrictedRole(); if (redirect != null) return redirect;
+
             var categorias = await _db.CategoriasServicios
                 .Include(c => c.Servicios)
                 .Where(c => c.Activo)
                 .OrderBy(c => c.Orden)
                 .ToListAsync();
-            
+
             return View(categorias);
         }
 
         // GET /Appointments/Reservar - REQUIERE LOGIN
         public async Task<IActionResult> Reservar()
         {
+            var redirect = RedirectIfRestrictedRole(); if (redirect != null) return redirect;
+
             if (CurrentClienteId == null)
             {
                 var returnUrl = Request.Path + Request.QueryString;
@@ -102,6 +115,9 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
         [HttpPost]
         public async Task<IActionResult> Crear([FromBody] CrearCitaDto dto)
         {
+            if (HttpContext.Session.GetString("EsEstilista") == "True" || HttpContext.Session.GetString("EsRecepcionista") == "True")
+                return Json(new { success = false, message = "Tu rol no puede registrar citas desde este flujo." });
+
             if (CurrentClienteId == null)
                 return Json(new { success = false, message = "Debes iniciar sesión para reservar.", requiresLogin = true });
 

@@ -25,7 +25,21 @@
         transition: all 0.2s;
     }
     .btn-primary-lg:hover { background: var(--rose-dark); transform: translateY(-2px); }
-    
+
+    .cred-panel { background: var(--cream); border-top: 1px solid var(--border); padding: 0.9rem 1rem; margin: 0.5rem -1rem -1rem -1rem; border-radius: 0 0 var(--radius-lg) var(--radius-lg); display: none; }
+    .stylist-admin-card.expanded .cred-panel { display: block; }
+    .cred-panel h4 { font-family: var(--font-display); font-size: 0.85rem; color: var(--ink); margin: 0 0 0.6rem 0; display: flex; align-items: center; gap: 6px; }
+    .cred-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .cred-row label { font-size: 0.65rem; text-transform: uppercase; color: var(--ink-mid); letter-spacing: 0.06em; width: 70px; font-weight: 600; }
+    .cred-row input { flex: 1; padding: 5px 9px; border: 1px solid var(--border-mid); border-radius: 6px; font-size: 0.8rem; background: white; font-family: monospace; }
+    .cred-copy { background: var(--ink); color: white; border: none; padding: 5px 9px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+    .cred-copy:hover { background: var(--rose-dark); }
+    .cred-regen { background: transparent; color: var(--ink-mid); border: 1px solid var(--border-mid); padding: 6px 12px; border-radius: 50px; cursor: pointer; font-size: 0.74rem; margin-top: 6px; display: inline-flex; align-items: center; gap: 5px; }
+    .cred-regen:hover { background: white; color: var(--rose-dark); border-color: var(--rose); }
+    .cred-empty { font-size: 0.78rem; color: var(--ink-mid); font-style: italic; padding: 4px 0; }
+    .stylist-admin-card { cursor: pointer; }
+    .stylist-admin-card.expanded { box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
     /* Grilla de 3 columnas moderna */
     .stylists-admin-grid {
         display: grid;
@@ -487,7 +501,7 @@
         <div class="stylists-admin-grid">
             @foreach (var e in Model)
             {
-                <div class="stylist-admin-card">
+                <div class="stylist-admin-card" id="card-est-@e.Id" onclick="alternarCredenciales(@e.Id, event)">
                     <div class="card-header">
                         @if (e.FotoBytes != null && e.FotoBytes.Length > 0)
                         {
@@ -526,9 +540,16 @@
                     </div>
                     
                     <div class="stylist-admin-actions">
-                        <!--  
+                        <!--
                         <button class="btn-edit" onclick="mostrarModalEditar(@e.Id)"><i class="fas fa-edit"></i> Editar</button>-->
-                        <button class="btn-delete" onclick="eliminarEstilista(@e.Id, '@e.Nombre')"><i class="fas fa-trash"></i> Eliminar</button>
+                        <button class="btn-delete" onclick="eliminarEstilista(@e.Id, '@e.Nombre'); event.stopPropagation();"><i class="fas fa-trash"></i> Eliminar</button>
+                    </div>
+
+                    <div class="cred-panel" id="cred-est-@e.Id" onclick="event.stopPropagation();">
+                        <h4><i class="fas fa-key"></i> Credenciales de acceso</h4>
+                        <div class="cred-body" id="credBody-@e.Id">
+                            <div class="cred-empty">Cargando…</div>
+                        </div>
                     </div>
                 </div>
             }
@@ -856,6 +877,92 @@
         document.getElementById('uploadAreaEditar').style.display = 'block';
     }
     
+    // ==================== CREDENCIALES INLINE ====================
+    function escapeHtml(s) { return (s || '').replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; }); }
+
+    function renderCredenciales(id, data) {
+        var body = document.getElementById('credBody-' + id);
+        if (!data.tieneCuenta) {
+            body.innerHTML = '<div class="cred-empty">Este estilista no tiene cuenta de acceso registrada.</div>'
+                + '<button class="cred-regen" type="button" onclick="generarCredencialesEstilista(' + id + ')"><i class="fas fa-key"></i> Generar credenciales</button>';
+            return;
+        }
+        var pwdHtml = data.tienePassword
+            ? '<div class="cred-row"><label>Contraseña</label>'
+                + '<input id="credPwd-' + id + '" type="text" readonly value="' + escapeHtml(data.password) + '" />'
+                + '<button class="cred-copy" type="button" onclick="copiarTextoCred(\'credPwd-' + id + '\')"><i class="fas fa-copy"></i></button></div>'
+            : '<div class="cred-empty">Contraseña no recuperable. Use "Regenerar" para obtener una nueva.</div>';
+
+        body.innerHTML = ''
+            + '<div class="cred-row"><label>Nombre</label>'
+            + '<input type="text" readonly value="' + escapeHtml(data.nombre) + '" /></div>'
+            + '<div class="cred-row"><label>Correo</label>'
+            + '<input id="credEmail-' + id + '" type="text" readonly value="' + escapeHtml(data.email) + '" />'
+            + '<button class="cred-copy" type="button" onclick="copiarTextoCred(\'credEmail-' + id + '\')"><i class="fas fa-copy"></i></button></div>'
+            + pwdHtml
+            + '<button class="cred-regen" type="button" onclick="regenerarPasswordEstilista(' + id + ')"><i class="fas fa-sync"></i> Regenerar contraseña</button>';
+    }
+
+    function alternarCredenciales(id, ev) {
+        if (ev && ev.target && (ev.target.closest('.btn-delete') || ev.target.closest('.cred-panel'))) return;
+        var card = document.getElementById('card-est-' + id);
+        var abierta = card.classList.contains('expanded');
+        document.querySelectorAll('.stylist-admin-card.expanded').forEach(function (c) { c.classList.remove('expanded'); });
+        if (abierta) return;
+        card.classList.add('expanded');
+
+        fetch('/Admin/CredencialesEstilista/' + id)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data.success) { document.getElementById('credBody-' + id).innerHTML = '<div class="cred-empty">' + (data.message || 'Error') + '</div>'; return; }
+                renderCredenciales(id, data);
+            })
+            .catch(function () { document.getElementById('credBody-' + id).innerHTML = '<div class="cred-empty">Error al cargar credenciales</div>'; });
+    }
+
+    function generarCredencialesEstilista(id) {
+        if (!confirm('Se creará una cuenta de acceso con correo y contraseña automáticos para este estilista. ¿Continuar?')) return;
+        var fd = new FormData();
+        var t = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (t) fd.append('__RequestVerificationToken', t.value);
+        fetch('/Admin/GenerarCredencialesEstilista/' + id, { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    mostrarToastEstilista('Credenciales generadas', 'success');
+                    fetch('/Admin/CredencialesEstilista/' + id).then(function (r) { return r.json(); }).then(function (d) { if (d.success) renderCredenciales(id, d); });
+                } else {
+                    mostrarToastEstilista(data.message || 'Error', 'error');
+                }
+            })
+            .catch(function () { mostrarToastEstilista('Error en la solicitud', 'error'); });
+    }
+
+    function regenerarPasswordEstilista(id) {
+        if (!confirm('Esto generará una nueva contraseña y reemplazará la actual. ¿Continuar?')) return;
+        var fd = new FormData();
+        var t = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (t) fd.append('__RequestVerificationToken', t.value);
+        fetch('/Admin/RegenerarPasswordEstilista/' + id, { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    mostrarToastEstilista('Contraseña regenerada', 'success');
+                    fetch('/Admin/CredencialesEstilista/' + id).then(function (r) { return r.json(); }).then(function (d) { if (d.success) renderCredenciales(id, d); });
+                } else {
+                    mostrarToastEstilista(data.message || 'Error', 'error');
+                }
+            })
+            .catch(function () { mostrarToastEstilista('Error en la solicitud', 'error'); });
+    }
+
+    function copiarTextoCred(id) {
+        var input = document.getElementById(id);
+        input.select(); input.setSelectionRange(0, 99999);
+        try { document.execCommand('copy'); mostrarToastEstilista('Copiado al portapapeles', 'success'); }
+        catch (e) { mostrarToastEstilista('No se pudo copiar', 'error'); }
+    }
+
     // ==================== ELIMINAR ====================
     function eliminarEstilista(id, nombre) {
         if (!confirm(`¿Eliminar permanentemente al estilista "${nombre}"?`)) return;
@@ -978,7 +1085,7 @@
             }
         };
 
-        function mostrarToastEstilista(mensaje, tipo) {
+        window.mostrarToastEstilista = function(mensaje, tipo) {
             var toastViejo = document.getElementById('toast-estilista');
             if (toastViejo) toastViejo.remove();
             var toast = document.createElement('div');
@@ -987,7 +1094,7 @@
             toast.style.cssText = 'position: fixed; bottom: 30px; right: 30px; background: ' + (tipo === 'success' ? '#1a7a4a' : '#b83232') + '; color: white; padding: 14px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; z-index: 99999; box-shadow: 0 4px 20px rgba(0,0,0,0.2);';
             document.body.appendChild(toast);
             setTimeout(function() { toast.remove(); }, 3000);
-        }
+        };
 
         console.log('Admin estilistas cargado correctamente');
     });

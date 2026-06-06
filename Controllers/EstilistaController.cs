@@ -32,7 +32,9 @@ namespace DkaizaProject.Controllers
                 .Include(c => c.Cliente)
                 .Include(c => c.Servicio)
                 .Include(c => c.Estilista)
-                .Where(c => c.EstilistaId == EstilistaId && c.Estado != EstadoCita.Cancelada)
+                .Where(c => c.EstilistaId == EstilistaId
+                    && c.Estado != EstadoCita.Cancelada
+                    && c.Estado != EstadoCita.Pagada)
                 .OrderBy(c => c.Fecha).ThenBy(c => c.HoraInicio)
                 .ToListAsync();
 

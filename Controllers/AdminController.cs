@@ -318,6 +318,85 @@ public async Task<IActionResult> EditarServicio(
             });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CredencialesEstilista(int id)
+        {
+            var check = AdminOnly();
+            if (check != null) return Json(new { success = false, message = "No autorizado" });
+
+            var estilista = await _db.Estilistas.FindAsync(id);
+            if (estilista == null) return Json(new { success = false, message = "Estilista no encontrado" });
+
+            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.EstilistaId == id && c.EsEstilista);
+            if (cliente == null)
+                return Json(new { success = true, tieneCuenta = false, nombre = estilista.Nombre });
+
+            return Json(new
+            {
+                success = true,
+                tieneCuenta = true,
+                nombre = cliente.NombreCompleto,
+                email = cliente.Email,
+                password = cliente.PasswordTemporal,
+                tienePassword = !string.IsNullOrEmpty(cliente.PasswordTemporal)
+            });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerarCredencialesEstilista(int id)
+        {
+            var check = AdminOnly();
+            if (check != null) return Json(new { success = false, message = "No autorizado" });
+
+            var estilista = await _db.Estilistas.FindAsync(id);
+            if (estilista == null) return Json(new { success = false, message = "Estilista no encontrado" });
+
+            var existente = await _db.Clientes.FirstOrDefaultAsync(c => c.EstilistaId == id && c.EsEstilista);
+            if (existente != null) return Json(new { success = false, message = "El estilista ya tiene cuenta de acceso" });
+
+            var (email, password) = await GenerarCredencialesEstilistaAsync(estilista.Nombre);
+            var partes = estilista.Nombre.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var cliente = new Cliente
+            {
+                Nombre = partes[0],
+                Apellido = partes.Length > 1 ? partes[1] : "",
+                Email = email,
+                Telefono = "",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                PasswordTemporal = password,
+                EsAdmin = false,
+                EsEstilista = true,
+                EstilistaId = estilista.Id,
+                FechaRegistro = DateTime.UtcNow
+            };
+            _db.Clientes.Add(cliente);
+            await _db.SaveChangesAsync();
+
+            return Json(new { success = true, email, password });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegenerarPasswordEstilista(int id)
+        {
+            var check = AdminOnly();
+            if (check != null) return Json(new { success = false, message = "No autorizado" });
+
+            var cliente = await _db.Clientes.FirstOrDefaultAsync(c => c.EstilistaId == id && c.EsEstilista);
+            if (cliente == null) return Json(new { success = false, message = "El estilista no tiene cuenta de acceso" });
+
+            var rng = new Random();
+            var soloLetras = new string(cliente.Nombre.ToLowerInvariant().Where(c => c >= 'a' && c <= 'z').ToArray());
+            var prefijo = soloLetras.Length >= 3 ? soloLetras.Substring(0, 3) : (soloLetras + "xxx").Substring(0, 3);
+            prefijo = char.ToUpperInvariant(prefijo[0]) + prefijo.Substring(1);
+            var password = $"{prefijo}{rng.Next(1000, 10000)}";
+
+            cliente.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            cliente.PasswordTemporal = password;
+            await _db.SaveChangesAsync();
+
+            return Json(new { success = true, password });
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearEstilista([FromForm] Estilista model, IFormFile? Foto)
         {
@@ -352,6 +431,7 @@ public async Task<IActionResult> EditarServicio(
                     Email = email,
                     Telefono = "",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                    PasswordTemporal = password,
                     EsAdmin = false,
                     EsEstilista = true,
                     EstilistaId = model.Id,
