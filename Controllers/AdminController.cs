@@ -233,6 +233,151 @@ namespace DkaizaProject.Controllers
             await _db.SaveChangesAsync();
             return Json(new { success = true, message = "Servicio eliminado correctamente" });
         }
+
+
+        // GET /Admin/ReporteServicios?anio=2025
+public async Task<IActionResult> ReporteServicios(int? anio)
+{
+    var check = AdminOnly(); if (check != null) return check;
+ 
+    // Si no se pasa año, usar el actual
+    int anioSeleccionado = anio ?? DateTime.Today.Year;
+ 
+    // Rango del año completo
+    var inicio = new DateTime(anioSeleccionado, 1, 1);
+    var fin    = new DateTime(anioSeleccionado, 12, 31, 23, 59, 59);
+ 
+    // Solo citas completadas o pagadas (atendidas)
+    var citasAnio = await _db.Citas
+        .Include(c => c.Servicio)
+        .Include(c => c.Estilista)
+        .Where(c =>
+            c.Fecha >= inicio &&
+            c.Fecha <= fin &&
+            (c.Estado == EstadoCita.Completada || c.Estado == EstadoCita.Pagada))
+        .ToListAsync();
+ 
+    // Años disponibles para el selector (desde el primer registro hasta hoy)
+    var anioMinimo = await _db.Citas
+        .Where(c => c.Estado == EstadoCita.Completada || c.Estado == EstadoCita.Pagada)
+        .OrderBy(c => c.Fecha)
+        .Select(c => (int?)c.Fecha.Year)
+        .FirstOrDefaultAsync() ?? DateTime.Today.Year;
+ 
+    var aniosDisponibles = Enumerable
+        .Range(anioMinimo, DateTime.Today.Year - anioMinimo + 1)
+        .OrderByDescending(y => y)
+        .ToList();
+ 
+    // ── Resumen mensual ──────────────────────────────────────
+    var meses = Enumerable.Range(1, 12).Select(mes =>
+    {
+        var citasMes = citasAnio.Where(c => c.Fecha.Month == mes).ToList();
+        return new ResumenMensual
+        {
+            Mes            = mes,
+            NombreMes      = new DateTime(anioSeleccionado, mes, 1).ToString("MMMM"),
+            TotalAtendidas = citasMes.Count,
+            ServicioTop    = citasMes
+                .GroupBy(c => c.Servicio?.Nombre ?? "—")
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "—",
+            EstilistaTop   = citasMes
+                .GroupBy(c => c.Estilista?.Nombre ?? "—")
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "—"
+        };
+    }).ToList();
+ 
+    // ── KPIs anuales ─────────────────────────────────────────
+    ViewBag.AnioSeleccionado  = anioSeleccionado;
+    ViewBag.AniosDisponibles  = aniosDisponibles;
+    ViewBag.TotalAnual        = citasAnio.Count;
+    ViewBag.PromedioMensual   = citasAnio.Count > 0
+        ? Math.Round(citasAnio.Count / 12.0, 1) : 0.0;
+    ViewBag.MesPico           = meses.OrderByDescending(m => m.TotalAtendidas)
+                                     .FirstOrDefault()?.NombreMes ?? "—";
+    ViewBag.ServicioTop       = citasAnio
+        .GroupBy(c => c.Servicio?.Nombre ?? "—")
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault() ?? "—";
+    ViewBag.EstilistaTop      = citasAnio
+        .GroupBy(c => c.Estilista?.Nombre ?? "—")
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault() ?? "—";
+ 
+    return View(meses);
+}
+ 
+// GET /Admin/ReporteServiciosPdf?anio=2025
+// Genera el reporte en PDF (usa la misma lógica, distinta vista)
+public async Task<IActionResult> ReporteServiciosPdf(int? anio)
+{
+    var check = AdminOnly(); if (check != null) return check;
+ 
+    int anioSeleccionado = anio ?? DateTime.Today.Year;
+    var inicio = new DateTime(anioSeleccionado, 1, 1);
+    var fin    = new DateTime(anioSeleccionado, 12, 31, 23, 59, 59);
+ 
+    var citasAnio = await _db.Citas
+        .Include(c => c.Servicio)
+        .Include(c => c.Estilista)
+        .Where(c =>
+            c.Fecha >= inicio &&
+            c.Fecha <= fin &&
+            (c.Estado == EstadoCita.Completada || c.Estado == EstadoCita.Pagada))
+        .ToListAsync();
+ 
+    var meses = Enumerable.Range(1, 12).Select(mes =>
+    {
+        var citasMes = citasAnio.Where(c => c.Fecha.Month == mes).ToList();
+        return new ResumenMensual
+        {
+            Mes            = mes,
+            NombreMes      = new DateTime(anioSeleccionado, mes, 1).ToString("MMMM"),
+            TotalAtendidas = citasMes.Count,
+            ServicioTop    = citasMes
+                .GroupBy(c => c.Servicio?.Nombre ?? "—")
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "—",
+            EstilistaTop   = citasMes
+                .GroupBy(c => c.Estilista?.Nombre ?? "—")
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "—"
+        };
+    }).ToList();
+ 
+    ViewBag.AnioSeleccionado = anioSeleccionado;
+    ViewBag.TotalAnual       = citasAnio.Count;
+    ViewBag.PromedioMensual  = citasAnio.Count > 0
+        ? Math.Round(citasAnio.Count / 12.0, 1) : 0.0;
+    ViewBag.MesPico          = meses.OrderByDescending(m => m.TotalAtendidas)
+                                    .FirstOrDefault()?.NombreMes ?? "—";
+    ViewBag.ServicioTop      = citasAnio
+        .GroupBy(c => c.Servicio?.Nombre ?? "—")
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault() ?? "—";
+    ViewBag.EstilistaTop     = citasAnio
+        .GroupBy(c => c.Estilista?.Nombre ?? "—")
+        .OrderByDescending(g => g.Count())
+        .Select(g => g.Key)
+        .FirstOrDefault() ?? "—";
+ 
+    // Renderizar como vista de impresión (el JS de la vista llama window.print())
+    return View(meses);
+}
+
+
+
+
+        
  
         // ============================================================
         // ESTILISTAS

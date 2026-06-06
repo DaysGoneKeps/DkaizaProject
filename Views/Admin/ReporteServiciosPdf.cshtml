@@ -1,0 +1,220 @@
+@model List<DkaizaProject.Models.ResumenMensual>
+@{
+    ViewData["Title"] = "Reporte Anual " + ViewBag.AnioSeleccionado;
+    Layout = null;
+
+    int anio            = ViewBag.AnioSeleccionado;
+    int totalAnual      = ViewBag.TotalAnual;
+    double promedio     = ViewBag.PromedioMensual;
+    string mesPico      = ViewBag.MesPico;
+    string servicioTop  = ViewBag.ServicioTop;
+    string estilistaTop = ViewBag.EstilistaTop;
+    string fechaGen     = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+    int maxMes          = Model.Count > 0 ? Model.Max(m => m.TotalAtendidas) : 0;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reporte Anual @anio — Dkaiza</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+            color: #1a1a1a;
+            background: #fff;
+            padding: 40px 48px;
+        }
+
+        .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid #1a1a1a;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .pdf-salon { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .pdf-sub   { font-size: 12px; color: #666; margin-top: 2px; }
+        .pdf-meta  { text-align: right; font-size: 11px; color: #666; line-height: 1.7; }
+
+        .pdf-kpis {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .pdf-kpi { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; }
+        .pdf-kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: #888; margin-bottom: 4px; }
+        .pdf-kpi-value { font-size: 22px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+        .pdf-kpi-value.sm { font-size: 13px; padding-top: 5px; }
+
+        .pdf-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: #1a1a1a; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: #f5f0eb;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #666;
+            border-bottom: 1px solid #ddd;
+        }
+        tbody td { padding: 9px 12px; border-bottom: 1px solid #eee; font-size: 12px; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:nth-child(even) td { background: #faf8f5; }
+
+        .bar-wrap { display: flex; align-items: center; gap: 8px; }
+        .bar-bg   { flex: 1; height: 5px; background: #ece8e3; border-radius: 99px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; background: #c8a98a; }
+        .bar-num  { font-weight: 700; min-width: 24px; text-align: right; }
+
+        .pico-badge {
+            display: inline-block;
+            background: #fdf0e6; color: #a86030;
+            font-size: 8px; font-weight: 700;
+            padding: 1px 6px; border-radius: 50px;
+            border: 1px solid #f0d0b0;
+            margin-left: 5px;
+        }
+
+        .pdf-footer {
+            margin-top: 32px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 12px;
+            font-size: 10px;
+            color: #aaa;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pdf-empty { text-align: center; padding: 48px 0; color: #999; }
+        .pdf-empty h3 { font-size: 16px; margin-bottom: 6px; color: #555; }
+
+        @@media print {
+            body { padding: 20px 24px; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print" style="margin-bottom:20px;">
+        <button onclick="window.print()"
+                style="background:#1a1a1a;color:#fff;border:none;border-radius:50px;padding:10px 24px;font-size:13px;cursor:pointer;">
+            🖨 Imprimir / Guardar PDF
+        </button>
+        <button onclick="window.close()"
+                style="background:transparent;color:#666;border:1px solid #ccc;border-radius:50px;padding:10px 20px;font-size:13px;cursor:pointer;margin-left:8px;">
+            Cerrar
+        </button>
+    </div>
+
+    <div class="pdf-header">
+        <div>
+            <div class="pdf-salon">Dkaiza — Salón de Belleza</div>
+            <div class="pdf-sub">Reporte Anual de Atención de Servicios &bull; Año @anio</div>
+        </div>
+        <div class="pdf-meta">
+            Generado: @fechaGen<br />
+            Solo para uso interno del administrador
+        </div>
+    </div>
+
+    @if (totalAnual == 0)
+    {
+        <div class="pdf-empty">
+            <h3>No hay información disponible</h3>
+            <p>No se encontraron citas atendidas para el año @anio.</p>
+        </div>
+    }
+    else
+    {
+        <div class="pdf-kpis">
+            <div class="pdf-kpi">
+                <div class="pdf-kpi-label">Total atendidas</div>
+                <div class="pdf-kpi-value">@totalAnual</div>
+            </div>
+            <div class="pdf-kpi">
+                <div class="pdf-kpi-label">Promedio mensual</div>
+                <div class="pdf-kpi-value">@promedio</div>
+            </div>
+            <div class="pdf-kpi">
+                <div class="pdf-kpi-label">Mes pico</div>
+                <div class="pdf-kpi-value sm">@mesPico</div>
+            </div>
+            <div class="pdf-kpi">
+                <div class="pdf-kpi-label">Servicio top</div>
+                <div class="pdf-kpi-value sm">@servicioTop</div>
+            </div>
+            <div class="pdf-kpi">
+                <div class="pdf-kpi-label">Estilista top</div>
+                <div class="pdf-kpi-value sm">@estilistaTop</div>
+            </div>
+        </div>
+
+        <div class="pdf-title">Desglose mensual — @anio</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Citas atendidas</th>
+                    <th>Servicio más solicitado</th>
+                    <th>Estilista más activa</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    double pct = maxMes > 0 ? (m.TotalAtendidas * 100.0 / maxMes) : 0;
+                    bool esPico = m.NombreMes.Equals(mesPico, StringComparison.OrdinalIgnoreCase) && m.TotalAtendidas > 0;
+                    string pctStr = pct.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+                    <tr>
+                        <td>
+                            <strong>@m.NombreMes</strong>
+                            @if (esPico)
+                            {
+                                <span class="pico-badge">★ pico</span>
+                            }
+                        </td>
+                        <td>
+                            @if (m.TotalAtendidas > 0)
+                            {
+                                <div class="bar-wrap">
+                                    <div class="bar-bg">
+                                        <div class="bar-fill" style="width:@(pctStr)%"></div>
+                                    </div>
+                                    <span class="bar-num">@m.TotalAtendidas</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span style="color:#aaa;">—</span>
+                            }
+                        </td>
+                        <td>@(m.TotalAtendidas > 0 ? m.ServicioTop : "—")</td>
+                        <td>@(m.TotalAtendidas > 0 ? m.EstilistaTop : "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="pdf-footer">
+        <span>Dkaiza Salón de Belleza — Documento confidencial</span>
+        <span>Año @anio</span>
+    </div>
+
+    <script>
+        if (new URLSearchParams(window.location.search).get('print') === '1') {
+            window.onload = () => window.print();
+        }
+    </script>
+</body>
+</html>

@@ -91,6 +91,15 @@ namespace DkaizaProject.Models
         public string? Notas { get; set; }
         public string ExternalReference { get; set; } = string.Empty;
     }
+
+    public class ResumenMensual
+    {
+        public int    Mes            { get; set; }
+        public string NombreMes      { get; set; } = string.Empty;
+        public int    TotalAtendidas { get; set; }
+        public string ServicioTop    { get; set; } = string.Empty;
+        public string EstilistaTop   { get; set; } = string.Empty;
+    }
  
     public class CheckoutViewModel
     {
