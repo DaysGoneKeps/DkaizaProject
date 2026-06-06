@@ -12,6 +12,7 @@ namespace DkaizaProject.Models
     [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
+    public bool EsVip { get; set; } = false;
 
     [Required, MaxLength(100)]
     public string Nombre { get; set; } = string.Empty;
