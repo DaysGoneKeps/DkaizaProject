@@ -4,6 +4,7 @@ using DkaizaProject.Data;
 using DkaizaProject.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHostedService<DkaizaProject.Services.RecordatorioCitasService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

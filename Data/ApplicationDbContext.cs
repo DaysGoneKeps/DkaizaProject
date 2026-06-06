@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Estilista> Estilistas { get; set; }
     public DbSet<Cita> Citas { get; set; }
     public DbSet<Pago> Pagos { get; set; }
+    public DbSet<Notificacion> Notificaciones { get; set; }
     public DbSet<CategoriaServicio> CategoriasServicios { get; set; }
     
     protected override void OnModelCreating(ModelBuilder mb)

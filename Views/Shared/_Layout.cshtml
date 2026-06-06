@@ -16,9 +16,10 @@
     <link rel="stylesheet" href="~/css/site.css" />
     
     <style>
-        /* Estilos adicionales para el dropdown de usuario y perfil */
-        
-        /* User Menu Dropdown */
+        /* ============================================================
+           ESTILOS: Dropdown de usuario + Perfil
+           ============================================================ */
+
         .user-menu-container {
             position: relative;
             margin-left: 0.5rem;
@@ -140,7 +141,274 @@
             margin: 6px 0;
         }
 
-        /* Perfil Page Styles */
+        /* ============================================================
+           ESTILOS: Campana de notificaciones
+           ============================================================ */
+
+        .notif-bell-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--cream-dark);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--ink-mid);
+            font-size: 1rem;
+            margin-right: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .notif-bell-btn:hover {
+            background: var(--white);
+            border-color: var(--rose);
+            color: var(--rose-dark);
+        }
+
+        .notif-bell-badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background: #e74c3c;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            line-height: 1;
+        }
+
+        .notif-bell-badge.hidden { display: none; }
+
+        /* ============================================================
+           ESTILOS: Popup de notificaciones
+           ============================================================ */
+
+        .notif-popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            background: transparent;
+        }
+
+        .notif-popup-overlay.active { display: block; }
+
+        .notif-popup {
+            position: fixed;
+            top: 68px;
+            right: 1.5rem;
+            width: 380px;
+            max-width: calc(100vw - 2rem);
+            max-height: 70vh;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(-8px);
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .notif-popup.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .notif-popup__header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--cream-dark);
+        }
+
+        .notif-popup__header h4 {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            color: var(--ink);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Ícono campana dentro del header del popup */
+        .notif-popup__header h4 svg {
+            width: 17px;
+            height: 17px;
+            color: var(--rose-dark);
+            flex-shrink: 0;
+        }
+
+        .notif-popup__close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink-light);
+            font-size: 1rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.15s;
+        }
+
+        .notif-popup__close:hover { background: var(--border); color: var(--ink); }
+
+        .notif-popup__body {
+            overflow-y: auto;
+            flex: 1;
+            padding: 0.75rem;
+        }
+
+        .notif-popup-item {
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--rose);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--cream);
+            transition: background 0.15s, opacity 0.3s;
+        }
+
+        .notif-popup-item:last-child { margin-bottom: 0; }
+
+        .notif-popup-item__title {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--ink);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Ícono calendario dentro del título de cada notif */
+        .notif-popup-item__title svg {
+            width: 14px;
+            height: 14px;
+            color: var(--rose-dark);
+            flex-shrink: 0;
+        }
+
+        .notif-popup-item__msg {
+            font-size: 0.8rem;
+            color: var(--ink-mid);
+            margin-bottom: 0.6rem;
+            line-height: 1.45;
+        }
+
+        .notif-popup-item__detail {
+            font-size: 0.75rem;
+            color: var(--ink-light);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem 0.9rem;
+            margin-bottom: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+        }
+
+        /* Chips del detalle con íconos SVG */
+        .notif-popup-item__detail span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notif-popup-item__detail svg {
+            width: 11px;
+            height: 11px;
+            color: var(--rose-dark);
+            opacity: 0.8;
+            flex-shrink: 0;
+        }
+
+        .notif-popup-item__btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .notif-popup-item__btns button {
+            flex: 1;
+    padding: 6px 10px;
+    border-radius: 50px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+        }
+
+        /* Íconos SVG dentro de los botones del popup */
+        .notif-popup-item__btns button svg {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+        }
+
+        .btn-pp-confirmar { background: var(--ink); color: white; }
+        .btn-pp-confirmar:hover { background: var(--rose-dark); }
+        .btn-pp-cancelar  { background: white; border: 1px solid #e0b4b4 !important; color: #c0392b; }
+        .btn-pp-cancelar:hover { background: #fdf0f0; }
+
+        .notif-popup__footer {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .notif-popup__footer a {
+            font-size: 0.8rem;
+            color: var(--rose-dark);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .notif-popup__footer a:hover { text-decoration: underline; }
+
+        .notif-popup__empty {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--ink-light);
+            font-size: 0.85rem;
+        }
+
+        /* Ícono del empty state del popup */
+        .notif-popup__empty svg {
+            width: 36px;
+            height: 36px;
+            display: block;
+            margin: 0 auto 0.6rem;
+            color: var(--rose);
+            opacity: 0.6;
+        }
+
+        /* ============================================================
+           ESTILOS: Página de Perfil
+           ============================================================ */
+
         .perfil-page {
             padding: 2rem 0 4rem;
             background: linear-gradient(135deg, var(--cream) 0%, var(--white) 100%);
@@ -187,10 +455,7 @@
             backdrop-filter: blur(10px);
         }
 
-        .perfil-avatar i {
-            font-size: 3rem;
-            color: var(--white);
-        }
+        .perfil-avatar i { font-size: 3rem; color: var(--white); }
 
         .perfil-title h1 {
             font-family: var(--font-display);
@@ -198,10 +463,7 @@
             margin-bottom: 0.25rem;
         }
 
-        .perfil-title p {
-            color: rgba(255,255,255,0.8);
-            font-size: 0.9rem;
-        }
+        .perfil-title p { color: rgba(255,255,255,0.8); font-size: 0.9rem; }
 
         .perfil-content {
             display: grid;
@@ -227,10 +489,7 @@
             gap: 0.75rem;
         }
 
-        .info-card-header i {
-            font-size: 1.25rem;
-            color: var(--rose-dark);
-        }
+        .info-card-header i { font-size: 1.25rem; color: var(--rose-dark); }
 
         .info-card-header h3 {
             font-family: var(--font-display);
@@ -240,9 +499,7 @@
             margin: 0;
         }
 
-        .info-card-body {
-            padding: 1.25rem;
-        }
+        .info-card-body { padding: 1.25rem; }
 
         .info-row {
             display: flex;
@@ -251,30 +508,12 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { font-size: 0.8rem; color: var(--ink-light); }
+        .info-value { font-weight: 500; color: var(--ink); font-size: 0.85rem; }
+        .info-divider { height: 1px; background: var(--border); margin: 1rem 0; }
 
-        .info-label {
-            font-size: 0.8rem;
-            color: var(--ink-light);
-        }
-
-        .info-value {
-            font-weight: 500;
-            color: var(--ink);
-            font-size: 0.85rem;
-        }
-
-        .info-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 1rem 0;
-        }
-
-        .stats-summary {
-            margin-top: 0.5rem;
-        }
+        .stats-summary { margin-top: 0.5rem; }
 
         .stat-item {
             display: flex;
@@ -283,16 +522,9 @@
             padding: 0.5rem 0;
         }
 
-        .stat-item i {
-            font-size: 1.1rem;
-            color: var(--rose-dark);
-            width: 24px;
-        }
+        .stat-item i { font-size: 1.1rem; color: var(--rose-dark); width: 24px; }
 
-        .stat-item div {
-            display: flex;
-            flex-direction: column;
-        }
+        .stat-item div { display: flex; flex-direction: column; }
 
         .stat-number {
             font-family: var(--font-display);
@@ -302,10 +534,7 @@
             line-height: 1;
         }
 
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--ink-light);
-        }
+        .stat-label { font-size: 0.7rem; color: var(--ink-light); }
 
         .form-card {
             background: var(--white);
@@ -325,10 +554,7 @@
             position: relative;
         }
 
-        .form-card-header i {
-            font-size: 1.1rem;
-            color: var(--rose-dark);
-        }
+        .form-card-header i { font-size: 1.1rem; color: var(--rose-dark); }
 
         .form-card-header h3 {
             font-family: var(--font-display);
@@ -347,9 +573,7 @@
             color: var(--ink-light);
         }
 
-        .form-card-body {
-            padding: 1.5rem;
-        }
+        .form-card-body { padding: 1.5rem; }
 
         .form-row {
             display: grid;
@@ -357,9 +581,7 @@
             gap: 1rem;
         }
 
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
+        .form-group { margin-bottom: 1.25rem; }
 
         .form-group label {
             display: block;
@@ -369,9 +591,7 @@
             margin-bottom: 0.5rem;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
+        .input-wrapper { position: relative; }
 
         .input-wrapper i {
             position: absolute;
@@ -402,12 +622,7 @@
             box-shadow: 0 0 0 3px rgba(200, 169, 138, 0.1);
         }
 
-        .field-error {
-            font-size: 0.7rem;
-            color: #c0392b;
-            margin-top: 0.25rem;
-            display: block;
-        }
+        .field-error { font-size: 0.7rem; color: #c0392b; margin-top: 0.25rem; display: block; }
 
         .form-actions {
             display: flex;
@@ -431,10 +646,7 @@
             transition: all 0.2s;
         }
 
-        .btn-primary:hover {
-            background: var(--rose-dark);
-            transform: translateY(-1px);
-        }
+        .btn-primary:hover { background: var(--rose-dark); transform: translateY(-1px); }
 
         .btn-secondary {
             background: transparent;
@@ -452,50 +664,21 @@
             transition: all 0.2s;
         }
 
-        .btn-secondary:hover {
-            border-color: var(--ink-mid);
-            color: var(--ink);
-        }
+        .btn-secondary:hover { border-color: var(--ink-mid); color: var(--ink); }
 
-        /* Versión corregida - mobile responsive */
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
         @@media (max-width: 768px) {
-            .perfil-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .info-card {
-                position: static;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .perfil-header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .btn-primary,
-            .btn-secondary {
-                justify-content: center;
-            }
-            
-            .user-info-mini .user-name-mini {
-                display: none;
-            }
-            
-            .user-menu-trigger {
-                padding: 6px;
-            }
-            
-            .user-info-mini i {
-                display: none;
-            }
+            .perfil-content { grid-template-columns: 1fr; }
+            .info-card { position: static; }
+            .form-row { grid-template-columns: 1fr; }
+            .perfil-header-content { flex-direction: column; text-align: center; }
+            .form-actions { flex-direction: column; }
+            .btn-primary, .btn-secondary { justify-content: center; }
+            .user-info-mini .user-name-mini { display: none; }
+            .user-menu-trigger { padding: 6px; }
+            .user-info-mini i { display: none; }
         }
     </style>
     
@@ -503,9 +686,8 @@
 </head>
 <body>
 
-    <!-- ========== NAVBAR PROFESIONAL ========== -->
+    <!-- ========== NAVBAR ========== -->
     <nav class="navbar navbar-expand-lg">
-        
         <div class="container">
             
             <!-- Logo -->
@@ -527,9 +709,10 @@
             <!-- Menú principal -->
             <div class="collapse navbar-collapse" id="navbarMain">
                 @{
-                    var esEstilistaNav = Context.Session.GetString("EsEstilista") == "True";
-                    var esAdminNav = Context.Session.GetString("EsAdmin") == "True";
+                    var esEstilistaNav     = Context.Session.GetString("EsEstilista")     == "True";
+                    var esAdminNav         = Context.Session.GetString("EsAdmin")         == "True";
                     var esRecepcionistaNav = Context.Session.GetString("EsRecepcionista") == "True";
+                    var esClienteNormal    = !esEstilistaNav && !esAdminNav && !esRecepcionistaNav;
                 }
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
@@ -547,20 +730,11 @@
                             <a class="nav-link" href="/Recepcionista">Recepción</a>
                         </li>
                         <li class="nav-item">
-    <a class="nav-link"
-       href="/Clientes/Create">
-
-        Registrar Cliente
-    </a>
-</li>
-
-<li class="nav-item">
-    <a class="nav-link"
-       href="/Clientes">
-
-        Clientes Registrados
-    </a>
-</li>
+                            <a class="nav-link" href="/Clientes/Create">Registrar Cliente</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Clientes">Clientes Registrados</a>
+                        </li>
                     }
                     else
                     {
@@ -584,7 +758,7 @@
                 <div class="navbar-actions">
                     @if (Context.Session.GetInt32("ClienteId") != null)
                     {
-                        @if (!esEstilistaNav && !esRecepcionistaNav)
+                        @if (esClienteNormal)
                         {
                             <a href="/Appointments/Reservar" class="btn btn-reservar">
                                 <i class="fas fa-calendar-alt"></i> Reservar
@@ -608,8 +782,18 @@
                                 <i class="fas fa-cash-register"></i> Recepción
                             </a>
                         }
-                        
-                        <!-- Nuevo Dropdown de Usuario -->
+
+                        @* ── CAMPANA DE NOTIFICACIONES (solo clientes normales) ── *@
+                        @if (esClienteNormal)
+                        {
+                            <button class="notif-bell-btn" id="notifBellBtn"
+                                    title="Notificaciones" aria-label="Notificaciones">
+                                <i class="fas fa-bell"></i>
+                                <span class="notif-bell-badge hidden" id="notifBadge">0</span>
+                            </button>
+                        }
+
+                        <!-- Dropdown de usuario -->
                         <div class="user-menu-container">
                             <div class="user-menu-trigger">
                                 <div class="user-avatar-mini">
@@ -645,6 +829,11 @@
                                         <i class="fas fa-calendar-check"></i>
                                         Mis Citas
                                     </a>
+                                    @* ── ENLACE NOTIFICACIONES en el dropdown ── *@
+                                    <a href="/Notificaciones" class="dropdown-item">
+                                        <i class="fas fa-bell"></i>
+                                        Notificaciones
+                                    </a>
                                 }
                                 <div class="dropdown-divider"></div>
                                 <a href="/Account/Logout" class="dropdown-item logout">
@@ -668,7 +857,7 @@
         </div>
     </nav>
 
-    <!-- Toasts -->
+    <!-- ========== TOASTS ========== -->
     @if (TempData["Success"] != null)
     {
         <div class="toast-custom toast-success">
@@ -682,45 +871,35 @@
         </div>
     }
 
-    <!-- Contenido principal -->
+    <!-- ========== CONTENIDO PRINCIPAL ========== -->
     <main>
         @RenderBody()
     </main>
 
-    <!-- ========== FOOTER PROFESIONAL D'KAIZA ========== -->
+    <!-- ========== FOOTER ========== -->
     <footer class="footer-dkaiza">
         <div class="container">
             <div class="footer-content">
-                <!-- Columna 1: Marca y Redes Sociales -->
+                <!-- Marca -->
                 <div class="footer-col footer-col-brand">
                     <div class="footer-brand">
-                        <div class="brand-icon">
-                            <i class="fas fa-spa"></i>
-                        </div>
+                        <div class="brand-icon"><i class="fas fa-spa"></i></div>
                         <h3 class="brand-name">D'KAIZA</h3>
                         <p class="brand-tagline">Beauty Salon</p>
                     </div>
                     <p class="footer-description">
-                        Transformando tu belleza con los mejores tratamientos y profesionales 
+                        Transformando tu belleza con los mejores tratamientos y profesionales
                         en un ambiente acogedor y relajante.
                     </p>
                     <div class="footer-social">
-                        <a href="#" class="social-link" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="TikTok">
-                            <i class="fab fa-tiktok"></i>
-                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
 
-                <!-- Columna 2: Horario de Atención -->
+                <!-- Horario -->
                 <div class="footer-col footer-col-hours">
                     <h4 class="footer-title">Horario de atención</h4>
                     <ul class="footer-hours">
@@ -743,7 +922,7 @@
                     </ul>
                 </div>
 
-                <!-- Columna 3: Contacto y Ubicación -->
+                <!-- Contacto -->
                 <div class="footer-col footer-col-contact">
                     <h4 class="footer-title">Contacto</h4>
                     <ul class="footer-contact">
@@ -767,11 +946,10 @@
                 </div>
             </div>
 
-            <!-- Footer inferior con copyright y métodos de pago -->
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
                     <p class="copyright">
-                        &copy; @DateTime.Now.Year D'KAIZA Salón de Belleza. 
+                        &copy; @DateTime.Now.Year D'KAIZA Salón de Belleza.
                         Todos los derechos reservados.
                     </p>
                     <div class="footer-payments">
@@ -786,13 +964,47 @@
             </div>
         </div>
     </footer>
-    
+
+    <!-- ========== POPUP DE NOTIFICACIONES (solo clientes normales) ========== -->
+    @if (Context.Session.GetInt32("ClienteId") != null && esClienteNormal)
+    {
+        <div class="notif-popup-overlay" id="notifOverlay"></div>
+        <div class="notif-popup" id="notifPopup">
+            <div class="notif-popup__header">
+                <h4>
+                   
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 10a6 6 0 0112 0c0 4 2 6 2 6H4s2-2 2-6"/>
+                        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    Notificaciones
+                </h4>
+                <button class="notif-popup__close" id="notifCloseBtn" aria-label="Cerrar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notif-popup__body" id="notifBody">
+                <div class="notif-popup__empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 7v5"/>
+                        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                    </svg>
+                    Cargando...
+                </div>
+            </div>
+            <div class="notif-popup__footer">
+                <a href="/Notificaciones">Ver todas las notificaciones →</a>
+            </div>
+        </div>
+    }
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js"></script>
-    
+
     <script>
-        // Auto cerrar toasts después de 3 segundos
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const toasts = document.querySelectorAll('.toast-custom');
             toasts.forEach(toast => {
                 setTimeout(() => {
@@ -802,7 +1014,192 @@
             });
         });
     </script>
-    
+
+    @* ── SCRIPT DE NOTIFICACIONES (solo clientes normales) ── *@
+    @if (Context.Session.GetInt32("ClienteId") != null && esClienteNormal)
+    {
+        <script>
+        (function () {
+            const bell     = document.getElementById('notifBellBtn');
+            if (!bell) return;
+
+            const badge    = document.getElementById('notifBadge');
+            const popup    = document.getElementById('notifPopup');
+            const overlay  = document.getElementById('notifOverlay');
+            const body     = document.getElementById('notifBody');
+            const closeBtn = document.getElementById('notifCloseBtn');
+            let popupOpen     = false;
+            let accionEnCurso = false;
+
+            // SVGs reutilizables en JS (misma paleta cálida)
+            const SVG = {
+                calendario: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg>`,
+                servicio:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 001 1h6a1 1 0 001-1v-2.26C17.81 13.47 19 11.38 19 9c0-3.87-3.13-7-7-7z"/><path d="M9 21h6"/></svg>`,
+                estilista:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+                fecha:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/></svg>`,
+                hora:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+                check:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>`,
+                xmark:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+                vacio:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M6 10a6 6 0 0112 0c0 4 2 6 2 6H4s2-2 2-6"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
+                cargando:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>`,
+            };
+
+            // ── Actualizar contador del badge ──────────────────────
+            async function actualizarContador() {
+                try {
+                    const r = await fetch('/Notificaciones/Contador');
+                    const d = await r.json();
+                    if (d.count > 0) {
+                        badge.textContent = d.count > 9 ? '9+' : d.count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                } catch (_) {}
+            }
+
+            // ── Renderizar notificaciones en el popup ──────────────
+            function renderNotifs(notifs) {
+                if (!notifs || notifs.length === 0) {
+                    body.innerHTML = `
+                        <div class="notif-popup__empty">
+                            ${SVG.vacio}
+                            Sin notificaciones pendientes
+                        </div>`;
+                    return;
+                }
+
+                body.innerHTML = notifs.map(n => `
+                    <div class="notif-popup-item" id="ppitem-${n.id}">
+                        <div class="notif-popup-item__title">
+                            ${SVG.calendario}
+                            ${n.titulo}
+                        </div>
+                        <div class="notif-popup-item__msg">${n.mensaje}</div>
+                        <div class="notif-popup-item__detail">
+                            <span>${SVG.servicio} ${n.cita.servicio}</span>
+                            <span>${SVG.estilista} ${n.cita.estilista}</span>
+                            <span>${SVG.fecha} ${n.cita.fecha}</span>
+                            <span>${SVG.hora} ${n.cita.horaInicio} – ${n.cita.horaFin}</span>
+                        </div>
+                        <div class="notif-popup-item__btns">
+                            <button class="btn-pp-confirmar" data-id="${n.id}">
+                                Confirmar asistencia
+                            </button>
+                            <button class="btn-pp-cancelar" data-id="${n.id}">
+                                Cancelar cita
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                body.querySelectorAll('.btn-pp-confirmar').forEach(btn =>
+                    btn.addEventListener('click', () => accionPopup(btn.dataset.id, 'Confirmar')));
+                body.querySelectorAll('.btn-pp-cancelar').forEach(btn =>
+                    btn.addEventListener('click', () => accionPopup(btn.dataset.id, 'Cancelar')));
+            }
+
+            // ── Abrir popup ────────────────────────────────────────
+            async function abrirPopup() {
+                popup.classList.add('active');
+                overlay.classList.add('active');
+                popupOpen = true;
+                body.innerHTML = `
+                    <div class="notif-popup__empty">
+                        ${SVG.cargando}
+                        Cargando...
+                    </div>`;
+                try {
+                    const r = await fetch('/Notificaciones/Pendientes');
+                    const d = await r.json();
+                    if (d.success) renderNotifs(d.notificaciones);
+                } catch (_) {
+                    body.innerHTML = `
+                        <div class="notif-popup__empty">
+                            ${SVG.cargando}
+                            Error al cargar
+                        </div>`;
+                }
+            }
+
+            function cerrarPopup() {
+                popup.classList.remove('active');
+                overlay.classList.remove('active');
+                popupOpen = false;
+                actualizarContador();
+            }
+
+            // ── Confirmar / Cancelar desde el popup ───────────────
+            async function accionPopup(id, accion) {
+                const ok = accion === 'Confirmar'
+                    ? confirm('¿Confirmas tu asistencia a la cita?')
+                    : confirm('¿Seguro que deseas cancelar esta cita? El horario quedará libre.');
+                if (!ok) return;
+
+                const r = await fetch(`/Notificaciones/${accion}/${id}`, { method: 'POST' });
+                const d = await r.json();
+                if (d.success) {
+                    accionEnCurso = true;
+                    const item = document.getElementById('ppitem-' + id);
+                    if (item) { item.style.opacity = '0'; setTimeout(() => item.remove(), 300); }
+                    mostrarToast(d.message, accion === 'Confirmar' ? 'success' : 'error');
+                    await actualizarContador();
+                    setTimeout(() => {
+                        if (body.querySelectorAll('.notif-popup-item').length === 0) {
+                            body.innerHTML = `
+                                <div class="notif-popup__empty">
+                                    ${SVG.vacio}
+                                    Sin notificaciones pendientes
+                                </div>`;
+                            setTimeout(cerrarPopup, 1500);
+                        }
+                    }, 350);
+                } else {
+                    alert(d.message || 'Error al procesar');
+                }
+            }
+
+            // ── Toast temporal ─────────────────────────────────────
+            function mostrarToast(msg, tipo) {
+                const t = document.createElement('div');
+                t.className = `toast-custom toast-${tipo}`;
+                t.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
+                document.body.appendChild(t);
+                setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+            }
+
+            // ── Auto-popup al cargar ───────────────────────────────
+            async function autoPopupSiHay() {
+                if (window.location.pathname.startsWith('/Notificaciones')) return;
+                if (accionEnCurso) return;
+                if (sessionStorage.getItem('notifPopupMostrado')) return;
+                try {
+                    const r = await fetch('/Notificaciones/Contador');
+                    const d = await r.json();
+                    if (d.count > 0) {
+                        sessionStorage.setItem('notifPopupMostrado', '1');
+                        setTimeout(abrirPopup, 1200);
+                    }
+                } catch (_) {}
+            }
+
+            // ── Eventos ────────────────────────────────────────────
+            bell.addEventListener('click', e => {
+                e.stopPropagation();
+                popupOpen ? cerrarPopup() : abrirPopup();
+            });
+            closeBtn.addEventListener('click', cerrarPopup);
+            overlay.addEventListener('click', cerrarPopup);
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarPopup(); });
+
+            // ── Inicializar ────────────────────────────────────────
+            actualizarContador();
+            setInterval(actualizarContador, 60000);
+            autoPopupSiHay();
+        })();
+        </script>
+    }
+
     @RenderSection("Scripts", required: false)
 
 </body>
