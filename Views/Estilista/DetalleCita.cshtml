@@ -1,145 +1,643 @@
+
 @model DkaizaProject.Models.Cita
 @{
     ViewData["Title"] = "Detalle de cita";
     Layout = "_Layout";
 
+    @* HU-19: mapeo de estados visibles según criterios de aceptación *@
     string EstadoTexto(DkaizaProject.Models.EstadoCita e) => e switch
     {
-        DkaizaProject.Models.EstadoCita.Pendiente => "Pendiente",
+        DkaizaProject.Models.EstadoCita.Pendiente  => "Pendiente",
         DkaizaProject.Models.EstadoCita.Confirmada => "Pendiente",
-        DkaizaProject.Models.EstadoCita.EnProceso => "En proceso",
-        DkaizaProject.Models.EstadoCita.Completada => "Finalizada",
-        DkaizaProject.Models.EstadoCita.Cancelada => "Cancelada",
-        _ => e.ToString()
+        DkaizaProject.Models.EstadoCita.EnProceso  => "En proceso",
+        DkaizaProject.Models.EstadoCita.Completada => "Completada",
+        DkaizaProject.Models.EstadoCita.Cancelada  => "Cancelada",
+        _                                           => e.ToString()
     };
 
     string EstadoClase(DkaizaProject.Models.EstadoCita e) => e switch
     {
-        DkaizaProject.Models.EstadoCita.EnProceso => "estado-enproceso",
-        DkaizaProject.Models.EstadoCita.Completada => "estado-finalizada",
-        DkaizaProject.Models.EstadoCita.Cancelada => "estado-cancelada",
-        _ => "estado-pendiente"
+        DkaizaProject.Models.EstadoCita.EnProceso  => "badge--proceso",
+        DkaizaProject.Models.EstadoCita.Completada => "badge--finalizada",
+        DkaizaProject.Models.EstadoCita.Cancelada  => "badge--cancelada",
+        _                                           => "badge--pendiente"
     };
+
+    @* Hora de inicio de atención almacenada (puede ser null si aún no se inició) *@
+    var horaInicioGuardada = Model.HoraInicioAtencion;
+    var yaIniciada = Model.Estado == DkaizaProject.Models.EstadoCita.EnProceso;
+    var yaFinalizada = Model.Estado == DkaizaProject.Models.EstadoCita.Completada;
+
+    @* Tiempo estimado en segundos para el cronómetro (duración del servicio) *@
+    var duracionEstimadaSeg = Model.Servicio.DuracionHoras * 3600;
+
+    @* Tick Unix en ms de la hora de inicio (para reanudar el cronómetro si la página se recarga) *@
+    long horaInicioTick = horaInicioGuardada.HasValue
+        ? new DateTimeOffset(horaInicioGuardada.Value).ToUnixTimeMilliseconds()
+        : 0;
 }
 
 <style>
-    .det-page { padding: 2rem 0 4rem; }
-    .det-back { color: var(--ink-mid); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 1.25rem; }
+    /* ── Variables ── */
+    :root {
+        --det-radius: 14px;
+        --det-shadow: 0 4px 24px rgba(0,0,0,.07);
+    }
+
+    /* ── Layout principal ── */
+    .det-page  { padding: 2rem 0 5rem; }
+    .det-back  {
+        color: var(--ink-mid); text-decoration: none; font-size: .85rem;
+        display: inline-flex; align-items: center; gap: 6px; margin-bottom: 1.5rem;
+    }
     .det-back:hover { color: var(--rose-dark); }
-    .det-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; max-width: 720px; }
+
+    /* ── Grid: ficha + cronómetro lado a lado ── */
+    .det-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+    @@media (max-width: 860px) {
+        .det-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Tarjeta base ── */
+    .det-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--det-radius);
+        padding: 2rem;
+        box-shadow: var(--det-shadow);
+    }
+
+    /* ── Encabezado de ficha ── */
     .det-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .det-header h1 { font-family: var(--font-display); font-size: 1.5rem; color: var(--ink); margin: 0 0 0.25rem 0; }
-    .det-header .sub { color: var(--ink-mid); font-size: 0.85rem; margin: 0; }
-    .det-badge { font-size: 0.75rem; padding: 5px 14px; border-radius: 50px; font-weight: 500; }
-    .estado-pendiente { background: #fff3cd; color: #856404; }
-    .estado-enproceso { background: #cce5ff; color: #004085; }
-    .estado-finalizada { background: #eafaf1; color: #1a7a4a; }
-    .estado-cancelada { background: #fdf0f0; color: #b83232; }
-    .det-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.5rem 0; }
-    @@media (max-width: 600px) { .det-grid { grid-template-columns: 1fr; } }
-    .det-field { background: var(--cream); border-radius: var(--radius-md); padding: 0.9rem 1rem; }
-    .det-field .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-mid); margin-bottom: 0.35rem; font-weight: 600; }
-    .det-field .value { color: var(--ink); font-size: 0.95rem; font-weight: 500; }
-    .det-field .value i { color: var(--rose-dark); margin-right: 6px; }
+    .det-header h1 { font-family: var(--font-display); font-size: 1.45rem; color: var(--ink); margin: 0 0 .25rem; }
+    .det-header .sub { color: var(--ink-mid); font-size: .82rem; margin: 0; }
+
+    /* ── Badge de estado ── */
+    .det-badge {
+        font-size: .72rem; padding: 5px 14px;
+        border-radius: 50px; font-weight: 600; white-space: nowrap;
+        transition: background .3s, color .3s;
+    }
+    .badge--pendiente  { background: #fff3cd; color: #856404; }
+    .badge--proceso    { background: #cce5ff; color: #004085; }
+    .badge--finalizada { background: #eafaf1; color: #1a7a4a; }
+    .badge--cancelada  { background: #fdf0f0; color: #b83232; }
+
+    /* ── Grid de campos ── */
+    .det-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @@media (max-width: 560px) { .det-grid { grid-template-columns: 1fr; } }
+
+    .det-field { background: var(--cream); border-radius: 10px; padding: .85rem 1rem; }
+    .det-field .lbl {
+        font-size: .62rem; text-transform: uppercase; letter-spacing: .1em;
+        color: var(--ink-mid); margin-bottom: .3rem; font-weight: 600;
+    }
+    .det-field .val { color: var(--ink); font-size: .93rem; font-weight: 500; }
+    .det-field .val i { color: var(--rose-dark); margin-right: 6px; }
+
+    /* ── Notas ── */
     .det-notas {
         background: linear-gradient(135deg, var(--rose-light) 0%, var(--cream) 100%);
         border-left: 4px solid var(--rose-dark);
-        border-radius: var(--radius-md);
-        padding: 1rem 1.25rem;
-        margin: 1.5rem 0;
+        border-radius: 10px; padding: 1rem 1.25rem; margin: 1.25rem 0;
     }
-    .det-notas .label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--rose-dark); font-weight: 600; margin-bottom: 0.4rem; }
-    .det-notas .value { color: var(--ink); font-size: 0.9rem; line-height: 1.5; }
-    .det-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
-    .btn-action { border: none; border-radius: 50px; padding: 10px 22px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
-    .btn-iniciar { background: #004085; color: white; }
+    .det-notas .lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--rose-dark); font-weight: 600; margin-bottom: .35rem; }
+    .det-notas .val { color: var(--ink); font-size: .9rem; line-height: 1.5; }
+
+    /* ═══════════════════════════════════════════════════════════
+       PANEL DE CRONÓMETRO (HU-17 / HU-18)
+       Se vuelve visible cuando la cita pasa a "En proceso".
+       ═══════════════════════════════════════════════════════════ */
+    .crono-panel {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--det-radius);
+        padding: 1.75rem 1.5rem;
+        box-shadow: var(--det-shadow);
+        /* Oculto por defecto; JS lo muestra al iniciar */
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+    .crono-panel.visible { display: flex; }
+
+    .crono-titulo {
+        font-family: var(--font-display);
+        font-size: 1rem; color: var(--ink); margin: 0;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .crono-titulo .dot {
+        width: 10px; height: 10px; background: #1a7a4a;
+        border-radius: 50%; animation: pulse 1.4s ease-in-out infinite;
+    }
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: .5; transform: scale(1.35); }
+    }
+
+    /* Tiempo transcurrido — cifra grande */
+    .crono-display {
+        font-size: 3rem; font-weight: 700; font-variant-numeric: tabular-nums;
+        color: var(--ink); letter-spacing: 2px; line-height: 1;
+    }
+    .crono-display.advertencia { color: #c0392b; }  /* rojo si supera el tiempo estimado */
+
+    /* Barra de progreso */
+    .crono-barra-wrap { width: 100%; background: #eee; border-radius: 50px; height: 8px; overflow: hidden; }
+    .crono-barra {
+        height: 100%; border-radius: 50px;
+        background: linear-gradient(90deg, var(--rose-dark), #e74c3c);
+        width: 0%; transition: width .5s linear;
+    }
+
+    /* Metadatos del cronómetro */
+    .crono-meta { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; width: 100%; }
+    .crono-meta-item { background: var(--cream); border-radius: 10px; padding: .7rem .9rem; }
+    .crono-meta-item .lbl { font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-mid); font-weight: 600; margin-bottom: .2rem; }
+    .crono-meta-item .val { font-size: .88rem; font-weight: 600; color: var(--ink); }
+
+    /* Botón finalizar dentro del panel */
+    .btn-finalizar-crono {
+        width: 100%; border: none; border-radius: 50px;
+        padding: 12px 20px; font-size: .88rem; font-weight: 600;
+        background: #1a7a4a; color: white; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: background .2s, transform .1s;
+        margin-top: .25rem;
+    }
+    .btn-finalizar-crono:hover  { background: #0f5234; }
+    .btn-finalizar-crono:active { transform: scale(.98); }
+
+    /* ═══════════════════════════════════════════════════════════
+       MODAL DE RESUMEN (HU-18 — muestra resumen antes de confirmar)
+       ═══════════════════════════════════════════════════════════ */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,.45);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9000; padding: 1rem;
+        opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .modal-overlay.abierto { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+        background: var(--white); border-radius: var(--det-radius);
+        padding: 2rem; max-width: 400px; width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,.18);
+        transform: translateY(20px); transition: transform .25s;
+    }
+    .modal-overlay.abierto .modal-box { transform: translateY(0); }
+
+    .modal-box h2 {
+        font-family: var(--font-display); font-size: 1.25rem;
+        color: var(--ink); margin: 0 0 1.25rem; display: flex; align-items: center; gap: 8px;
+    }
+    .modal-box h2 i { color: #1a7a4a; }
+
+    .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.25rem; }
+    .resumen-item { background: var(--cream); border-radius: 10px; padding: .75rem 1rem; }
+    .resumen-item.full { grid-column: 1 / -1; }
+    .resumen-item .lbl { font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-mid); font-weight: 600; margin-bottom: .25rem; }
+    .resumen-item .val { font-size: .95rem; font-weight: 700; color: var(--ink); }
+    .resumen-item .val.grande { font-size: 1.4rem; color: #1a7a4a; }
+
+    .modal-acciones { display: flex; gap: .75rem; }
+    .btn-aceptar {
+        flex: 1; border: none; border-radius: 50px; padding: 11px 0;
+        background: #1a7a4a; color: white; font-weight: 600; font-size: .88rem;
+        cursor: pointer; transition: background .2s;
+    }
+    .btn-aceptar:hover { background: #0f5234; }
+    .btn-cancelar-modal {
+        flex: 1; border: 1.5px solid var(--border); border-radius: 50px; padding: 11px 0;
+        background: transparent; color: var(--ink-mid); font-weight: 500; font-size: .88rem;
+        cursor: pointer; transition: border-color .2s;
+    }
+    .btn-cancelar-modal:hover { border-color: var(--rose-dark); color: var(--rose-dark); }
+
+    /* ── Botón iniciar (ficha principal) ── */
+    .btn-iniciar {
+        border: none; border-radius: 50px; padding: 11px 28px;
+        background: #004085; color: white; font-size: .88rem; font-weight: 600;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+        transition: background .2s;
+    }
     .btn-iniciar:hover { background: #002752; }
-    .btn-finalizar { background: #1a7a4a; color: white; }
-    .btn-finalizar:hover { background: #0f5234; }
+
+    /* ── Estado finalizada inline ── */
+    .finalizada-banner {
+        background: #eafaf1; border: 1px solid #a3d9b8;
+        border-radius: 10px; padding: 1.1rem 1.25rem;
+        display: flex; align-items: center; gap: .75rem;
+        color: #1a7a4a; font-weight: 600; font-size: .9rem;
+        margin-top: 1rem;
+    }
+    .finalizada-banner i { font-size: 1.3rem; }
 </style>
+
+@* ── TOKEN CSRF para los fetch POST ── *@
+@Html.AntiForgeryToken()
 
 <div class="det-page">
     <div class="container">
-        <a href="/Estilista" class="det-back"><i class="fas fa-arrow-left"></i> Volver a mis citas</a>
+        <a href="/Estilista" class="det-back">
+            <i class="fas fa-arrow-left"></i> Volver a mis citas
+        </a>
 
-        <div class="det-card">
-            <div class="det-header">
-                <div>
-                    <h1>@Model.Servicio.Nombre</h1>
-                    <p class="sub">Cita #@Model.Id · creada el @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
-                </div>
-                <span class="det-badge @EstadoClase(Model.Estado)" id="estadoBadge">@EstadoTexto(Model.Estado)</span>
-            </div>
+        <div class="det-layout">
 
-            <div class="det-grid">
-                <div class="det-field">
-                    <div class="label">Cliente</div>
-                    <div class="value"><i class="fas fa-user"></i> @Model.Cliente.NombreCompleto</div>
+            @* ════════════════════════════════════════
+               FICHA DE CITA  (HU-19)
+               ════════════════════════════════════════ *@
+            <div class="det-card">
+                <div class="det-header">
+                    <div>
+                        <h1>@Model.Servicio.Nombre</h1>
+                        <p class="sub">Cita #@Model.Id · creada el @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                    <span class="det-badge @EstadoClase(Model.Estado)" id="estadoBadge">
+                        @EstadoTexto(Model.Estado)
+                    </span>
                 </div>
-                <div class="det-field">
-                    <div class="label">Teléfono</div>
-                    <div class="value"><i class="fas fa-phone"></i> @(string.IsNullOrEmpty(Model.Cliente.Telefono) ? "—" : Model.Cliente.Telefono)</div>
-                </div>
-                <div class="det-field">
-                    <div class="label">Fecha</div>
-                    <div class="value"><i class="far fa-calendar"></i> @Model.Fecha.ToString("dddd dd 'de' MMMM 'de' yyyy")</div>
-                </div>
-                <div class="det-field">
-                    <div class="label">Horario</div>
-                    <div class="value"><i class="far fa-clock"></i> @Model.HoraInicio:00 — @Model.HoraFin:00</div>
-                </div>
-                <div class="det-field">
-                    <div class="label">Servicio</div>
-                    <div class="value"><i class="fas fa-spa"></i> @Model.Servicio.Nombre</div>
-                </div>
-                <div class="det-field">
-                    <div class="label">Precio</div>
-                    <div class="value"><i class="fas fa-tag"></i> S/ @Model.Servicio.Precio</div>
-                </div>
-            </div>
 
-            @if (!string.IsNullOrWhiteSpace(Model.Notas))
-            {
-                <div class="det-notas">
-                    <div class="label"><i class="fas fa-sticky-note"></i> Observaciones del cliente</div>
-                    <div class="value">@Model.Notas</div>
-                </div>
-            }
+                @* Campos de detalle requeridos por HU-19 *@
+                <div class="det-grid">
+                    <div class="det-field">
+                        <div class="lbl">Cliente</div>
+                        <div class="val"><i class="fas fa-user"></i>@Model.Cliente.NombreCompleto</div>
+                    </div>
+                    <div class="det-field">
+                        <div class="lbl">Teléfono</div>
+                        <div class="val">
+                            <i class="fas fa-phone"></i>
+                            @(string.IsNullOrEmpty(Model.Cliente.Telefono) ? "—" : Model.Cliente.Telefono)
+                        </div>
+                    </div>
+                    <div class="det-field">
+                        <div class="lbl">Fecha</div>
+                        <div class="val">
+                            <i class="far fa-calendar"></i>
+                            @Model.Fecha.ToString("dddd dd 'de' MMMM 'de' yyyy")
+                        </div>
+                    </div>
+                    <div class="det-field">
+                        <div class="lbl">Horario programado</div>
+                        <div class="val">
+                            <i class="far fa-clock"></i>
+                            @Model.HoraInicio:00 — @Model.HoraFin:00
+                        </div>
+                    </div>
+                    <div class="det-field">
+                        <div class="lbl">Servicio</div>
+                        <div class="val"><i class="fas fa-spa"></i>@Model.Servicio.Nombre</div>
+                    </div>
+                    <div class="det-field">
+                        <div class="lbl">Precio</div>
+                        <div class="val"><i class="fas fa-tag"></i>S/ @Model.Servicio.Precio</div>
+                    </div>
 
-            <div class="det-actions">
-                @if (Model.Estado == DkaizaProject.Models.EstadoCita.Pendiente || Model.Estado == DkaizaProject.Models.EstadoCita.Confirmada)
+                    @* HU-19 detalle: hora de inicio real de la atención *@
+                    @if (Model.HoraInicioAtencion.HasValue)
+                    {
+                        <div class="det-field">
+                            <div class="lbl">Inicio de atención</div>
+                            <div class="val">
+                                <i class="fas fa-play-circle" style="color:#004085"></i>
+                                @Model.HoraInicioAtencion.Value.ToString("HH:mm:ss")
+                            </div>
+                        </div>
+                    }
+                    @if (Model.HoraFinAtencion.HasValue)
+                    {
+                        <div class="det-field">
+                            <div class="lbl">Fin de atención</div>
+                            <div class="val">
+                                <i class="fas fa-stop-circle" style="color:#1a7a4a"></i>
+                                @Model.HoraFinAtencion.Value.ToString("HH:mm:ss")
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Observaciones del cliente *@
+                @if (!string.IsNullOrWhiteSpace(Model.Notas))
                 {
-                    <button class="btn-action btn-iniciar" onclick="cambiarEstado(@Model.Id, 'EnProceso')">
+                    <div class="det-notas">
+                        <div class="lbl"><i class="fas fa-sticky-note"></i> Observaciones del cliente</div>
+                        <div class="val">@Model.Notas</div>
+                    </div>
+                }
+
+                @* ── Botón INICIAR (HU-17): visible solo si está Pendiente y es cita de hoy ── *@
+                @if ((Model.Estado == DkaizaProject.Models.EstadoCita.Pendiente ||
+                      Model.Estado == DkaizaProject.Models.EstadoCita.Confirmada) &&
+                      Model.Fecha.Date == DateTime.Today)
+                {
+                    <button class="btn-iniciar" id="btnIniciar" onclick="iniciarAtencion(@Model.Id)">
                         <i class="fas fa-play"></i> Iniciar atención
                     </button>
                 }
-                @if (Model.Estado == DkaizaProject.Models.EstadoCita.EnProceso)
+
+                @* ── Mensaje de cita finalizada ── *@
+                @if (Model.Estado == DkaizaProject.Models.EstadoCita.Completada)
                 {
-                    <button class="btn-action btn-finalizar" onclick="cambiarEstado(@Model.Id, 'Completada')">
-                        <i class="fas fa-check"></i> Finalizar atención
-                    </button>
+                    <div class="finalizada-banner">
+                        <i class="fas fa-check-circle"></i>
+                        Atención finalizada correctamente
+                    </div>
                 }
             </div>
+
+            @* ════════════════════════════════════════
+               PANEL CRONÓMETRO (HU-17 / HU-18)
+               Visible cuando la cita está En proceso.
+               ════════════════════════════════════════ *@
+            <div class="crono-panel @(yaIniciada ? "visible" : "")" id="cronoPanel">
+
+                <p class="crono-titulo">
+                    <span class="dot"></span>
+                    Atención en curso
+                </p>
+
+                @* Tiempo transcurrido — actualizado por JS cada segundo *@
+                <div class="crono-display" id="cronoDisplay">00:00:00</div>
+
+                @* Barra de progreso respecto al tiempo estimado del servicio *@
+                <div class="crono-barra-wrap">
+                    <div class="crono-barra" id="cronoBarra"></div>
+                </div>
+
+                @* Metadatos: hora inicio + tiempo estimado *@
+                <div class="crono-meta">
+                    <div class="crono-meta-item">
+                        <div class="lbl">Inicio</div>
+                        <div class="val" id="cronoHoraInicio">
+                            @(horaInicioGuardada.HasValue ? horaInicioGuardada.Value.ToString("HH:mm:ss") : "--:--:--")
+                        </div>
+                    </div>
+                    <div class="crono-meta-item">
+                        <div class="lbl">Tiempo estimado</div>
+                        <div class="val">
+                            @Model.Servicio.DuracionHoras h
+                            (@(Model.HoraInicio):00 — @(Model.HoraFin):00)
+                        </div>
+                    </div>
+                </div>
+
+                @* Botón finalizar — abre el modal de resumen (HU-18) *@
+                <button class="btn-finalizar-crono" id="btnFinalizarCrono" onclick="solicitarFinalizar(@Model.Id)">
+                    <i class="fas fa-stop-circle"></i> Finalizar atención
+                </button>
+            </div>
+
+        </div>@* /det-layout *@
+    </div>
+</div>
+
+@* ════════════════════════════════════════════════════
+   MODAL DE RESUMEN (HU-18)
+   Aparece al presionar "Finalizar atención".
+   El estilista ve el resumen y confirma con "Aceptar".
+   ════════════════════════════════════════════════════ *@
+<div class="modal-overlay" id="modalResumen">
+    <div class="modal-box">
+        <h2><i class="fas fa-clipboard-check"></i> Resumen de atención</h2>
+
+        <div class="resumen-grid">
+            <div class="resumen-item">
+                <div class="lbl">Hora de inicio</div>
+                <div class="val" id="resHoraInicio">—</div>
+            </div>
+            <div class="resumen-item">
+                <div class="lbl">Hora de fin</div>
+                <div class="val" id="resHoraFin">—</div>
+            </div>
+            <div class="resumen-item full">
+                <div class="lbl">Tiempo total transcurrido</div>
+                <div class="val grande" id="resDuracion">—</div>
+            </div>
+        </div>
+
+        <div class="modal-acciones">
+            <button class="btn-cancelar-modal" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-aceptar" id="btnAceptarFin">
+                <i class="fas fa-check"></i> Aceptar
+            </button>
         </div>
     </div>
 </div>
 
 <script>
-    function cambiarEstado(id, nuevoEstado) {
-        var token = document.querySelector('input[name="__RequestVerificationToken"]');
-        var fd = new FormData();
-        fd.append('id', id);
-        fd.append('nuevoEstado', nuevoEstado);
-        if (token) fd.append('__RequestVerificationToken', token.value);
+    // ── Constantes provenientes de Razor ──────────────────────────────────────
+    const DURACION_ESTIMADA_SEG = @duracionEstimadaSeg;
+    const HORA_INICIO_TICK      = @horaInicioTick; // 0 si no inició aún
+    const ESTADO_ACTUAL         = '@Model.Estado.ToString()';
 
-        fetch('/Estilista/CambiarEstado', { method: 'POST', body: fd })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.success) { location.reload(); }
-                else { alert(data.message || 'Error'); }
-            })
-            .catch(function() { alert('Error en la solicitud'); });
+    // ── Estado interno del cronómetro ─────────────────────────────────────────
+    let cronoInterval   = null;   // referencia al setInterval activo
+    let horaInicioMs    = HORA_INICIO_TICK > 0 ? HORA_INICIO_TICK : null;
+    let horaFinPendMs   = null;   // tick guardado cuando el estilista pide finalizar
+    let citaId          = @Model.Id;
+
+    // Token CSRF inyectado por @Html.AntiForgeryToken()
+    function getToken() {
+        const el = document.querySelector('input[name="__RequestVerificationToken"]');
+        return el ? el.value : '';
     }
-</script>
 
-@Html.AntiForgeryToken()
+    // ── Arranca el cronómetro si la cita ya estaba En proceso al cargar ────────
+    if (ESTADO_ACTUAL === 'EnProceso' && horaInicioMs) {
+        arrancarCronometro(horaInicioMs);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // HU-17: Iniciar atención
+    // Llama al servidor, obtiene la hora de inicio y arranca el cronómetro.
+    // ─────────────────────────────────────────────────────────────────────────
+    async function iniciarAtencion(id) {
+        const btn = document.getElementById('btnIniciar');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...'; }
+
+        const fd = new FormData();
+        fd.append('id', id);
+        fd.append('__RequestVerificationToken', getToken());
+
+        try {
+            const res  = await fetch('/Estilista/IniciarAtencion', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (data.success) {
+                // Actualizar badge de estado en la ficha
+                const badge = document.getElementById('estadoBadge');
+                if (badge) {
+                    badge.textContent = 'En proceso';
+                    badge.className   = 'det-badge badge--proceso';
+                }
+
+                // Mostrar hora de inicio en la meta del cronómetro
+                document.getElementById('cronoHoraInicio').textContent = data.horaInicio;
+
+                // Mostrar el panel del cronómetro (HU-17 criterio: "se mostrará el panel")
+                document.getElementById('cronoPanel').classList.add('visible');
+
+                // Ocultar el botón de iniciar
+                if (btn) btn.style.display = 'none';
+
+                // Arrancar cronómetro desde el tick devuelto por el servidor
+                horaInicioMs = data.horaInicioTick;
+                arrancarCronometro(horaInicioMs);
+            } else {
+                alert(data.message || 'No se pudo iniciar la atención');
+                if (btn) {
+                    btn.disabled  = false;
+                    btn.innerHTML = '<i class="fas fa-play"></i> Iniciar atención';
+                }
+            }
+        } catch {
+            alert('Error de conexión');
+            if (btn) {
+                btn.disabled  = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Iniciar atención';
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Cronómetro: actualiza la pantalla cada segundo.
+    // HU-17 criterio: mostrar tiempo transcurrido, hora de inicio, tiempo estimado.
+    // ─────────────────────────────────────────────────────────────────────────
+    function arrancarCronometro(inicioMs) {
+        if (cronoInterval) clearInterval(cronoInterval);
+
+        cronoInterval = setInterval(() => {
+            const transcurridoMs  = Date.now() - inicioMs;
+            const transcurridoSeg = Math.floor(transcurridoMs / 1000);
+            const progreso        = Math.min((transcurridoSeg / DURACION_ESTIMADA_SEG) * 100, 100);
+
+            // Formatear HH:MM:SS
+            const hh = String(Math.floor(transcurridoSeg / 3600)).padStart(2, '0');
+            const mm = String(Math.floor((transcurridoSeg % 3600) / 60)).padStart(2, '0');
+            const ss = String(transcurridoSeg % 60).padStart(2, '0');
+
+            const display = document.getElementById('cronoDisplay');
+            if (display) {
+                display.textContent = `${hh}:${mm}:${ss}`;
+                // Advertencia visual si supera el tiempo estimado
+                display.classList.toggle('advertencia', transcurridoSeg > DURACION_ESTIMADA_SEG);
+            }
+
+            const barra = document.getElementById('cronoBarra');
+            if (barra) {
+                barra.style.width = progreso + '%';
+                // Color verde → amarillo → rojo según el avance
+                const hue = Math.max(0, 120 - (progreso * 1.2));
+                barra.style.background = `hsl(${hue}, 70%, 42%)`;
+            }
+        }, 1000);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // HU-18: Solicitar finalización
+    // Llama al servidor para obtener el resumen; luego abre el modal.
+    // El estado NO se cambia todavía (el servidor solo devuelve el resumen).
+    // ─────────────────────────────────────────────────────────────────────────
+    async function solicitarFinalizar(id) {
+        const btn = document.getElementById('btnFinalizarCrono');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculando...'; }
+
+        const fd = new FormData();
+        fd.append('id', id);
+        fd.append('__RequestVerificationToken', getToken());
+
+        try {
+            const res  = await fetch('/Estilista/FinalizarAtencion', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (data.success) {
+                // Guardar tick de hora fin para enviarlo al confirmar
+                horaFinPendMs = data.horaFinTick;
+
+                // Rellenar modal de resumen (HU-18 criterio: mostrar resumen antes de confirmar)
+                document.getElementById('resHoraInicio').textContent = data.horaInicio;
+                document.getElementById('resHoraFin').textContent    = data.horaFin;
+                document.getElementById('resDuracion').textContent   = data.duracionTexto;
+
+                // Configurar el botón "Aceptar" del modal
+                document.getElementById('btnAceptarFin').onclick = () => confirmarFinalizacion(id);
+
+                // Abrir modal
+                document.getElementById('modalResumen').classList.add('abierto');
+            } else {
+                alert(data.message || 'No se pudo finalizar la atención');
+            }
+        } catch {
+            alert('Error de conexión');
+        } finally {
+            if (btn) {
+                btn.disabled  = false;
+                btn.innerHTML = '<i class="fas fa-stop-circle"></i> Finalizar atención';
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // HU-18: Confirmar finalización
+    // El estilista presionó "Aceptar" en el modal.
+    // Persiste el estado "Completada" en el servidor y detiene el cronómetro.
+    // ─────────────────────────────────────────────────────────────────────────
+    async function confirmarFinalizacion(id) {
+        const btn = document.getElementById('btnAceptarFin');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...'; }
+
+        const fd = new FormData();
+        fd.append('id', id);
+        fd.append('horaFinTick', horaFinPendMs);
+        fd.append('__RequestVerificationToken', getToken());
+
+        try {
+            const res  = await fetch('/Estilista/ConfirmarFinalizacion', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (data.success) {
+                // HU-18 tarea T4: detener cronómetro
+                if (cronoInterval) clearInterval(cronoInterval);
+
+                // Cerrar modal
+                document.getElementById('modalResumen').classList.remove('abierto');
+
+                // Recargar la página para reflejar el estado "Completada"
+                // (HU-18 criterio: el badge debe mostrar "Finalizada")
+                location.reload();
+            } else {
+                alert(data.message || 'No se pudo confirmar la finalización');
+                if (btn) {
+                    btn.disabled  = false;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Aceptar';
+                }
+            }
+        } catch {
+            alert('Error de conexión');
+            if (btn) {
+                btn.disabled  = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Aceptar';
+            }
+        }
+    }
+
+    // ── Cerrar modal sin confirmar ─────────────────────────────────────────
+    function cerrarModal() {
+        document.getElementById('modalResumen').classList.remove('abierto');
+        horaFinPendMs = null;
+    }
+
+    // ── Cerrar modal al hacer clic fuera del cuadro ────────────────────────
+    document.getElementById('modalResumen').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal();
+    });
+</script>

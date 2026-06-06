@@ -50,7 +50,7 @@ namespace DkaizaProject.Services
  
             var ahora = DateTime.Now;
             // Ventana: citas que ocurren entre 23h y 25h desde ahora
-            var desde = ahora.AddMinutes(1);   // cualquier cita que sea en más de 1 minuto
+            var desde = DateTime.Today;   // cualquier cita que sea en más de 1 minuto
 var hasta = ahora.AddHours(48);  
  
             // Citas pendientes o confirmadas dentro de la ventana
