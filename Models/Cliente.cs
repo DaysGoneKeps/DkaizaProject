@@ -22,8 +22,10 @@ namespace DkaizaProject.Models
     [Required, MaxLength(150), EmailAddress]
     public string Email { get; set; } = string.Empty;
 
-    [Required, MaxLength(20)]
-    public string Telefono { get; set; } = string.Empty;
+   [Required, MaxLength(20)]
+[RegularExpression(@"^\d+$",
+    ErrorMessage = "El teléfono solo debe contener números.")]
+public string Telefono { get; set; } = string.Empty;
 
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
