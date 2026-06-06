@@ -1,0 +1,251 @@
+@model List<DkaizaProject.Models.ClienteHistorialResumen>
+@{
+    ViewData["Title"] = "Historial de Clientes";
+    Layout = "_Layout";
+
+    string IcoClientes = @"<svg width=""18"" height=""18"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2""/><circle cx=""9"" cy=""7"" r=""4""/><path d=""M23 21v-2a4 4 0 0 0-3-3.87""/><path d=""M16 3.13a4 4 0 0 1 0 7.75""/></svg>";
+
+    string IcoVip = @"<svg width=""18"" height=""18"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><polygon points=""12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2""/></svg>";
+
+    string IcoAsistencias = @"<svg width=""18"" height=""18"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><polyline points=""20 6 9 17 4 12""/></svg>";
+
+    string IcoPromedio = @"<svg width=""18"" height=""18"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><line x1=""18"" y1=""20"" x2=""18"" y2=""10""/><line x1=""12"" y1=""20"" x2=""12"" y2=""4""/><line x1=""6"" y1=""20"" x2=""6"" y2=""14""/></svg>";
+
+    string IcoStarBadge = @"<svg width=""11"" height=""11"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><polygon points=""12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2""/></svg>";
+
+    string IcoUserBadge = @"<svg width=""11"" height=""11"" viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round"" aria-hidden=""true""><path d=""M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2""/><circle cx=""12"" cy=""7"" r=""4""/></svg>";
+}
+
+<style>
+    /* ── Variables ─────────────────────────────────── */
+    :root {
+        --cream:   #f8f4ef;
+        --sand:    #e8ddd0;
+        --mocha:   #c4a882;
+        --espresso:#7a5c3e;
+        --dark:    #2d1f12;
+        --white:   #ffffff;
+        --green:   #4caf82;
+        --orange:  #e8874a;
+        --red:     #d96c5c;
+        --blue:    #5b8dd9;
+        --vip:     #d4a843;
+        --radius:  12px;
+        --shadow:  0 2px 12px rgba(45,31,18,.08);
+    }
+
+    /* ── Page layout ───────────────────────────────── */
+    .hist-page { background: var(--cream); min-height: 100vh; padding: 32px 0 60px; }
+    .hist-container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Header ────────────────────────────────────── */
+    .hist-header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:32px; }
+    .hist-header h1 { font-size:28px; font-weight:700; color:var(--dark); margin:0; letter-spacing:-.5px; }
+    .hist-header p  { margin:4px 0 0; color:var(--espresso); font-size:14px; }
+    .btn-back { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; border:1.5px solid var(--sand); background:var(--white); color:var(--espresso); font-size:13px; font-weight:500; text-decoration:none; transition:all .18s; }
+    .btn-back:hover { background:var(--sand); border-color:var(--mocha); }
+
+    /* ── KPI Cards ─────────────────────────────────── */
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+    @@media(max-width:700px){ .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+    .kpi-card { background:var(--white); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow); border:1px solid var(--sand); }
+    .kpi-card .kpi-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+    .kpi-card .kpi-val  { font-size:28px; font-weight:800; color:var(--dark); line-height:1; }
+    .kpi-card .kpi-lbl  { font-size:12px; color:var(--espresso); margin-top:4px; font-weight:500; text-transform:uppercase; letter-spacing:.5px; }
+    .kpi-blue  .kpi-icon{ background:#eef4ff; color:var(--blue); }
+    .kpi-vip   .kpi-icon{ background:#fff8e6; color:var(--vip); }
+    .kpi-green .kpi-icon{ background:#eafaf2; color:var(--green); }
+    .kpi-mocha .kpi-icon{ background:#faf3eb; color:var(--mocha); }
+
+    /* ── Search bar ────────────────────────────────── */
+    .search-bar { display:flex; gap:10px; margin-bottom:24px; }
+    .search-bar input { flex:1; padding:10px 16px; border-radius:8px; border:1.5px solid var(--sand); background:var(--white); font-size:14px; color:var(--dark); outline:none; transition:border .18s; }
+    .search-bar input:focus { border-color:var(--mocha); }
+    .btn-hist { padding:10px 22px; border-radius:8px; background:var(--espresso); color:#fff; border:none; font-size:14px; font-weight:600; cursor:pointer; transition:background .18s; }
+    .btn-hist:hover { background:var(--dark); }
+
+    /* ── Table ─────────────────────────────────────── */
+    .table-wrap { background:var(--white); border-radius:var(--radius); border:1px solid var(--sand); overflow:hidden; box-shadow:var(--shadow); }
+    .table-subtitle { padding:16px 20px 14px; border-bottom:1px solid var(--sand); }
+    .table-subtitle .ts-title { font-size:15px; font-weight:700; color:var(--dark); }
+    .table-subtitle .ts-sub   { font-size:12px; color:var(--espresso); }
+    table.hist-table { width:100%; border-collapse:collapse; }
+    table.hist-table thead th { padding:11px 16px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.7px; color:var(--espresso); border-bottom:1px solid var(--sand); background:var(--cream); font-weight:600; }
+    table.hist-table tbody tr { border-bottom:1px solid #f3ede6; transition:background .12s; }
+    table.hist-table tbody tr:last-child { border-bottom:none; }
+    table.hist-table tbody tr:hover { background:#fdf9f6; }
+    table.hist-table td { padding:13px 16px; font-size:13.5px; color:var(--dark); vertical-align:middle; }
+
+    /* Avatar */
+    .avatar { width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; flex-shrink:0; }
+
+    /* Frequency bar */
+    .freq-wrap { display:flex; align-items:center; gap:8px; }
+    .freq-bar  { flex:1; height:5px; background:var(--sand); border-radius:99px; overflow:hidden; max-width:60px; }
+    .freq-fill { height:100%; border-radius:99px; }
+    .freq-alta  .freq-fill { width:100%; background:var(--green); }
+    .freq-media .freq-fill { width:60%;  background:var(--orange); }
+    .freq-baja  .freq-fill { width:25%;  background:var(--red); }
+    .freq-label { font-size:12px; font-weight:600; }
+    .freq-alta  .freq-label { color:var(--green);  }
+    .freq-media .freq-label { color:var(--orange); }
+    .freq-baja  .freq-label { color:var(--red);    }
+
+    /* Estado badge */
+    .badge-vip     { display:inline-flex; align-items:center; gap:5px; background:#fff8e6; color:var(--vip); border:1px solid #f0d98a; border-radius:99px; padding:3px 10px; font-size:12px; font-weight:600; }
+    .badge-regular { display:inline-flex; align-items:center; gap:5px; background:#f5f5f5; color:#888; border:1px solid #e0e0e0; border-radius:99px; padding:3px 10px; font-size:12px; font-weight:500; }
+
+    /* Acciones */
+    .btn-ver { padding:5px 14px; border-radius:6px; background:var(--cream); border:1.5px solid var(--sand); color:var(--espresso); font-size:12px; font-weight:600; text-decoration:none; transition:all .15s; white-space:nowrap; }
+    .btn-ver:hover { background:var(--sand); border-color:var(--mocha); }
+
+    /* stat numbers in cells */
+    .num-green { color:var(--green); font-weight:700; }
+    .num-red   { color:var(--red);   font-weight:700; }
+    .num-orange{ color:var(--orange);font-weight:700; }
+
+    /* Empty */
+    .empty-hist { text-align:center; padding:56px 24px; color:var(--espresso); }
+    .empty-hist .emp-icon { display:flex; justify-content:center; margin-bottom:12px; opacity:.45; }
+    .empty-hist p { font-size:15px; }
+</style>
+
+<div class="hist-page">
+  <div class="hist-container">
+
+    <!-- Header -->
+    <div class="hist-header">
+      <div>
+        <p style="font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--mocha);margin:0 0 4px;">Panel de administración</p>
+        <h1>Gestión de Historial de Clientes</h1>
+        <p>Análisis de asistencias y comportamiento</p>
+      </div>
+      <a href="/Admin" class="btn-back">← Dashboard</a>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon">@Html.Raw(IcoClientes)</div>
+        <div class="kpi-val">@ViewBag.TotalClientes</div>
+        <div class="kpi-lbl">Total Clientes</div>
+      </div>
+      <div class="kpi-card kpi-vip">
+        <div class="kpi-icon">@Html.Raw(IcoVip)</div>
+        <div class="kpi-val">@ViewBag.ClientesVip</div>
+        <div class="kpi-lbl">Clientes VIP</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon">@Html.Raw(IcoAsistencias)</div>
+        <div class="kpi-val">@ViewBag.TotalAsistencias</div>
+        <div class="kpi-lbl">Total Asistencias</div>
+      </div>
+      <div class="kpi-card kpi-mocha">
+        <div class="kpi-icon">@Html.Raw(IcoPromedio)</div>
+        <div class="kpi-val">@ViewBag.PromedioPorCliente</div>
+        <div class="kpi-lbl">Promedio por Cliente</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input id="searchInput" type="text" placeholder="Buscar cliente por nombre..." oninput="filtrarTabla()" />
+      <button class="btn-hist" onclick="filtrarTabla()">Historial</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-subtitle">
+        <div class="ts-title">Registro de Clientes</div>
+        <div class="ts-sub" id="countLabel">@Model.Count cliente(s) registrado(s)</div>
+      </div>
+
+      @if (!Model.Any())
+      {
+        <div class="empty-hist">
+          <div class="emp-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <p>No hay clientes registrados aún.</p>
+        </div>
+      }
+      else
+      {
+        <table class="hist-table" id="histTable">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Asistencias</th>
+              <th>Cancelaciones</th>
+              <th>Ausencias</th>
+              <th>Frecuencia</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var r in Model)
+            {
+              var initials = string.Join("", r.NombreCompleto.Split(' ').Take(2).Select(p => p.Length > 0 ? p[0].ToString().ToUpper() : ""));
+              var colors = new[]{"#7a5c3e","#5b8dd9","#4caf82","#e8874a","#d4a843","#d96c5c","#9b6bb5"};
+              var avatarColor = colors[Math.Abs(r.NombreCompleto.GetHashCode()) % colors.Length];
+              var freqClass = r.Frecuencia == "Alta" ? "freq-alta" : (r.Frecuencia == "Media" ? "freq-media" : "freq-baja");
+              var ultimaVisitaTxt = r.UltimaVisita.HasValue ? "Última visita: " + r.UltimaVisita.Value.ToString("dd MMM yyyy") : "Sin visitas";
+
+              <tr data-nombre="@r.NombreCompleto.ToLower()">
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="avatar" style="background:@avatarColor">@initials</div>
+                    <div>
+                      <div style="font-weight:600;">@r.NombreCompleto</div>
+                      <div style="font-size:11px;color:var(--espresso);">@ultimaVisitaTxt</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="num-green">@r.Asistencias</span></td>
+                <td><span class="num-red">@r.Cancelaciones</span></td>
+                <td><span class="num-orange">@r.Ausencias</span></td>
+                <td>
+                  <div class="freq-wrap @freqClass">
+                    <div class="freq-bar"><div class="freq-fill"></div></div>
+                    <span class="freq-label">@r.Frecuencia</span>
+                  </div>
+                </td>
+                <td>
+                  @if (r.EsVip)
+                  {
+                    <span class="badge-vip">@Html.Raw(IcoStarBadge) VIP</span>
+                  }
+                  else
+                  {
+                    <span class="badge-regular">@Html.Raw(IcoUserBadge) Regular</span>
+                  }
+                </td>
+                <td>
+                  <a href="/Admin/HistorialDetalleCliente/@r.ClienteId" class="btn-ver">Ver Historial &rsaquo;</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+  </div>
+</div>
+
+<script>
+function filtrarTabla() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const rows = document.querySelectorAll('#histTable tbody tr');
+    let visible = 0;
+    rows.forEach(row => {
+        const nombre = row.dataset.nombre || '';
+        const show = !q || nombre.includes(q);
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    const lbl = document.getElementById('countLabel');
+    if (lbl) lbl.textContent = visible + ' cliente(s) mostrado(s)';
+}
+</script>
