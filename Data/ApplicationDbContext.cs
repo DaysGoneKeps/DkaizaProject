@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Servicio> Servicios { get; set; }
     public DbSet<Estilista> Estilistas { get; set; }
+    public DbSet<NotaCliente> NotasCliente { get; set; }
     public DbSet<Cita> Citas { get; set; }
     public DbSet<Pago> Pagos { get; set; }
     public DbSet<Notificacion> Notificaciones { get; set; }
