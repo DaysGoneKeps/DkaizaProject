@@ -1,0 +1,444 @@
+@model DkaizaProject.Controllers.ClienteHistorialViewModel
+@{
+    ViewData["Title"] = $"Perfil — {Model.Cliente.NombreCompleto}";
+    Layout = "_Layout";
+
+    var esEstilista = Context.Session.GetString("EsEstilista") == "True";
+    var esAdmin     = Context.Session.GetString("EsAdmin")     == "True";
+    var estilistaIdSesion = Context.Session.GetInt32("EstilistaId");
+}
+
+@* ── SVG helpers ── *@
+@{
+    string IcoArrow = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:15px;height:15px;""><path d=""M19 12H5M12 5l-7 7 7 7""/></svg>";
+
+    string IcoUser = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.6"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:28px;height:28px;""><circle cx=""12"" cy=""8"" r=""4""/><path d=""M4 20c0-4 3.58-7 8-7s8 3 8 7""/></svg>";
+
+    string IcoCalendar = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.6"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""det-head-ico""><rect x=""3"" y=""4"" width=""18"" height=""18"" rx=""2""/><path d=""M16 2v4M8 2v4M3 10h18""/><circle cx=""12"" cy=""16"" r=""1.5"" fill=""currentColor""/></svg>";
+
+    string IcoNote = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.6"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""det-head-ico""><path d=""M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z""/><path d=""M14 2v6h6M8 13h8M8 17h5""/></svg>";
+
+    string IcoStar = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.6"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""det-head-ico""><polygon points=""12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2""/></svg>";
+
+    string IcoScissors = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.7"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""pref-ico-svg""><circle cx=""6"" cy=""6"" r=""3""/><circle cx=""6"" cy=""18"" r=""3""/><path d=""M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12""/></svg>";
+
+    string IcoSpa = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.7"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""pref-ico-svg""><path d=""M12 22c0-5.5-4.5-10-10-10 0 5.5 4.5 10 10 10z""/><path d=""M12 22c0-5.5 4.5-10 10-10-5.5 0-10 4.5-10 10z""/><path d=""M12 22V10""/></svg>";
+
+    string IcoFreq = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.7"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""pref-ico-svg""><rect x=""3"" y=""4"" width=""18"" height=""18"" rx=""2""/><path d=""M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01""/></svg>";
+
+    string IcoPlus = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" style=""width:13px;height:13px;""><path d=""M12 5v14M5 12h14""/></svg>";
+
+    string IcoClose = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" style=""width:11px;height:11px;""><path d=""M18 6L6 18M6 6l12 12""/></svg>";
+
+    string IcoEmpty1 = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.4"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:40px;height:40px;opacity:0.35;""><rect x=""3"" y=""4"" width=""18"" height=""18"" rx=""2""/><path d=""M16 2v4M8 2v4M3 10h18""/><circle cx=""12"" cy=""16"" r=""1.5"" fill=""currentColor""/></svg>";
+
+    string IcoEmpty2 = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.4"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:40px;height:40px;opacity:0.35;""><path d=""M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z""/><path d=""M14 2v6h6M8 13h8M8 17h5""/></svg>";
+
+    string IcoEmpty3 = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.4"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:40px;height:40px;opacity:0.35;""><polygon points=""12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2""/></svg>";
+}
+
+<style>
+    .det-page { padding: 2rem 0 5rem; background: var(--cream); min-height: calc(100vh - 160px); }
+
+    .det-back {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: var(--ink-mid); font-size: 0.85rem; text-decoration: none;
+        margin-bottom: 1.25rem; transition: color 0.2s;
+    }
+    .det-back:hover { color: var(--rose-dark); text-decoration: none; }
+
+    .det-profile-header {
+        background: linear-gradient(135deg, #3a2e28 0%, #7a5c4a 100%);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 2rem;
+        margin-bottom: 1.5rem;
+        display: flex; align-items: center; gap: 1.25rem; color: white;
+    }
+
+    .det-profile-icon {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    .det-profile-info h2 { font-family: var(--font-display); font-size: 1.5rem; margin: 0 0 4px 0; }
+    .det-profile-info p  { font-size: 0.8rem; opacity: 0.75; margin: 0; }
+
+    .det-cols {
+        display: grid; grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.25rem; align-items: start;
+    }
+
+    .det-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+
+    .det-card-head {
+        background: var(--cream-dark); border-bottom: 1px solid var(--border);
+        padding: 0.9rem 1.25rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+
+    .det-head-ico { width: 17px; height: 17px; color: var(--rose-dark); flex-shrink: 0; }
+
+    .det-card-head h3 { font-family: var(--font-display); font-size: 0.95rem; color: var(--ink); margin: 0; flex: 1; }
+
+    /* Historial */
+    .hist-list { padding: 0.5rem 0; }
+    .hist-item {
+        padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border);
+        display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;
+    }
+    .hist-item:last-child { border-bottom: none; }
+    .hist-fecha    { font-size: 0.72rem; color: var(--ink-light); margin-bottom: 3px; }
+    .hist-servicio { font-weight: 600; font-size: 0.85rem; color: var(--ink); }
+    .hist-estilista{ font-size: 0.75rem; color: var(--ink-mid); margin-top: 2px; }
+
+    .badge-completado {
+        font-size: 0.65rem; padding: 3px 10px;
+        background: #eafaf1; color: #1a7a4a;
+        border-radius: 50px; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* Notas */
+    .notas-list { padding: 0.5rem 0; }
+    .nota-item { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); position: relative; }
+    .nota-item:last-child { border-bottom: none; }
+    .nota-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .nota-fecha  { font-size: 0.7rem; color: var(--ink-light); }
+    .nota-autor  { font-size: 0.7rem; color: var(--rose-dark); font-weight: 500; }
+    .nota-texto  { font-size: 0.82rem; color: var(--ink-mid); line-height: 1.5; }
+
+    .nota-del-btn {
+        background: none; border: none; cursor: pointer;
+        color: var(--ink-light); padding: 3px 5px;
+        border-radius: 4px; transition: all 0.15s; display: flex; align-items: center;
+    }
+    .nota-del-btn:hover { background: #fdf0f0; color: #b83232; }
+
+    /* Form nota */
+    .nota-form { padding: 1rem 1.25rem; border-top: 1px solid var(--border); }
+    .nota-textarea {
+        width: 100%; border: 1px solid var(--border-mid);
+        border-radius: 10px; padding: 10px 12px;
+        font-size: 0.82rem; font-family: var(--font-body);
+        color: var(--ink); background: var(--cream);
+        resize: vertical; min-height: 72px; transition: all 0.2s;
+    }
+    .nota-textarea:focus {
+        outline: none; border-color: var(--rose); background: var(--white);
+        box-shadow: 0 0 0 3px rgba(200,169,138,0.15);
+    }
+    .nota-form-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+    .nota-chars { font-size: 0.7rem; color: var(--ink-light); }
+    .nota-submit-btn {
+        background: var(--ink); color: white; border: none;
+        border-radius: 50px; padding: 7px 18px;
+        font-size: 0.78rem; font-weight: 500; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .nota-submit-btn:hover { background: var(--rose-dark); }
+    .nota-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Preferencias */
+    .pref-body { padding: 0.75rem 1.25rem; }
+    .pref-item {
+        display: flex; align-items: center; gap: 0.85rem;
+        padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+    }
+    .pref-item:last-child { border-bottom: none; }
+    .pref-icon {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: var(--rose-light); display: flex;
+        align-items: center; justify-content: center; flex-shrink: 0;
+        color: var(--rose-dark);
+    }
+    .pref-ico-svg { width: 16px; height: 16px; }
+    .pref-info { flex: 1; }
+    .pref-label { font-size: 0.7rem; color: var(--ink-light); }
+    .pref-valor { font-size: 0.85rem; color: var(--ink); font-weight: 500; }
+    .pref-bar-wrap { width: 100%; background: var(--cream-dark); border-radius: 50px; height: 4px; margin-top: 4px; overflow: hidden; }
+    .pref-bar { height: 4px; background: var(--rose-dark); border-radius: 50px; }
+    .pref-nota {
+        font-size: 0.72rem; color: var(--ink-light); font-style: italic;
+        margin-top: 0.75rem; line-height: 1.4;
+        background: var(--cream-dark); padding: 8px 10px; border-radius: 8px;
+    }
+
+    /* Vacío */
+    .det-empty { text-align: center; padding: 2rem 1rem; color: var(--ink-light); font-size: 0.82rem; }
+    .det-empty-ico { margin-bottom: 0.5rem; display: flex; justify-content: center; }
+
+    @@media (max-width: 900px) { .det-cols { grid-template-columns: 1fr 1fr; } }
+    @@media (max-width: 600px) {
+        .det-cols { grid-template-columns: 1fr; }
+        .det-profile-header { flex-direction: column; text-align: center; }
+    }
+</style>
+
+<div class="det-page">
+    @Html.AntiForgeryToken()
+    <div class="container">
+
+        <a href="/ClienteHistorial" class="det-back">
+            @Html.Raw(IcoArrow) Volver
+        </a>
+
+        <div class="det-profile-header">
+            <div class="det-profile-icon">
+                @Html.Raw(IcoUser)
+            </div>
+            <div class="det-profile-info">
+                <h2>@Model.Cliente.NombreCompleto</h2>
+                <p>Perfil completo del cliente</p>
+            </div>
+        </div>
+
+        <div class="det-cols">
+
+           
+            <div class="det-card">
+                <div class="det-card-head">
+                    @Html.Raw(IcoCalendar)
+                    <h3>Historial</h3>
+                </div>
+                <div class="hist-list">
+                    @if (!Model.Historial.Any())
+                    {
+                        <div class="det-empty">
+                            <div class="det-empty-ico">@Html.Raw(IcoEmpty1)</div>
+                            <p>Sin citas finalizadas</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var c in Model.Historial)
+                        {
+                            <div class="hist-item">
+                                <div>
+                                    <div class="hist-fecha">@c.Fecha.ToString("dd MMM yyyy")</div>
+                                    <div class="hist-servicio">@c.Servicio.Nombre</div>
+                                    <div class="hist-estilista">con @c.Estilista.Nombre</div>
+                                </div>
+                                <span class="badge-completado">Completado</span>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+          
+            <div class="det-card">
+                <div class="det-card-head">
+                    @Html.Raw(IcoNote)
+                    <h3>Notas</h3>
+                </div>
+                <div class="notas-list" id="notasList">
+                    @if (!Model.Notas.Any())
+                    {
+                        <div class="det-empty" id="notasEmpty">
+                            <div class="det-empty-ico">@Html.Raw(IcoEmpty2)</div>
+                            <p>Sin notas registradas</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var n in Model.Notas)
+                        {
+                            <div class="nota-item" id="nota-@n.Id">
+                                <div class="nota-header">
+                                    <span class="nota-fecha">@n.FechaCreacion.ToString("dd MMM yyyy")</span>
+                                    <div style="display:flex;align-items:center;gap:6px;">
+                                        <span class="nota-autor">@n.Estilista.Nombre</span>
+                                        @if (esAdmin || (esEstilista && estilistaIdSesion == n.EstilistaId))
+                                        {
+                                            <button class="nota-del-btn"
+                                                    onclick="eliminarNota(@n.Id)"
+                                                    title="Eliminar nota">
+                                                @Html.Raw(@"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""2"" stroke-linecap=""round"" style=""width:11px;height:11px;""><path d=""M18 6L6 18M6 6l12 12""/></svg>")
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="nota-texto">@n.Contenido</div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                @if (esEstilista || esAdmin)
+                {
+                    <div class="nota-form">
+                        <textarea id="notaTexto"
+                                  class="nota-textarea"
+                                  placeholder="Escribe una preferencia o nota del cliente..."
+                                  maxlength="1000"></textarea>
+                        <div class="nota-form-footer">
+                            <span class="nota-chars" id="notaChars">0 / 1000</span>
+                            <button class="nota-submit-btn" id="notaSubmitBtn" onclick="agregarNota()">
+                                @Html.Raw(IcoPlus) Agregar nota
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+       
+            <div class="det-card">
+                <div class="det-card-head">
+                    @Html.Raw(IcoStar)
+                    <h3>Preferencias</h3>
+                </div>
+                <div class="pref-body">
+                    @if (!Model.Preferencias.Any())
+                    {
+                        <div class="det-empty">
+                            <div class="det-empty-ico">@Html.Raw(IcoEmpty3)</div>
+                            <p>Sin preferencias detectadas aún.<br>Se calculan con el historial de servicios finalizados.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        int maxCantidad = Model.Preferencias.First().Cantidad;
+
+                        <div class="pref-item">
+                            <div class="pref-icon">@Html.Raw(IcoScissors)</div>
+                            <div class="pref-info">
+                                <div class="pref-label">Servicio frecuente</div>
+                                <div class="pref-valor">@Model.Preferencias.First().NombreServicio</div>
+                                <div class="pref-bar-wrap">
+                                    <div class="pref-bar" style="width:100%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Model.Preferencias.Count > 1)
+                        {
+                            foreach (var p in Model.Preferencias.Skip(1))
+                            {
+                                int pct = (int)Math.Round((double)p.Cantidad / maxCantidad * 100);
+                                <div class="pref-item">
+                                    <div class="pref-icon">@Html.Raw(IcoSpa)</div>
+                                    <div class="pref-info">
+                                        <div class="pref-label">@p.Cantidad vez@(p.Cantidad == 1 ? "" : "es")</div>
+                                        <div class="pref-valor">@p.NombreServicio</div>
+                                        <div class="pref-bar-wrap">
+                                            <div class="pref-bar" style="width:@pct%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        <div class="pref-item">
+                            <div class="pref-icon">@Html.Raw(IcoFreq)</div>
+                            <div class="pref-info">
+                                <div class="pref-label">Frecuencia de visita</div>
+                                <div class="pref-valor">@Model.FrecuenciaVisita</div>
+                            </div>
+                        </div>
+
+                        <div class="pref-nota">
+                            Basado en frecuencia de uso. Las preferencias se detectan automáticamente según el historial de servicios.
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const clienteId = @Model.Cliente.Id;
+    const token     = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+    const textarea = document.getElementById('notaTexto');
+    const chars    = document.getElementById('notaChars');
+    if (textarea) {
+        textarea.addEventListener('input', () => {
+            const n = textarea.value.length;
+            chars.textContent = `${n} / 1000`;
+            chars.style.color = n > 950 ? '#c0392b' : '';
+        });
+    }
+
+    window.agregarNota = async function () {
+        const contenido = textarea?.value?.trim();
+        if (!contenido) { textarea.focus(); return; }
+
+        const btn = document.getElementById('notaSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = 'Guardando…';
+
+        try {
+            const fd = new FormData();
+            fd.append('clienteId', clienteId);
+            fd.append('contenido', contenido);
+            fd.append('__RequestVerificationToken', token);
+
+            const r = await fetch('/ClienteHistorial/AgregarNota', { method: 'POST', body: fd });
+            const d = await r.json();
+
+            if (d.success) {
+                textarea.value = '';
+                chars.textContent = '0 / 1000';
+                const empty = document.getElementById('notasEmpty');
+                if (empty) empty.remove();
+
+                const list = document.getElementById('notasList');
+                const icoClose = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:11px;height:11px;"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+                const html = `
+                <div class="nota-item" id="nota-${d.nota.id}">
+                    <div class="nota-header">
+                        <span class="nota-fecha">${d.nota.fecha}</span>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span class="nota-autor">${d.nota.estilistaNombre}</span>
+                            <button class="nota-del-btn" onclick="eliminarNota(${d.nota.id})" title="Eliminar nota">${icoClose}</button>
+                        </div>
+                    </div>
+                    <div class="nota-texto">${d.nota.contenido}</div>
+                </div>`;
+                list.insertAdjacentHTML('afterbegin', html);
+                mostrarToast('Nota registrada correctamente', 'success');
+            } else {
+                mostrarToast(d.message || 'Error al guardar', 'error');
+            }
+        } catch (_) {
+            mostrarToast('Error de conexión', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:13px;height:13px;"><path d="M12 5v14M5 12h14"/></svg> Agregar nota`;
+        }
+    };
+
+    window.eliminarNota = async function (id) {
+        if (!confirm('¿Eliminar esta nota?')) return;
+        try {
+            const fd = new FormData();
+            fd.append('__RequestVerificationToken', token);
+            const r = await fetch(`/ClienteHistorial/EliminarNota/${id}`, { method: 'POST', body: fd });
+            const d = await r.json();
+            if (d.success) {
+                const el = document.getElementById('nota-' + id);
+                if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }
+                mostrarToast('Nota eliminada', 'success');
+            } else {
+                mostrarToast(d.message || 'Error', 'error');
+            }
+        } catch (_) {
+            mostrarToast('Error de conexión', 'error');
+        }
+    };
+
+    function mostrarToast(msg, tipo) {
+        const t = document.createElement('div');
+        t.className = `toast-custom toast-${tipo}`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+    }
+})();
+</script>
+}

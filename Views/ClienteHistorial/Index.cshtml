@@ -1,0 +1,238 @@
+@{
+    ViewData["Title"] = "Consulta de Clientes";
+    Layout = "_Layout";
+}
+
+@* ── SVG helpers ── *@
+@{
+    string IcoSearch = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""ch-search-ico""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.35-4.35""/></svg>";
+
+    string IcoUser = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.7"" stroke-linecap=""round"" stroke-linejoin=""round"" class=""ch-avatar-ico""><circle cx=""12"" cy=""8"" r=""4""/><path d=""M4 20c0-4 3.58-7 8-7s8 3 8 7""/></svg>";
+
+    string IcoPhone = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:11px;height:11px;flex-shrink:0;""><path d=""M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 7.18c-1.18 2.18-1.11 2.07 2 2.18a2 2 0 012 2v3a2 2 0 01-2 2z""/></svg>";
+
+    string IcoEmpty = @"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.4"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:48px;height:48px;opacity:0.3;""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.35-4.35""/></svg>";
+}
+
+<style>
+    .ch-page { padding: 2.5rem 0 5rem; background: var(--cream); min-height: calc(100vh - 160px); }
+
+    .ch-header { margin-bottom: 2rem; }
+    .ch-header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--ink); margin: 0 0 4px 0; }
+    .ch-header p  { color: var(--ink-mid); font-size: 0.9rem; margin: 0; }
+
+    /* Buscador */
+    .ch-search-box {
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
+        display: flex; gap: 0.75rem; align-items: center;
+        margin-bottom: 2rem; box-shadow: var(--shadow-sm);
+    }
+
+    .ch-search-input-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+
+    .ch-search-ico {
+        position: absolute; left: 14px;
+        width: 16px; height: 16px; color: var(--ink-light); flex-shrink: 0;
+    }
+
+    .ch-search-input {
+        width: 100%; padding: 11px 14px 11px 42px;
+        border: 1px solid var(--border-mid); border-radius: 50px;
+        font-size: 0.9rem; font-family: var(--font-body);
+        color: var(--ink); background: var(--cream); transition: all 0.2s;
+    }
+    .ch-search-input:focus {
+        outline: none; border-color: var(--rose); background: var(--white);
+        box-shadow: 0 0 0 3px rgba(200,169,138,0.15);
+    }
+
+    .ch-search-btn {
+        background: var(--ink); color: var(--white); border: none;
+        border-radius: 50px; padding: 11px 28px;
+        font-size: 0.9rem; font-weight: 500; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 8px;
+        transition: all 0.2s; white-space: nowrap;
+    }
+    .ch-search-btn:hover { background: var(--rose-dark); }
+    .ch-search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .ch-search-btn svg { width: 15px; height: 15px; }
+
+    /* Resultados */
+    .ch-results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .ch-results-title  { font-family: var(--font-display); font-size: 1rem; color: var(--ink); font-weight: 600; }
+    .ch-results-count  { font-size: 0.8rem; color: var(--ink-light); background: var(--cream-dark); padding: 3px 12px; border-radius: 50px; }
+
+    /* Grid */
+    .ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+    .ch-card {
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: 1.25rem;
+        transition: all 0.2s; animation: fadeInUp 0.3s ease both;
+    }
+    .ch-card:hover { box-shadow: var(--shadow-lg); border-color: var(--rose); transform: translateY(-2px); }
+
+    @@keyframes fadeInUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    .ch-card-top { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.85rem; }
+
+    .ch-avatar {
+        width: 44px; height: 44px; border-radius: 50%;
+        background: var(--rose-light); display: flex;
+        align-items: center; justify-content: center; flex-shrink: 0;
+        color: var(--rose-dark);
+    }
+    .ch-avatar-ico { width: 22px; height: 22px; }
+
+    .ch-card-info h3 { font-family: var(--font-display); font-size: 0.95rem; color: var(--ink); margin: 0 0 3px 0; }
+    .ch-card-info p  { font-size: 0.78rem; color: var(--ink-light); margin: 0; display: flex; align-items: center; gap: 5px; }
+
+    .ch-btn-detalle {
+        display: block; width: 100%; background: var(--cream-dark);
+        color: var(--ink); border: 1px solid var(--border);
+        border-radius: 50px; padding: 8px;
+        font-size: 0.8rem; font-weight: 500; text-align: center;
+        cursor: pointer; text-decoration: none; transition: all 0.2s;
+    }
+    .ch-btn-detalle:hover { background: var(--ink); color: var(--white); border-color: var(--ink); text-decoration: none; }
+
+    /* Estados vacíos */
+    .ch-empty { text-align: center; padding: 3rem 1rem; color: var(--ink-light); }
+    .ch-empty-ico { display: flex; justify-content: center; margin-bottom: 0.75rem; }
+    .ch-empty h3  { font-family: var(--font-display); color: var(--ink-mid); font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .ch-empty p   { font-size: 0.85rem; }
+
+    /* Spinner */
+    .ch-loading  { text-align: center; padding: 2rem; color: var(--ink-light); font-size: 0.9rem; }
+    .ch-spinner  {
+        display: inline-block; width: 24px; height: 24px;
+        border: 2px solid var(--border); border-top-color: var(--rose-dark);
+        border-radius: 50%; animation: spin 0.7s linear infinite;
+        margin-right: 8px; vertical-align: middle;
+    }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
+    @@media (max-width: 600px) {
+        .ch-search-box { flex-wrap: wrap; }
+        .ch-search-btn { width: 100%; justify-content: center; }
+        .ch-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="ch-page">
+    <div class="container">
+
+        <div class="ch-header">
+            <p class="section-eyebrow">Panel del estilista</p>
+            <h1>Consulta de Cliente</h1>
+            <p>Busca un cliente para ver su historial, notas y preferencias</p>
+        </div>
+
+        <div class="ch-search-box">
+            <div class="ch-search-input-wrap">
+                @Html.Raw(IcoSearch)
+                <input type="text"
+                       id="chInput"
+                       class="ch-search-input"
+                       placeholder="Ingrese nombre, apellido o teléfono"
+                       autocomplete="off"
+                       maxlength="100" />
+            </div>
+            <button class="ch-search-btn" id="chBtnBuscar">
+                @Html.Raw(@"<svg viewBox=""0 0 24 24"" fill=""none"" stroke=""currentColor"" stroke-width=""1.8"" stroke-linecap=""round"" stroke-linejoin=""round"" style=""width:15px;height:15px;""><circle cx=""11"" cy=""11"" r=""7""/><path d=""M21 21l-4.35-4.35""/></svg>")
+                Buscar
+            </button>
+        </div>
+
+        <div id="chResultadosWrap" style="display:none;">
+            <div class="ch-results-header">
+                <span class="ch-results-title">Resultados de búsqueda</span>
+                <span class="ch-results-count" id="chCount">0 clientes encontrados</span>
+            </div>
+            <div class="ch-grid" id="chGrid"></div>
+        </div>
+
+        <div id="chEmptyInicial">
+            <div class="ch-empty">
+                <div class="ch-empty-ico">
+                    @Html.Raw(IcoEmpty)
+                </div>
+                <h3>Busca un cliente</h3>
+                <p>Ingresa el nombre, apellido o teléfono del cliente para ver su historial completo.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const input  = document.getElementById('chInput');
+    const btnBus = document.getElementById('chBtnBuscar');
+    const wrap   = document.getElementById('chResultadosWrap');
+    const grid   = document.getElementById('chGrid');
+    const count  = document.getElementById('chCount');
+    const empty  = document.getElementById('chEmptyInicial');
+
+    const icoUser  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>`;
+    const icoPhone = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;flex-shrink:0;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 0110 7.18c1.18-2.18 1.11-2.07 2-2.18a2 2 0 012 2v3a2 2 0 01-2 2z"/></svg>`;
+    const icoSearch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>`;
+
+    function pluralCliente(n) { return n === 1 ? '1 cliente encontrado' : `${n} clientes encontrados`; }
+
+    function cardHtml(c, delay) {
+        return `
+        <div class="ch-card" style="animation-delay:${delay}ms">
+            <div class="ch-card-top">
+                <div class="ch-avatar">${icoUser}</div>
+                <div class="ch-card-info">
+                    <h3>${c.nombre} ${c.apellido}</h3>
+                    <p>${icoPhone} ${c.telefono || 'Sin teléfono'}</p>
+                </div>
+            </div>
+            <a href="/ClienteHistorial/Detalle/${c.id}" class="ch-btn-detalle">Ver Detalle</a>
+        </div>`;
+    }
+
+    async function buscar() {
+        const q = input.value.trim();
+        if (!q) { input.focus(); return; }
+
+        btnBus.disabled = true;
+        btnBus.innerHTML = '<span class="ch-spinner"></span> Buscando…';
+        grid.innerHTML = '<div class="ch-loading"><span class="ch-spinner"></span> Buscando…</div>';
+        wrap.style.display = 'block';
+        empty.style.display = 'none';
+
+        try {
+            const r = await fetch(`/ClienteHistorial/Buscar?q=${encodeURIComponent(q)}`);
+            const d = await r.json();
+
+            if (!d.success) {
+                grid.innerHTML = `<div class="ch-empty" style="grid-column:1/-1"><p>${d.message}</p></div>`;
+                count.textContent = '';
+            } else if (d.clientes.length === 0) {
+                grid.innerHTML = `<div class="ch-empty" style="grid-column:1/-1">
+                    <h3>Sin resultados</h3>
+                    <p>No se encontraron clientes con "<strong>${q}</strong>"</p>
+                </div>`;
+                count.textContent = '0 clientes encontrados';
+            } else {
+                count.textContent = pluralCliente(d.clientes.length);
+                grid.innerHTML = d.clientes.map((c, i) => cardHtml(c, i * 50)).join('');
+            }
+        } catch (_) {
+            grid.innerHTML = `<div class="ch-empty" style="grid-column:1/-1"><p>Error al buscar. Intente de nuevo.</p></div>`;
+        } finally {
+            btnBus.disabled = false;
+            btnBus.innerHTML = `${icoSearch} Buscar`;
+        }
+    }
+
+    btnBus.addEventListener('click', buscar);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+})();
+</script>
+}
