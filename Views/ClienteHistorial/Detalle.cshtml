@@ -167,15 +167,61 @@
     .det-empty { text-align: center; padding: 2rem 1rem; color: var(--ink-light); font-size: 0.82rem; }
     .det-empty-ico { margin-bottom: 0.5rem; display: flex; justify-content: center; }
 
-    @@media (max-width: 900px) { .det-cols { grid-template-columns: 1fr 1fr; } }
-    @@media (max-width: 600px) {
-        .det-cols { grid-template-columns: 1fr; }
-        .det-profile-header { flex-direction: column; text-align: center; }
+    /* ── Tablet (≤ 960px) ───────────────────────────────── */
+    @@media (max-width: 960px) {
+        .det-cols { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── Mobile grande (≤ 700px) ────────────────────────── */
+    @@media (max-width: 700px) {
+        .det-page { padding: 1.25rem 0 4rem; }
+
+        .det-cols { grid-template-columns: 1fr; gap: 1rem; }
+
+        .det-profile-header {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.25rem 1rem;
+            gap: 0.75rem;
+        }
+
+        .det-profile-info h2 { font-size: 1.2rem; }
+
+        /* Historial: apilar fecha+servicio y badge en columna */
+        .hist-item { flex-direction: column; gap: 0.4rem; align-items: flex-start; }
+        .badge-completado { align-self: flex-start; }
+
+        /* Notas: header comprimido */
+        .nota-header { flex-wrap: wrap; gap: 4px; }
+
+        /* Form nota: botón ancho completo */
+        .nota-form-footer { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .nota-submit-btn  { width: 100%; justify-content: center; }
+
+        /* Preferencias: reducir padding */
+        .pref-body { padding: 0.5rem 1rem; }
+        .pref-item { gap: 0.65rem; }
+    }
+
+    /* ── Mobile pequeño (≤ 420px) ───────────────────────── */
+    @@media (max-width: 420px) {
+        .det-profile-icon { width: 46px; height: 46px; font-size: 1.2rem; }
+        .det-profile-info h2 { font-size: 1.05rem; }
+
+        .det-card-head { padding: 0.75rem 1rem; }
+        .hist-item     { padding: 0.75rem 1rem; }
+        .nota-item     { padding: 0.75rem 1rem; }
+        .nota-form     { padding: 0.75rem 1rem; }
+
+        .nota-textarea { min-height: 60px; font-size: 0.8rem; }
+
+        .pref-icon { width: 30px; height: 30px; }
+        .pref-ico-svg { width: 14px; height: 14px; }
+        .pref-valor { font-size: 0.82rem; }
     }
 </style>
 
 <div class="det-page">
-    @Html.AntiForgeryToken()
     <div class="container">
 
         <a href="/ClienteHistorial" class="det-back">
@@ -194,7 +240,7 @@
 
         <div class="det-cols">
 
-           
+            
             <div class="det-card">
                 <div class="det-card-head">
                     @Html.Raw(IcoCalendar)
@@ -225,7 +271,7 @@
                 </div>
             </div>
 
-          
+            
             <div class="det-card">
                 <div class="det-card-head">
                     @Html.Raw(IcoNote)
@@ -281,7 +327,7 @@
                 }
             </div>
 
-       
+           
             <div class="det-card">
                 <div class="det-card-head">
                     @Html.Raw(IcoStar)
