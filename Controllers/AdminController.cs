@@ -786,6 +786,45 @@ public async Task<IActionResult> ReporteServiciosPdf(int? anio)
  
             return View(resumen);
         }
+
+        // GET /Admin/PerfilEstilista/5
+public async Task<IActionResult> PerfilEstilista(int id, int pagina = 1)
+{
+    var check = AdminOnly(); if (check != null) return check;
+
+    var estilista = await _db.Estilistas
+        .FirstOrDefaultAsync(e => e.Id == id);
+
+    if (estilista == null)
+        return RedirectToAction("Estilistas");
+
+    const int porPagina = 10;
+
+    var totalComentarios = await _db.Calificaciones
+        .CountAsync(c => c.EstilistaId == id);
+
+    var comentarios = await _db.Calificaciones
+        .Include(c => c.Cliente)
+        .Where(c => c.EstilistaId == id)
+        .OrderByDescending(c => c.FechaCreacion)
+        .Skip((pagina - 1) * porPagina)
+        .Take(porPagina)
+        .ToListAsync();
+
+    double promedio = totalComentarios > 0
+        ? await _db.Calificaciones
+            .Where(c => c.EstilistaId == id)
+            .AverageAsync(c => (double)c.Estrellas)
+        : 0;
+
+    ViewBag.Estilista = estilista;
+    ViewBag.Promedio = Math.Round(promedio, 1);
+    ViewBag.TotalCalificaciones = totalComentarios;
+    ViewBag.PaginaActual = pagina;
+    ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalComentarios / porPagina);
+
+    return View(comentarios);
+}
  
         // GET /Admin/HistorialDetalleCliente/5?desde=&hasta=
         public async Task<IActionResult> HistorialDetalleCliente(int id, string? desde, string? hasta)

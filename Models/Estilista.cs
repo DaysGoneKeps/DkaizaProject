@@ -44,5 +44,8 @@ namespace DkaizaProject.Models
 
     public string DescansoTexto =>
         $"{HoraInicioDescanso:D2}:00 - {HoraFinDescanso:D2}:00";
+
+
+    public ICollection<Calificacion> Calificaciones { get; set; } = new List<Calificacion>();
 }
 }

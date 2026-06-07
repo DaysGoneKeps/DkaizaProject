@@ -176,6 +176,13 @@ namespace DkaizaProject.Models
         public string Codigo { get; set; } = string.Empty;
         public decimal MontoOriginal { get; set; }
     }
+
+    public class GuardarCalificacionDto
+{
+    public int CitaId { get; set; }
+    public int Estrellas { get; set; }
+    public string? Comentario { get; set; }
+}
  
     // ============================================================
     // HU-10 — Historial de Clientes

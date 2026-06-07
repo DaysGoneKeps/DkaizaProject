@@ -270,8 +270,19 @@ if (dto.Reprogramando && dto.CitaId.HasValue)
 
             var vm = new MisCitasViewModel
             {
-                Proximas = citas.Where(c => c.Fecha.Date >= hoy && c.Estado != EstadoCita.Cancelada).OrderBy(c => c.Fecha).ToList(),
-                Historial = citas.Where(c => c.Fecha.Date < hoy || c.Estado == EstadoCita.Cancelada).ToList()
+                Proximas = citas.Where(c =>
+    c.Fecha.Date >= hoy &&
+    c.Estado != EstadoCita.Cancelada &&
+    c.Estado != EstadoCita.Completada &&
+    c.Estado != EstadoCita.Pagada)
+    .OrderBy(c => c.Fecha).ToList(),
+
+Historial = citas.Where(c =>
+    c.Fecha.Date < hoy ||
+    c.Estado == EstadoCita.Cancelada ||
+    c.Estado == EstadoCita.Completada ||
+    c.Estado == EstadoCita.Pagada)
+    .ToList()
             };
             return View(vm);
         }
@@ -336,6 +347,92 @@ public async Task<IActionResult> ValidarCupon([FromBody] ValidarCuponDto dto)
             await _db.SaveChangesAsync();
             return Json(new { success = true });
         }
+
+
+        // GET /Appointments/CalificarServicio/5
+public async Task<IActionResult> CalificarServicio(int citaId)
+{
+    if (CurrentClienteId == null)
+        return RedirectToAction("Login", "Account");
+
+    var cita = await _db.Citas
+        .Include(c => c.Servicio)
+        .Include(c => c.Estilista)
+        .FirstOrDefaultAsync(c =>
+            c.Id == citaId &&
+            c.ClienteId == CurrentClienteId.Value &&
+            (c.Estado == EstadoCita.Completada || c.Estado == EstadoCita.Pagada));
+
+    if (cita == null)
+{
+    TempData["Error"] = $"Cita no encontrada o estado incorrecto para citaId={citaId}, clienteId={CurrentClienteId}";
+    return RedirectToAction("MisCitas");
+}
+
+    // Verificar que no haya sido calificada ya
+    var yaCalificada = await _db.Calificaciones
+        .AnyAsync(c => c.CitaId == citaId);
+
+    if (yaCalificada)
+        return RedirectToAction("MisCitas");
+
+    return View(cita);
+}
+
+// POST /Appointments/GuardarCalificacion
+[HttpPost]
+public async Task<IActionResult> GuardarCalificacion([FromBody] GuardarCalificacionDto dto)
+{
+    if (CurrentClienteId == null)
+        return Json(new { success = false, message = "Debes iniciar sesión." });
+
+    var cita = await _db.Citas
+        .FirstOrDefaultAsync(c =>
+            c.Id == dto.CitaId &&
+            c.ClienteId == CurrentClienteId.Value &&
+            (c.Estado == EstadoCita.Completada || c.Estado == EstadoCita.Pagada));
+
+    if (cita == null)
+        return Json(new { success = false, message = "Cita no encontrada." });
+
+    var yaCalificada = await _db.Calificaciones
+        .AnyAsync(c => c.CitaId == dto.CitaId);
+
+    if (yaCalificada)
+        return Json(new { success = false, message = "Esta cita ya fue calificada." });
+
+    if (dto.Estrellas < 1 || dto.Estrellas > 5)
+        return Json(new { success = false, message = "Selecciona entre 1 y 5 estrellas." });
+
+    var calificacion = new Calificacion
+    {
+        CitaId = dto.CitaId,
+        EstilistaId = cita.EstilistaId,
+        ClienteId = CurrentClienteId.Value,
+        Estrellas = dto.Estrellas,
+        Comentario = dto.Comentario?.Trim().Length > 250
+            ? dto.Comentario.Trim().Substring(0, 250)
+            : dto.Comentario?.Trim(),
+        FechaCreacion = DateTime.Now
+    };
+
+    _db.Calificaciones.Add(calificacion);
+    await _db.SaveChangesAsync();
+
+    // Recalcular promedio del estilista de forma asíncrona
+    var promedio = await _db.Calificaciones
+        .Where(c => c.EstilistaId == cita.EstilistaId)
+        .AverageAsync(c => (double)c.Estrellas);
+
+    return Json(new
+    {
+        success = true,
+        message = "Muchas gracias por calificar nuestro servicio.",
+        nuevaPromedio = Math.Round(promedio, 1)
+    });
+}
+
+
 
         // ── Helpers ──────────────────────────────────────────────────────────────
         private static List<HorarioDisponibleDto> GetSlots(Estilista e, int duracion, List<Cita> citas)
