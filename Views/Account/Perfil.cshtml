@@ -1,4 +1,3 @@
-<!-- Views/Account/Perfil.cshtml -->
 @model DkaizaProject.Models.PerfilViewModel
 @{
     ViewData["Title"] = "Mi Perfil";
@@ -7,6 +6,7 @@
 
 <section class="perfil-page">
     <div class="container">
+
         <!-- Header -->
         <div class="perfil-header">
             <div class="perfil-header-content">
@@ -28,6 +28,8 @@
         }
 
         <div class="perfil-content">
+
+            <!-- Sidebar -->
             <div class="perfil-sidebar">
                 <div class="info-card">
                     <div class="info-card-header">
@@ -57,121 +59,442 @@
                 </div>
             </div>
 
+            <!-- Main -->
             <div class="perfil-main">
-                <form asp-action="ActualizarPerfil" method="post" class="perfil-form" id="perfilForm">
-                    @Html.AntiForgeryToken()
-                    
-                    <div class="form-card">
-                        <div class="form-card-header">
-                            <i class="fas fa-user-edit"></i>
-                            <h3>Datos personales</h3>
+
+                <!-- MODO LECTURA -->
+                <div class="form-card" id="modoLectura">
+                <div class="form-card-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Datos personales</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="lectura-row">
+                        <div class="lectura-ico-wrap">
+                            <i class="fas fa-user"></i>
                         </div>
-                        
+                        <div class="lectura-info">
+                            <span class="lectura-label">Nombre</span>
+                            <span class="lectura-valor">@Model.Nombre</span>
+                        </div>
+                    </div>
+                    <div class="lectura-row">
+                        <div class="lectura-ico-wrap">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="lectura-info">
+                            <span class="lectura-label">Apellido</span>
+                            <span class="lectura-valor">@Model.Apellido</span>
+                        </div>
+                    </div>
+                    <div class="lectura-row">
+                        <div class="lectura-ico-wrap">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="lectura-info">
+                            <span class="lectura-label">Correo electrónico</span>
+                            <span class="lectura-valor">@Model.Email</span>
+                        </div>
+                    </div>
+                    <div class="lectura-row">
+                        <div class="lectura-ico-wrap">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="lectura-info">
+                            <span class="lectura-label">Teléfono</span>
+                            <span class="lectura-valor">@Model.Telefono</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-card-footer">
+                    <button type="button" id="btnEditar" class="btn-perfil btn-editar">
+                        <i class="fas fa-pencil-alt"></i> Editar
+                    </button>
+                </div>
+            </div>
+
+                <!-- MODO EDICIÓN (oculto por defecto) -->
+                <div class="form-card" id="modoEdicion" style="display:none;">
+                    <div class="form-card-header">
+                        <i class="fas fa-user-edit"></i>
+                        <h3>Editar datos personales</h3>
+                    </div>
+                    <form asp-action="ActualizarPerfil" method="post" id="perfilForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
                         <div class="form-card-body">
+
+                            <!-- Solo lectura dentro del form -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label asp-for="Nombre">Nombre</label>
+                                    <label>Nombre</label>
                                     <div class="input-wrapper">
                                         <i class="fas fa-user"></i>
-                                        <input asp-for="Nombre" class="form-control" placeholder="Tu nombre" />
+                                        <input value="@Model.Nombre" class="form-control" disabled />
                                     </div>
-                                    <span asp-validation-for="Nombre" class="field-error"></span>
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label asp-for="Apellido">Apellido</label>
+                                    <label>Apellido</label>
                                     <div class="input-wrapper">
                                         <i class="fas fa-user"></i>
-                                        <input asp-for="Apellido" class="form-control" placeholder="Tu apellido" />
+                                        <input value="@Model.Apellido" class="form-control" disabled />
                                     </div>
-                                    <span asp-validation-for="Apellido" class="field-error"></span>
                                 </div>
                             </div>
-                            
+
+                            <!-- Editables -->
                             <div class="form-group">
                                 <label asp-for="Email">Correo electrónico</label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-envelope"></i>
-                                    <input asp-for="Email" class="form-control" placeholder="tu@email.com" />
+                                    <input asp-for="Email" class="form-control" />
                                 </div>
                                 <span asp-validation-for="Email" class="field-error"></span>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label asp-for="Telefono">Teléfono</label>
                                 <div class="input-wrapper">
                                     <i class="fas fa-phone"></i>
-                                    <input asp-for="Telefono" class="form-control" placeholder="+56 9 1234 5678" />
+                                    <input asp-for="Telefono" class="form-control" />
                                 </div>
                                 <span asp-validation-for="Telefono" class="field-error"></span>
                             </div>
+
                         </div>
-                    </div>
-                    <!-- 
-                    <div class="form-card">
-                        <div class="form-card-header">
-                            <i class="fas fa-lock"></i>
-                            <h3>Cambiar contraseña</h3>
-                            <span class="optional-badge">Opcional</span>
+
+                        <div class="form-card-footer">
+                            <button type="submit" class="btn-perfil btn-guardar">
+                                <i class="fas fa-save"></i> Guardar
+                            </button>
+                            <button type="button" id="btnCancelar" class="btn-perfil btn-cancelar">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
                         </div>
-                        
-                        <div class="form-card-body">
-                            <div class="form-group">
-                                <label asp-for="NuevaPassword">Nueva contraseña</label>
-                                <div class="input-wrapper">
-                                    <i class="fas fa-key"></i>
-                                    <input asp-for="NuevaPassword" type="password" class="form-control" placeholder="••••••" />
-                                </div>
-                                <span asp-validation-for="NuevaPassword" class="field-error"></span>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label asp-for="ConfirmarPassword">Confirmar contraseña</label>
-                                <div class="input-wrapper">
-                                    <i class="fas fa-check-circle"></i>
-                                    <input asp-for="ConfirmarPassword" type="password" class="form-control" placeholder="••••••" />
-                                </div>
-                                <span asp-validation-for="ConfirmarPassword" class="field-error"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-save"></i>
-                            Guardar cambios
-                        </button>
-                        <a href="/" class="btn-secondary">Cancelar</a>
-                    </div> 
-                    -->
-                    
-                </form>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
 </section>
 
+<style>
+    .perfil-page {
+        padding: 2.5rem 0 5rem;
+        background: var(--cream);
+        min-height: calc(100vh - 160px);
+    }
+
+    .perfil-header {
+        margin-bottom: 2rem;
+    }
+
+    .perfil-header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .perfil-avatar {
+        font-size: 3rem;
+        color: var(--rose-dark);
+    }
+
+    .perfil-title h1 {
+        font-family: var(--font-display);
+        font-size: 2rem;
+       
+        margin: 0 0 4px 0;
+    }
+
+    .perfil-title p {
+       
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .perfil-content {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    /* Sidebar */
+    .info-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .info-card-header {
+        background: var(--cream-dark);
+        border-bottom: 1px solid var(--border);
+        padding: 0.9rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .info-card-header i { color: var(--rose-dark); }
+
+    .info-card-header h3 {
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .info-card-body { padding: 1.25rem; }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-label { font-size: 0.8rem; color: var(--ink-light); }
+    .info-value  { font-size: 0.85rem; color: var(--ink); font-weight: 500; }
+
+    .info-divider { border-top: 1px solid var(--border); margin: 1rem 0; }
+
+    .stats-summary { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .stat-item { display: flex; align-items: center; gap: 0.75rem; }
+    .stat-item i { color: var(--rose-dark); font-size: 1.2rem; }
+    .stat-number { display: block; font-size: 1.3rem; font-weight: 700; color: var(--ink); line-height: 1; }
+    .stat-label  { font-size: 0.75rem; color: var(--ink-light); }
+
+    /* Modo lectura */
+    .lectura-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.lectura-row:last-child { border-bottom: none; }
+
+.lectura-ico-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--rose-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--rose-dark);
+    font-size: 0.85rem;
+}
+
+.lectura-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lectura-label {
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.lectura-valor {
+    font-size: 0.92rem;
+    color: var(--ink);
+    font-weight: 500;
+}
+
+    /* Form card */
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background: var(--cream-dark);
+        border-bottom: 1px solid var(--border);
+        padding: 0.9rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .form-card-header i { color: var(--rose-dark); }
+
+    .form-card-header h3 {
+        font-family: var(--font-display);
+        font-size: 0.95rem;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 1.5rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .form-card-footer {
+        padding: 1rem 1.25rem;
+        border-top: 1px solid var(--border);
+        background: var(--cream-dark);
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .form-group label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--ink-mid);
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 12px;
+        color: var(--ink-light);
+        font-size: 0.85rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px 10px 36px;
+        border: 1px solid var(--border-mid);
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-family: var(--font-body);
+        color: var(--ink);
+        background: var(--cream);
+        transition: all 0.2s;
+    }
+
+    .form-control:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        background: var(--cream-dark);
+    }
+
+    .form-control:not(:disabled):focus {
+        outline: none;
+        border-color: var(--rose);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(200,169,138,0.15);
+    }
+
+    .field-error { font-size: 0.75rem; color: #c0392b; }
+
+    /* Botones */
+    .btn-perfil {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 22px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-editar  { background: var(--ink); color: white; }
+    .btn-editar:hover { background: var(--rose-dark); }
+
+    .btn-guardar { background: #1a7a4a; color: white; }
+    .btn-guardar:hover { background: #155f3a; }
+
+    .btn-cancelar { background: var(--cream-dark); color: var(--ink-mid); border: 1px solid var(--border-mid); }
+    .btn-cancelar:hover { background: var(--border); }
+
+    /* Toast */
+    .toast-custom {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 9999;
+        padding: 0.85rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        transition: opacity 0.3s;
+    }
+
+    .toast-success { background: #eafaf1; color: #1a7a4a; border: 1px solid #a8dfbd; }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .perfil-content { grid-template-columns: 1fr; }
+        .form-row { grid-template-columns: 1fr; }
+        .perfil-avatar { font-size: 2.2rem; }
+        .perfil-title h1 { font-size: 1.5rem; }
+    }
+
+    @@media (max-width: 480px) {
+        .form-card-footer { flex-direction: column; }
+        .btn-perfil { width: 100%; justify-content: center; }
+    }
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Cargar conteo de citas
+        const modoLectura = document.getElementById('modoLectura');
+        const modoEdicion = document.getElementById('modoEdicion');
+        const hayErrores = document.querySelector('.field-error:not(:empty)');
+if (hayErrores) {
+    modoLectura.style.display = 'none';
+    modoEdicion.style.display = 'block';
+}
+
+        document.getElementById('btnEditar').addEventListener('click', () => {
+            modoLectura.style.display = 'none';
+            modoEdicion.style.display = 'block';
+        });
+
+        document.getElementById('btnCancelar').addEventListener('click', () => {
+            modoEdicion.style.display = 'none';
+            modoLectura.style.display = 'block';
+        });
+
+        // Contador de citas
         async function loadCitasCount() {
             try {
-                const response = await fetch('/Appointments/MisCitasCount');
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('citasCount').textContent = data.count;
-                } else {
-                    document.getElementById('citasCount').textContent = '0';
-                }
-            } catch (error) {
+                const r = await fetch('/Appointments/MisCitasCount');
+                const d = await r.json();
+                document.getElementById('citasCount').textContent = d.success ? d.count : '0';
+            } catch {
                 document.getElementById('citasCount').textContent = '0';
             }
         }
-        
         loadCitasCount();
-        
-        // Auto ocultar toast
+
+        // Auto-ocultar toast
         const toast = document.getElementById('successToast');
         if (toast) {
             setTimeout(() => {
