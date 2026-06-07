@@ -67,28 +67,41 @@
                 <div class="confirm-row"><span>Horario</span><strong id="conf-horario">—</strong></div>
                 <div class="confirm-row"><span>Precio</span><strong id="conf-precio">—</strong></div>
 
+                <!-- HU-15: Cupón de descuento -->
+                <div class="cupon-section">
+                    <p class="payment-method-label">¿Tienes un cupón de descuento?</p>
+                    <div class="cupon-input-row">
+                        <input type="text" id="cuponInput" placeholder="Ej: DKAIZA10" maxlength="50" />
+                        <button type="button" id="btnAplicarCupon">Aplicar</button>
+                    </div>
+                    <div id="cuponMsg" class="cupon-msg" style="display:none;"></div>
+                </div>
+
+                <div class="confirm-row" id="rowDescuento" style="display:none;">
+                    <span>Descuento</span><strong id="conf-descuento" style="color: var(--rose-dark);">— S/ 0.00</strong>
+                </div>
+                <div class="confirm-row" id="rowTotal" style="display:none;">
+                    <span>Total a pagar</span><strong id="conf-total">— S/ 0.00</strong>
+                </div>
+
                 <div id="paymentSection">
+                    <p class="payment-method-label">
+                        Selecciona el método de pago
+                    </p>
+                    <button class="btn-confirm btn-pago-mp" id="btnPagarMP">
+                        Pagar con MercadoPago
+                    </button>
+                    <button class="btn-confirm btn-pago-efectivo" id="btnPagarEfectivo">
+                        Pagar en efectivo
+                    </button>
+                </div>
 
-    <p class="payment-method-label">
-        Selecciona el método de pago
-    </p>
-
-    <button class="btn-confirm btn-pago-mp" id="btnPagarMP">
-        Pagar con MercadoPago
-    </button>
-
-    <button class="btn-confirm btn-pago-efectivo" id="btnPagarEfectivo">
-        Pagar en efectivo
-    </button>
-
-</div>
-
-<button
-    class="btn-confirm"
-    id="btnConfirmarReprogramacion"
-    style="display:none;">
-    Confirmar reprogramación
-</button>
+                <button
+                    class="btn-confirm"
+                    id="btnConfirmarReprogramacion"
+                    style="display:none;">
+                    Confirmar reprogramación
+                </button>
             </div>
         </div>
 
@@ -113,7 +126,7 @@
     .selected-service-summary {
         margin-bottom: 2rem;
     }
-    
+
     .summary-card {
         background: linear-gradient(135deg, var(--rose-light), var(--cream));
         border: 1px solid var(--rose);
@@ -125,7 +138,7 @@
         flex-wrap: wrap;
         gap: 1rem;
     }
-    
+
     .summary-icon {
         width: 50px;
         height: 50px;
@@ -137,11 +150,11 @@
         color: white;
         font-size: 1.3rem;
     }
-    
+
     .summary-info {
         flex: 1;
     }
-    
+
     .summary-label {
         font-size: 0.7rem;
         text-transform: uppercase;
@@ -149,7 +162,7 @@
         color: var(--rose-dark);
         font-weight: 600;
     }
-    
+
     .summary-info h3 {
         font-family: var(--font-display);
         font-size: 1.1rem;
@@ -157,7 +170,7 @@
         color: var(--ink);
         margin: 0;
     }
-    
+
     .summary-meta {
         display: flex;
         gap: 1rem;
@@ -165,12 +178,12 @@
         font-size: 0.75rem;
         color: var(--ink-mid);
     }
-    
+
     .summary-meta i {
         color: var(--rose);
         margin-right: 4px;
     }
-    
+
     .btn-change-service {
         background: transparent;
         border: 1px solid var(--border-mid);
@@ -181,13 +194,13 @@
         text-decoration: none;
         transition: all 0.2s;
     }
-    
+
     .btn-change-service:hover {
         border-color: var(--rose);
         color: var(--rose);
         text-decoration: none;
     }
-    
+
     .back-home-btn {
         position: fixed;
         bottom: 30px;
@@ -205,26 +218,26 @@
         z-index: 100;
         text-decoration: none;
     }
-    
+
     .back-home-btn:hover {
         background: var(--rose-dark);
         transform: translateY(-3px);
         box-shadow: 0 6px 20px rgba(0,0,0,0.25);
         color: white;
     }
-    
+
     .calendar-wrap {
         max-width: 400px;
         margin: 0 auto;
     }
-    
+
     .cal-nav {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 20px;
     }
-    
+
     .cal-nav button {
         background: var(--cream-dark);
         border: 1px solid var(--border-mid);
@@ -236,27 +249,27 @@
         color: var(--ink-mid);
         transition: all 0.2s;
     }
-    
+
     .cal-nav button:hover {
         background: var(--rose-light);
         border-color: var(--rose);
         color: var(--rose);
     }
-    
+
     .cal-month-label {
         font-family: var(--font-display);
         font-size: 1.1rem;
         font-weight: 600;
         color: var(--ink);
     }
-    
+
     .cal-days-header {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 4px;
         margin-bottom: 8px;
     }
-    
+
     .cal-days-header span {
         text-align: center;
         font-size: 12px;
@@ -264,13 +277,13 @@
         color: var(--ink-mid);
         padding: 8px 0;
     }
-    
+
     .cal-days {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 4px;
     }
-    
+
     .cal-cell {
         aspect-ratio: 1;
         display: flex;
@@ -283,37 +296,36 @@
         background: var(--white);
         border: 1px solid transparent;
     }
-    
+
     .cal-cell:hover:not(.disabled):not(.empty) {
         background: var(--rose-light);
         border-color: var(--rose);
         transform: scale(1.05);
     }
-    
+
     .cal-cell.selected {
         background: var(--ink);
         color: white;
     }
-    
+
     .cal-cell.disabled {
         color: var(--border-mid);
         cursor: not-allowed;
         background: var(--cream-dark);
     }
-    
+
     .cal-cell.empty {
         cursor: default;
         background: transparent;
     }
-    
+
     .step-title {
         text-align: center;
         margin-bottom: 1.5rem;
         font-family: var(--font-display);
         font-size: 1.3rem;
     }
-    
-    /* Confirmar reserva - CENTRADO */
+
     .confirm-box {
         background: var(--white);
         border: 1px solid var(--border);
@@ -323,7 +335,7 @@
         width: 100%;
         margin: 0 auto;
     }
-    
+
     .confirm-row {
         display: flex;
         justify-content: space-between;
@@ -332,19 +344,19 @@
         border-bottom: 1px solid var(--border);
         font-size: 14px;
     }
-    
+
     .confirm-row:last-of-type {
         border-bottom: none;
     }
-    
+
     .confirm-row span {
         color: var(--ink-light);
     }
-    
+
     .confirm-row strong {
         color: var(--ink);
     }
-    
+
     .btn-confirm {
         display: block;
         width: 100%;
@@ -360,11 +372,11 @@
         margin-top: 1.5rem;
         transition: background 0.2s;
     }
-    
+
     .btn-confirm:hover {
         background: var(--rose-dark);
     }
-    
+
     .btn-confirm:disabled {
         background: var(--border-mid);
         cursor: not-allowed;
@@ -401,6 +413,83 @@
         margin-top: 0.5rem;
     }
 
+    /* HU-15: Cupón */
+    .cupon-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .cupon-section .payment-method-label {
+        margin-top: 0;
+        text-align: left;
+    }
+
+    .cupon-input-row {
+        display: flex;
+        gap: 8px;
+    }
+
+    .cupon-input-row input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border-mid);
+        border-radius: 50px;
+        font-size: 14px;
+        font-family: var(--font-body);
+        text-transform: uppercase;
+        background: var(--cream);
+        transition: border-color 0.2s;
+    }
+
+    .cupon-input-row input:focus {
+        outline: none;
+        border-color: var(--rose);
+        background: white;
+    }
+
+    .cupon-input-row button {
+        background: var(--ink);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: var(--font-body);
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .cupon-input-row button:hover {
+        background: var(--rose-dark);
+    }
+
+    .cupon-input-row button:disabled {
+        background: var(--border-mid);
+        cursor: not-allowed;
+    }
+
+    .cupon-msg {
+        margin-top: 8px;
+        font-size: 13px;
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+
+    .cupon-msg.ok {
+        background: #eafaf1;
+        color: #1a7a4a;
+        border-left: 3px solid #1a7a4a;
+    }
+
+    .cupon-msg.err {
+        background: #fdf0f0;
+        color: #b83232;
+        border-left: 3px solid #b83232;
+    }
+
     @@media (max-width: 768px) {
         .back-home-btn {
             bottom: 20px;
@@ -421,6 +510,9 @@
             margin: 0 auto;
             padding: 1.5rem;
         }
+        .cupon-input-row input {
+            font-size: 13px;
+        }
     }
 </style>
 
@@ -433,18 +525,20 @@
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DIAS_LONG = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
-let sel = { 
-    servicio: null, 
-    fecha: null, 
-    estilista: null, 
-    horario: null 
+let sel = {
+    servicio: null,
+    fecha: null,
+    estilista: null,
+    horario: null
 };
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 
+// HU-15
+let cuponAplicado = null; // { codigo, descuento, montoFinal }
+
 const urlParams = new URLSearchParams(window.location.search);
-const esReprogramacion =
-    urlParams.get('reprogramar') === 'true';
+const esReprogramacion = urlParams.get('reprogramar') === 'true';
 const servicioId = urlParams.get('servicioId');
 
 // ── Cargar servicio seleccionado ─────────────────────────────────────────
@@ -453,10 +547,10 @@ async function loadSelectedService() {
         window.location.href = '/Appointments/Servicios';
         return;
     }
-    
+
     const servicios = @Html.Raw(Json.Serialize(Model.Servicios));
     const servicio = servicios.find(s => s.id == servicioId);
-    
+
     if (servicio) {
         sel.servicio = {
             id: servicio.id,
@@ -540,7 +634,7 @@ async function loadEstilistas() {
         } else {
             fotoHtml = `<div class="stylist-avatar">${e.nombre.charAt(0)}</div>`;
         }
-        
+
         html += `<div class="stylist-card ${free===0?'no-slots':''}" data-id="${e.estilistaId}" data-nombre="${e.nombre}">
             ${fotoHtml}
             <div class="stylist-info">
@@ -584,6 +678,7 @@ async function loadHorarios() {
             wrap.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             sel.horario = { start: +btn.dataset.start, end: +btn.dataset.end, label: btn.dataset.label };
+            resetCupon();
             fillConfirm();
             showStep(4);
         });
@@ -598,8 +693,95 @@ function fillConfirm() {
     document.getElementById('conf-fecha').textContent = `${DIAS_LONG[date.getDay()]} ${f.d} de ${MONTHS[f.m]}`;
     document.getElementById('conf-estilista').textContent = sel.estilista.nombre;
     document.getElementById('conf-horario').textContent = sel.horario.label;
-    document.getElementById('conf-precio').textContent = 'S/ ' + sel.servicio.precio;
+    document.getElementById('conf-precio').textContent = 'S/ ' + sel.servicio.precio.toFixed(2);
 }
+
+// ── HU-15: Cupón ─────────────────────────────────────────────────────────
+function resetCupon() {
+    cuponAplicado = null;
+    document.getElementById('cuponInput').value = '';
+    document.getElementById('cuponMsg').style.display = 'none';
+    document.getElementById('cuponMsg').className = 'cupon-msg';
+    document.getElementById('rowDescuento').style.display = 'none';
+    document.getElementById('rowTotal').style.display = 'none';
+    const btn = document.getElementById('btnAplicarCupon');
+    btn.disabled = false;
+    btn.textContent = 'Aplicar';
+    btn.style.background = '';
+}
+
+document.getElementById('btnAplicarCupon').addEventListener('click', async function () {
+    const btn = this;
+    const codigo = document.getElementById('cuponInput').value.trim().toUpperCase();
+    const msg = document.getElementById('cuponMsg');
+
+    if (!codigo) {
+        msg.textContent = 'Ingresa un código de cupón.';
+        msg.className = 'cupon-msg err';
+        msg.style.display = 'block';
+        return;
+    }
+
+    if (!sel.servicio) {
+        msg.textContent = 'Primero selecciona un servicio.';
+        msg.className = 'cupon-msg err';
+        msg.style.display = 'block';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Validando...';
+
+    try {
+        const res = await fetch('/Appointments/ValidarCupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                codigo: codigo,
+                montoOriginal: sel.servicio.precio
+            })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            cuponAplicado = {
+                codigo: codigo,
+                descuento: data.descuento,
+                montoFinal: data.montoFinal
+            };
+            msg.textContent = data.message;
+            msg.className = 'cupon-msg ok';
+            msg.style.display = 'block';
+
+            document.getElementById('conf-descuento').textContent = '— S/ ' + data.descuento.toFixed(2);
+            document.getElementById('conf-total').textContent = 'S/ ' + data.montoFinal.toFixed(2);
+            document.getElementById('rowDescuento').style.display = 'flex';
+            document.getElementById('rowTotal').style.display = 'flex';
+
+            btn.textContent = '✓ Aplicado';
+            btn.style.background = '#1a7a4a';
+        } else {
+            cuponAplicado = null;
+            msg.textContent = data.message;
+            msg.className = 'cupon-msg err';
+            msg.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Aplicar';
+        }
+    } catch {
+        msg.textContent = 'Error de red. Intenta nuevamente.';
+        msg.className = 'cupon-msg err';
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Aplicar';
+    }
+});
+
+document.getElementById('cuponInput').addEventListener('input', function () {
+    if (cuponAplicado) {
+        resetCupon();
+    }
+});
 
 // ── Confirmar reserva ─────────────────────────────────────────────────────
 function buildReservaBody(metodoPago) {
@@ -611,7 +793,9 @@ function buildReservaBody(metodoPago) {
         fecha: fechaStr,
         horaInicio: sel.horario.start,
         notas: '',
-        metodoPago: metodoPago
+        metodoPago: metodoPago,
+        cuponCodigo: cuponAplicado ? cuponAplicado.codigo : null,
+        descuento: cuponAplicado ? cuponAplicado.descuento : 0
     };
 }
 
@@ -672,41 +856,25 @@ document.getElementById('btnPagarMP').addEventListener('click', function () {
 document.getElementById('btnPagarEfectivo').addEventListener('click', function () {
     enviarReserva(this, 'efectivo', 'Procesando...', 'Pagar en efectivo (al asistir)');
 });
+
 const btnReprogramacion = document.getElementById('btnConfirmarReprogramacion');
-
 if (btnReprogramacion) {
-
     btnReprogramacion.onclick = async function () {
-
-    const body = buildReservaBody('reprogramacion');
-
-    body.reprogramando = true;
-
-    body.citaId = urlParams.get('citaId');
-
-    const res = await fetch('/Appointments/Crear', {
-
-        method: 'POST',
-
-        headers: {
-            'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify(body)
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-
-        window.location.href = '/Appointments/MisCitas';
-
-    } else {
-
-        alert(data.message || 'Error al reprogramar');
-    }
-};
-
+        const body = buildReservaBody('reprogramacion');
+        body.reprogramando = true;
+        body.citaId = urlParams.get('citaId');
+        const res = await fetch('/Appointments/Crear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+            window.location.href = '/Appointments/MisCitas';
+        } else {
+            alert(data.message || 'Error al reprogramar');
+        }
+    };
 }
 
 window.addEventListener('pageshow', function (e) {
@@ -743,19 +911,15 @@ async function resumePendingReserva() {
     slot.classList.add('selected');
     sel.horario = { start: +slot.dataset.start, end: +slot.dataset.end, label: slot.dataset.label };
 
-    // Ya no hay notas
     fillConfirm();
     showStep(4);
 }
 
 if (esReprogramacion) {
-
-    document.getElementById('paymentSection')
-        .style.display = 'none';
-
-    document.getElementById('btnConfirmarReprogramacion')
-        .style.display = 'block';
+    document.getElementById('paymentSection').style.display = 'none';
+    document.getElementById('btnConfirmarReprogramacion').style.display = 'block';
 }
+
 // Inicializar
 renderCalendar();
 loadSelectedService().then(() => resumePendingReserva());

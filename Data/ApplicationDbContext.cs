@@ -15,12 +15,43 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<NotaCliente> NotasCliente { get; set; }
     public DbSet<Cita> Citas { get; set; }
     public DbSet<Pago> Pagos { get; set; }
+    public DbSet<Cupon> Cupones { get; set; }
     public DbSet<Notificacion> Notificaciones { get; set; }
     public DbSet<CategoriaServicio> CategoriasServicios { get; set; }
     
     protected override void OnModelCreating(ModelBuilder mb)
     {
         base.OnModelCreating(mb);
+
+
+        mb.Entity<Cupon>().HasData(
+            new Cupon
+            {
+                Id = 1,
+                Codigo = "DKAIZA10",
+                PorcentajeDescuento = 10,
+                MontoDescuento = 0,
+                EsPorcentaje = true,
+                Activo = true,
+                UsoMaximo = 50,
+                UsosActuales = 0,
+                Descripcion = "10% de descuento en cualquier servicio",
+                FechaExpiracion = new DateTime(2026, 12, 31)
+            },
+            new Cupon
+            {
+                Id = 2,
+                Codigo = "PROMO20",
+                PorcentajeDescuento = 0,
+                MontoDescuento = 20,
+                EsPorcentaje = false,
+                Activo = true,
+                UsoMaximo = 30,
+                UsosActuales = 0,
+                Descripcion = "S/20 de descuento fijo",
+                FechaExpiracion = new DateTime(2026, 12, 31)
+            }
+        );
 
         // Configurar relación Servicio - Categoria
         mb.Entity<Servicio>()

@@ -69,28 +69,36 @@ namespace DkaizaProject.Models
     }
  
     public class CrearCitaDto
-    {
-        public int ServicioId { get; set; }
-        public int EstilistaId { get; set; }
-        public string Fecha { get; set; } = string.Empty;
-        public int HoraInicio { get; set; }
-        public string? Notas { get; set; }
-        public string? MetodoPago { get; set; }
-        public int? CitaId { get; set; }
-        public bool Reprogramando { get; set; }
-    }
+{
+    public int ServicioId { get; set; }
+    public int EstilistaId { get; set; }
+    public string Fecha { get; set; } = string.Empty;
+    public int HoraInicio { get; set; }
+    public string? Notas { get; set; }
+    public string? MetodoPago { get; set; }
+    public int? CitaId { get; set; }
+    public bool Reprogramando { get; set; }
+
+    // HU-15: cupón aplicado
+    public string? CuponCodigo { get; set; }
+    public decimal Descuento { get; set; } = 0;
+}
  
     public class ReservaPendiente
-    {
-        public int ClienteId { get; set; }
-        public int ServicioId { get; set; }
-        public int EstilistaId { get; set; }
-        public DateTime Fecha { get; set; }
-        public int HoraInicio { get; set; }
-        public int HoraFin { get; set; }
-        public string? Notas { get; set; }
-        public string ExternalReference { get; set; } = string.Empty;
-    }
+{
+    public int ClienteId { get; set; }
+    public int ServicioId { get; set; }
+    public int EstilistaId { get; set; }
+    public DateTime Fecha { get; set; }
+    public int HoraInicio { get; set; }
+    public int HoraFin { get; set; }
+    public string? Notas { get; set; }
+    public string ExternalReference { get; set; } = string.Empty;
+
+    // HU-15: cupón aplicado
+    public string? CuponCodigo { get; set; }
+    public decimal Descuento { get; set; } = 0;
+}
 
     public class ResumenMensual
     {
@@ -161,6 +169,13 @@ namespace DkaizaProject.Models
  
         public string NombreCompleto => $"{Nombre} {Apellido}";
     }
+
+
+    public class ValidarCuponDto
+    {
+        public string Codigo { get; set; } = string.Empty;
+        public decimal MontoOriginal { get; set; }
+    }
  
     // ============================================================
     // HU-10 — Historial de Clientes
@@ -204,4 +219,5 @@ namespace DkaizaProject.Models
         /// </summary>
         public DateTime? UltimaVisita { get; set; }
     }
+
 }

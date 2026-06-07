@@ -196,18 +196,31 @@ if (dto.Reprogramando && dto.CitaId.HasValue)
                 await _db.SaveChangesAsync();
 
                 decimal montoTotal = Math.Round(servicio.Precio, 2);
+                decimal descuento = Math.Min(dto.Descuento, montoTotal);
+                decimal montoFinal = Math.Round(montoTotal - descuento, 2);
+
                 var pago = new Pago
                 {
                     CitaId = cita.Id,
                     ExternalReference = Guid.NewGuid().ToString("N"),
                     Monto = 0m,
-                    MontoTotal = montoTotal,
+                    MontoTotal = montoFinal,
                     Metodo = "Efectivo",
-                    Estado = EstadoPago.Pendiente
+                    Estado = EstadoPago.Pendiente,
+                    CuponCodigo = dto.CuponCodigo,
+                    MontoDescuento = descuento
                 };
                 _db.Pagos.Add(pago);
-                await _db.SaveChangesAsync();
 
+                // Incrementar uso del cupón si aplica
+                if (!string.IsNullOrEmpty(dto.CuponCodigo))
+                {
+                    var cupon = await _db.Cupones
+                        .FirstOrDefaultAsync(c => c.Codigo.ToUpper() == dto.CuponCodigo.ToUpper());
+                    if (cupon != null) cupon.UsosActuales++;
+                }
+
+                await _db.SaveChangesAsync();
                 HttpContext.Session.Remove(ReservaPendienteSessionKey);
 
                 return Json(new
@@ -227,7 +240,9 @@ if (dto.Reprogramando && dto.CitaId.HasValue)
                 HoraInicio = dto.HoraInicio,
                 HoraFin = horaFin,
                 Notas = dto.Notas,
-                ExternalReference = Guid.NewGuid().ToString("N")
+                ExternalReference = Guid.NewGuid().ToString("N"),
+                CuponCodigo = dto.CuponCodigo,
+                Descuento = dto.Descuento
             };
             HttpContext.Session.SetString(ReservaPendienteSessionKey, JsonSerializer.Serialize(pendiente));
 
@@ -260,6 +275,48 @@ if (dto.Reprogramando && dto.CitaId.HasValue)
             };
             return View(vm);
         }
+
+
+        // POST /Appointments/ValidarCupon
+[HttpPost]
+public async Task<IActionResult> ValidarCupon([FromBody] ValidarCuponDto dto)
+{
+    if (string.IsNullOrWhiteSpace(dto.Codigo))
+        return Json(new { success = false, message = "Ingresa un código de cupón." });
+
+    var cupon = await _db.Cupones
+        .FirstOrDefaultAsync(c =>
+            c.Codigo.ToUpper() == dto.Codigo.ToUpper().Trim() &&
+            c.Activo);
+
+    if (cupon == null)
+        return Json(new { success = false, message = "Cupón inválido o no existe." });
+
+    if (cupon.FechaExpiracion.HasValue && cupon.FechaExpiracion.Value < DateTime.Today)
+        return Json(new { success = false, message = "Este cupón ha expirado." });
+
+    if (cupon.UsosActuales >= cupon.UsoMaximo)
+        return Json(new { success = false, message = "Este cupón ha alcanzado su límite de usos." });
+
+    decimal descuento = 0;
+    if (cupon.EsPorcentaje)
+        descuento = Math.Round(dto.MontoOriginal * cupon.PorcentajeDescuento / 100, 2);
+    else
+        descuento = Math.Min(cupon.MontoDescuento, dto.MontoOriginal);
+
+    decimal montoFinal = dto.MontoOriginal - descuento;
+
+    return Json(new
+    {
+        success = true,
+        message = "Cupón aplicado correctamente.",
+        descuento,
+        montoFinal,
+        descripcion = cupon.Descripcion ?? "",
+        esPorcentaje = cupon.EsPorcentaje,
+        porcentaje = cupon.PorcentajeDescuento
+    });
+}
 
         // POST /Appointments/Cancelar/5
         [HttpPost]
