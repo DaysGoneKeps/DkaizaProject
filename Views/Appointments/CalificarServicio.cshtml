@@ -1,0 +1,352 @@
+@model DkaizaProject.Models.Cita
+@{
+    ViewData["Title"] = "Calificar servicio";
+    Layout = "_Layout";
+}
+
+<div class="booking-page">
+    <div class="booking-header">
+        <div class="container">
+            <p class="section-eyebrow">Tu opinión importa</p>
+            <h1>Registrar Calificación</h1>
+        </div>
+    </div>
+
+    <div class="container booking-container">
+        <div class="confirm-box" style="max-width: 520px; margin: 2rem auto;">
+
+            <!-- Datos de la cita -->
+            <div class="cal-cita-info">
+                <div class="cal-estilista-avatar">
+                    @if (Model.Estilista.FotoBytes != null)
+                    {
+                        <img src="data:@Model.Estilista.FotoContentType;base64,@Convert.ToBase64String(Model.Estilista.FotoBytes)"
+                             alt="@Model.Estilista.Nombre" />
+                    }
+                    else
+                    {
+                        <div class="cal-avatar-placeholder">@Model.Estilista.Nombre.Substring(0, 1)</div>
+                    }
+                </div>
+                <div class="cal-cita-detalle">
+                    <h3>@Model.Servicio.Nombre</h3>
+                    <p>con <strong>@Model.Estilista.Nombre</strong></p>
+                    <p class="cal-fecha">📅 @Model.Fecha.ToString("dd/MM/yyyy") · @Model.HoraInicio:00 - @Model.HoraFin:00</p>
+                </div>
+            </div>
+
+            <hr class="cal-divider" />
+
+            <!-- Selector de estrellas -->
+            <div class="cal-section">
+                <p class="cal-label">¿Cómo calificarías el servicio?</p>
+                <div class="star-selector" id="starSelector">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <p class="star-label" id="starLabel">Selecciona una calificación</p>
+                <input type="hidden" id="estrellasSeleccionadas" value="0" />
+            </div>
+
+            <!-- Comentario -->
+            <div class="cal-section">
+                <p class="cal-label">Comentario <span class="cal-opcional">(opcional)</span></p>
+                <textarea
+                    id="comentarioInput"
+                    maxlength="250"
+                    placeholder="Cuéntanos tu experiencia..."
+                    rows="4"></textarea>
+                <p class="cal-chars"><span id="charCount">0</span>/250 caracteres</p>
+            </div>
+
+            <!-- Mensaje de respuesta -->
+            <div id="calMsg" style="display:none;" class="cal-msg"></div>
+
+            <!-- Botones -->
+            <div id="calAcciones">
+                <button type="button" class="btn-confirm" id="btnGuardarCal">
+    Guardar 
+</button>
+                <a href="/Appointments/MisCitas" class="btn-ghost-lg"
+                   style="display:block; text-align:center; margin-top:0.75rem;">
+                    Cancelar
+                </a>
+            </div>
+
+            <!-- Success -->
+            <div id="calSuccess" style="display:none;" class="cal-success-block">
+                <div class="cal-check">✓</div>
+                <h3>¡Muchas gracias por calificar nuestro servicio!</h3>
+                <a href="/Appointments/MisCitas" class="btn-primary-lg" style="margin-top:1.5rem; display:inline-block;">
+                    Volver a mis citas
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .cal-cita-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .cal-estilista-avatar img,
+    .cal-avatar-placeholder {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--rose-light);
+    }
+
+    .cal-avatar-placeholder {
+        background: linear-gradient(135deg, var(--rose-light), var(--cream-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: var(--rose-dark);
+        font-family: var(--font-display);
+    }
+
+    .cal-cita-detalle h3 {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        margin: 0 0 0.2rem 0;
+        color: var(--ink);
+    }
+
+    .cal-cita-detalle p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--ink-mid);
+    }
+
+    .cal-fecha {
+        font-size: 0.78rem !important;
+        margin-top: 0.25rem !important;
+    }
+
+    .cal-divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 1rem 0;
+    }
+
+    .cal-section {
+        margin-bottom: 1.25rem;
+    }
+
+    .cal-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ink-mid);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .cal-opcional {
+        text-transform: none;
+        font-weight: 400;
+        font-size: 0.75rem;
+        color: var(--ink-light);
+    }
+
+    /* Estrellas */
+    .star-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 0.5rem;
+    }
+
+    .star {
+        font-size: 2.5rem;
+        color: var(--border-mid);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        line-height: 1;
+        user-select: none;
+    }
+
+    .star:hover,
+    .star.hovered,
+    .star.selected {
+        color: #f5c842;
+        transform: scale(1.1);
+    }
+
+    .star-label {
+        font-size: 0.8rem;
+        color: var(--ink-mid);
+        min-height: 1.2em;
+        margin: 0;
+    }
+
+    /* Textarea */
+    #comentarioInput {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid var(--border-mid);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-family: var(--font-body);
+        background: var(--cream);
+        resize: vertical;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    #comentarioInput:focus {
+        outline: none;
+        border-color: var(--rose);
+        background: white;
+    }
+
+    .cal-chars {
+        font-size: 0.72rem;
+        color: var(--ink-light);
+        text-align: right;
+        margin: 4px 0 0 0;
+    }
+
+    /* Mensaje */
+    .cal-msg {
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .cal-msg.ok {
+        background: #eafaf1;
+        color: #1a7a4a;
+        border-left: 3px solid #1a7a4a;
+    }
+
+    .cal-msg.err {
+        background: #fdf0f0;
+        color: #b83232;
+        border-left: 3px solid #b83232;
+    }
+
+    /* Success block */
+    .cal-success-block {
+        text-align: center;
+        padding: 1.5rem 0;
+    }
+
+    .cal-check {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #f5c842, #e8a800);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 1rem auto;
+    }
+
+    .cal-success-block h3 {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        color: var(--ink);
+    }
+</style>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const STAR_LABELS = ['', 'Muy malo', 'Malo', 'Regular', 'Bueno', '¡Excelente!'];
+    let estrellasSeleccionadas = 0;
+
+    const stars = document.querySelectorAll('.star');
+
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', () => {
+            const val = +star.dataset.value;
+            stars.forEach(s => {
+                s.classList.toggle('hovered', +s.dataset.value <= val);
+            });
+        });
+
+        star.addEventListener('mouseleave', () => {
+            stars.forEach(s => s.classList.remove('hovered'));
+        });
+
+        star.addEventListener('click', () => {
+            estrellasSeleccionadas = +star.dataset.value;
+            document.getElementById('estrellasSeleccionadas').value = estrellasSeleccionadas;
+            stars.forEach(s => {
+                s.classList.toggle('selected', +s.dataset.value <= estrellasSeleccionadas);
+            });
+            document.getElementById('starLabel').textContent = STAR_LABELS[estrellasSeleccionadas];
+        });
+    });
+
+    document.getElementById('comentarioInput').addEventListener('input', function () {
+        document.getElementById('charCount').textContent = this.value.length;
+    });
+
+    document.getElementById('btnGuardarCal').addEventListener('click', async function () {
+        const btn = this;
+        const msg = document.getElementById('calMsg');
+
+        if (estrellasSeleccionadas === 0) {
+            msg.textContent = 'Por favor selecciona una calificación de estrellas.';
+            msg.className = 'cal-msg err';
+            msg.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+            const res = await fetch('/Appointments/GuardarCalificacion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    citaId: @Model.Id,
+                    estrellas: estrellasSeleccionadas,
+                    comentario: document.getElementById('comentarioInput').value.trim()
+                })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                document.getElementById('calAcciones').style.display = 'none';
+                document.getElementById('calMsg').style.display = 'none';
+                document.getElementById('calSuccess').style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = '/Appointments/MisCitas?tab=historial';
+                }, 3000);
+            } else {
+                msg.textContent = data.message || 'Error al guardar.';
+                msg.className = 'cal-msg err';
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Guardar calificación';
+            }
+        } catch {
+            msg.textContent = 'Error de red. Intenta nuevamente.';
+            msg.className = 'cal-msg err';
+            msg.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Guardar calificación';
+        }
+    });
+
+});
+</script>
+}

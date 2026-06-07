@@ -80,6 +80,7 @@
         justify-content: center;
         color: var(--rose-dark);
         font-size: 1.8rem;
+    font-family: var(--font-display);
         border: 3px solid var(--rose-light);
     }
     
@@ -496,7 +497,7 @@
                         else
                         {
                             <div class="stylist-foto-placeholder">
-                                <i class="fas fa-user"></i>
+                                @e.Nombre.Substring(0, 1)
                             </div>
                         }
                         <div class="card-title">
@@ -524,8 +525,16 @@
                         <i class="fas fa-utensils"></i>
                         <span>Descanso: @e.HoraInicioDescanso:00 - @e.HoraFinDescanso:00</span>
                     </div>
+
+                    
                     
                     <div class="stylist-admin-actions">
+
+                        <a href="/Admin/PerfilEstilista/@e.Id"
+                        class="btn-edit"
+                        style="text-decoration:none;">
+                            <i class="fas fa-eye"></i> Ver perfil
+                        </a>
                         <!--  
                         <button class="btn-edit" onclick="mostrarModalEditar(@e.Id)"><i class="fas fa-edit"></i> Editar</button>-->
                         <button class="btn-delete" onclick="eliminarEstilista(@e.Id, '@e.Nombre')"><i class="fas fa-trash"></i> Eliminar</button>

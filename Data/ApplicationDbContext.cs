@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<Cita> Citas { get; set; }
     public DbSet<Pago> Pagos { get; set; }
     public DbSet<Cupon> Cupones { get; set; }
+    public DbSet<Calificacion> Calificaciones { get; set; }
     public DbSet<Notificacion> Notificaciones { get; set; }
     public DbSet<CategoriaServicio> CategoriasServicios { get; set; }
     
@@ -177,5 +178,23 @@ public class ApplicationDbContext : IdentityDbContext
                 FechaRegistro = new DateTime(2024, 1, 1)
             }
         );
+
+        mb.Entity<Calificacion>()
+            .HasOne(c => c.Cita)
+            .WithOne()
+            .HasForeignKey<Calificacion>(c => c.CitaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        mb.Entity<Calificacion>()
+            .HasOne(c => c.Estilista)
+            .WithMany(e => e.Calificaciones)
+            .HasForeignKey(c => c.EstilistaId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        mb.Entity<Calificacion>()
+            .HasOne(c => c.Cliente)
+            .WithMany()
+            .HasForeignKey(c => c.ClienteId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
