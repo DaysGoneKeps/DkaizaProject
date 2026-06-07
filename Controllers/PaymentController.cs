@@ -64,6 +64,8 @@ namespace DkaizaProject.Controllers
                 return RedirectToAction("Servicios", "Appointments");
 
             decimal montoTotal = Math.Round(servicio.Precio, 2);
+            decimal descuento = Math.Min(pendiente.Descuento, montoTotal);
+            decimal montoFinal = Math.Round(montoTotal - descuento, 2);
             string currency = string.IsNullOrWhiteSpace(_mp.Currency) ? "PEN" : _mp.Currency;
             string baseUrl = $"{Request.Scheme}://{Request.Host}";
 
@@ -85,7 +87,7 @@ namespace DkaizaProject.Controllers
                         Description = $"Reserva {pendiente.Fecha:dd/MM/yyyy} {pendiente.HoraInicio:D2}:00",
                         Quantity = 1,
                         CurrencyId = currency,
-                        UnitPrice = montoTotal
+                        UnitPrice = montoFinal 
                     }
                 },
                 BackUrls = new PreferenceBackUrlsRequest
@@ -105,7 +107,7 @@ namespace DkaizaProject.Controllers
                 var client = new PreferenceClient();
                 var preference = await client.CreateAsync(request);
                 HttpContext.Session.SetString("PreferenceId", preference.Id);
-                HttpContext.Session.SetString("MontoPagoPendiente", montoTotal.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                HttpContext.Session.SetString("MontoPagoPendiente", montoFinal.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 return Redirect(preference.InitPoint);
             }
             catch (Exception ex)
@@ -146,6 +148,8 @@ namespace DkaizaProject.Controllers
                 return RedirectToAction("Servicios", "Appointments");
 
             decimal montoTotal = Math.Round(servicio.Precio, 2);
+            decimal descuento = Math.Min(pendiente.Descuento, montoTotal);
+            decimal montoFinal = Math.Round(montoTotal - descuento, 2);
 
             // Idempotencia: si ya existe un pago para este ExternalReference, reusar la cita.
             var pagoExistente = await _db.Pagos
@@ -191,14 +195,23 @@ namespace DkaizaProject.Controllers
                     PreferenceId = HttpContext.Session.GetString("PreferenceId"),
                     PaymentId = payment_id,
                     ExternalReference = pendiente.ExternalReference,
-                    Monto = montoTotal,
-                    MontoTotal = montoTotal,
+                    Monto = montoFinal,
+                    MontoTotal = montoFinal,
                     Metodo = string.IsNullOrWhiteSpace(payment_type) ? "MercadoPago" : payment_type,
                     Estado = EstadoPago.Aprobado,
-                    FechaPago = DateTime.Now
+                    FechaPago = DateTime.Now,
+                    CuponCodigo = pendiente.CuponCodigo,
+                    MontoDescuento = descuento
                 };
                 _db.Pagos.Add(pago);
-                await _db.SaveChangesAsync();
+
+                // Incrementar uso del cupón
+                if (!string.IsNullOrEmpty(pendiente.CuponCodigo))
+                {
+                    var cupon = await _db.Cupones
+                        .FirstOrDefaultAsync(c => c.Codigo.ToUpper() == pendiente.CuponCodigo.ToUpper());
+                    if (cupon != null) cupon.UsosActuales++;
+                }
             }
 
             HttpContext.Session.Remove(AppointmentsController.ReservaPendienteSessionKey);
@@ -206,8 +219,9 @@ namespace DkaizaProject.Controllers
             HttpContext.Session.Remove("MontoPagoPendiente");
 
             ViewBag.Resumen = $"{servicio.Nombre} con {estilista.Nombre} el {cita.Fecha:dd/MM/yyyy} de {cita.HoraInicio:D2}:00 a {cita.HoraFin:D2}:00";
-            ViewBag.MontoPagado = montoTotal;
+            ViewBag.MontoPagado = montoFinal;
             ViewBag.MontoTotal = montoTotal;
+            ViewBag.Descuento = descuento;
             ViewBag.PaymentId = payment_id;
             return View("Success");
         }

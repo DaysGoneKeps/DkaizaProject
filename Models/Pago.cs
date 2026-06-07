@@ -44,6 +44,13 @@ namespace DkaizaProject.Models
         public DateTime? FechaValidacion { get; set; }
 
         public int? ValidadoPorClienteId { get; set; }
+
+
+        [MaxLength(50)]
+public string? CuponCodigo { get; set; }
+
+[Column(TypeName = "decimal(10,2)")]
+public decimal MontoDescuento { get; set; } = 0;
     }
 
     public enum EstadoPago
