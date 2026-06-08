@@ -589,7 +589,7 @@ function renderCalendar() {
         const date = new Date(calYear, calMonth, d);
         const dow = date.getDay();
         const isPast = date < today;
-        const isDom = false;
+        const isDom = dow === 0;
         const isSel = sel.fecha && sel.fecha.d === d && sel.fecha.m === calMonth && sel.fecha.y === calYear;
         let cls = 'cal-cell';
         if (isPast || isDom) cls += ' disabled';

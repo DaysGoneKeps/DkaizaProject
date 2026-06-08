@@ -779,18 +779,47 @@
         #sg-chat-send {
             background: var(--ink);
             border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: grid;
-            place-items: center;
+            border-radius: 50px;
+            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             color: #fff;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 500;
+            font-family: var(--font-body);
             transition: background 0.2s;
             flex-shrink: 0;
+            white-space: nowrap;
         }
         #sg-chat-send:hover { background: var(--rose-dark); }
+
+        .sg-suggestions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .sg-suggestion-btn {
+            background: var(--white);
+            border: 1.5px solid var(--rose);
+            border-radius: 50px;
+            padding: 7px 14px;
+            font-size: 0.78rem;
+            color: var(--rose-dark);
+            cursor: pointer;
+            text-align: left;
+            font-family: var(--font-body);
+            transition: all 0.2s;
+            line-height: 1.3;
+        }
+
+        .sg-suggestion-btn:hover {
+            background: var(--rose-light);
+            border-color: var(--rose-dark);
+        }
 
         /* ============================================================
            RESPONSIVE
@@ -1104,8 +1133,8 @@
             <div class="notif-popup__header">
                 <h4>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M6 10a6 6 0 0112 0c0 4 2 6 2 6H4s2-2 2-6"/>
-                        <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                        <path d="M6 10C6 6.69 8.69 4 12 4C15.31 4 18 6.69 18 10C18 14 20 16 20 16H4C4 16 6 14 6 10"/>
+                        <path d="M13.73 21C13.39 21.6 12.73 22 12 22C11.27 22 10.61 21.6 10.27 21"/>
                     </svg>
                     Notificaciones
                 </h4>
@@ -1135,7 +1164,7 @@
         <i class="fas fa-comment-dots"></i>
     </button>
 
-    <div id="sg-chat-box" aria-label="Chat asistente D'KAIZA">
+    <div id="sg-chat-box" aria-label="Chat asistente D&#39;KAIZA">
         <div id="sg-chat-header">
             <div style="display:flex;align-items:center;gap:8px">
                 <i class="fas fa-spa"></i>
@@ -1147,14 +1176,21 @@
         </div>
         <div id="sg-chat-messages">
             <div class="sg-msg-bot">
-                ¡Hola! 👋 Soy el asistente de <strong>D'KAIZA</strong>. ¿En qué puedo ayudarte hoy?
+                ¡Hola! 👋 Soy el asistente de <strong>D&#39;KAIZA</strong>. ¿En qué puedo ayudarte hoy?
+            </div>
+            <div class="sg-suggestions" id="sg-suggestions">
+                <button class="sg-suggestion-btn">¿Cuál es el horario de atención?</button>
+                <button class="sg-suggestion-btn">¿Cómo puedo reservar una cita?</button>
+                <button class="sg-suggestion-btn">¿Qué servicios ofrecen?</button>
+                <button class="sg-suggestion-btn">¿Cuáles son los métodos de pago?</button>
+                <button class="sg-suggestion-btn">¿Dónde están ubicados?</button>
             </div>
         </div>
         <div id="sg-chat-input">
             <input id="sg-chat-text" type="text"
                    placeholder="Escribe tu pregunta..." autocomplete="off" />
             <button type="button" id="sg-chat-send">
-                <i class="fas fa-paper-plane"></i>
+                <i class="fas fa-paper-plane"></i> Enviar
             </button>
         </div>
     </div>
@@ -1201,7 +1237,7 @@
                 hora:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
                 check:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>`,
                 xmark:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
-                vacio:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M6 10a6 6 0 0112 0c0 4 2 6 2 6H4s2-2 2-6"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>`,
+                vacio:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M6 10C6 6.69 8.69 4 12 4C15.31 4 18 6.69 18 10C18 14 20 16 20 16H4C4 16 6 14 6 10"/><path d="M13.73 21C13.39 21.6 12.73 22 12 22C11.27 22 10.61 21.6 10.27 21"/></svg>`,
                 cargando:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>`,
             };
 
@@ -1428,6 +1464,25 @@
         sendBtn.addEventListener('click', sendMessage);
         input.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') sendMessage();
+        });
+
+        // Sugerencias: al hacer clic se envía como mensaje del usuario
+        var suggestions = document.getElementById('sg-suggestions');
+        if (suggestions) {
+            suggestions.querySelectorAll('.sg-suggestion-btn').forEach(function (sbtn) {
+                sbtn.addEventListener('click', function () {
+                    input.value = sbtn.textContent.trim();
+                    suggestions.style.display = 'none';
+                    sendMessage();
+                });
+            });
+        }
+
+        // Ocultar sugerencias en cuanto el usuario empieza a escribir
+        input.addEventListener('input', function () {
+            if (suggestions && input.value.trim().length > 0) {
+                suggestions.style.display = 'none';
+            }
         });
     })();
     </script>
