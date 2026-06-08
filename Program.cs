@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DkaizaProject.Data;
 using DkaizaProject.Models;
+using DkaizaProject.Services.IA;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHostedService<DkaizaProject.Services.RecordatorioCitasService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddScoped<IChatAiService, OllamaChatService>();
 // Configuración de MercadoPago
 builder.Services.Configure<MercadoPagoSettings>(
     builder.Configuration.GetSection("MercadoPago"));
