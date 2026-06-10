@@ -176,5 +176,25 @@ namespace DkaizaProject.Controllers
 
             return RedirectToAction("Perfil");
         }
+
+
+        // GET /Account/ObtenerPerfil
+        [HttpGet]
+        public async Task<IActionResult> ObtenerPerfil()
+        {
+            var clienteId = HttpContext.Session.GetInt32("ClienteId");
+            if (clienteId == null)
+                return Json(new { success = false });
+
+            var cliente = await _db.Clientes.FindAsync(clienteId);
+            if (cliente == null)
+                return Json(new { success = false });
+
+            return Json(new {
+                success = true,
+                email = cliente.Email,
+                telefono = cliente.Telefono
+            });
+        }
     }
 }
