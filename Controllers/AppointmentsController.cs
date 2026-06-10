@@ -61,7 +61,7 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
 
     var result = estilistas.Select(e =>
     {
-        var slots = GetSlots(e, servicio.DuracionHoras, citasDelDia.Where(c => c.EstilistaId == e.Id).ToList());
+        var slots = GetSlots(e, servicio.DuracionHoras, citasDelDia.Where(c => c.EstilistaId == e.Id).ToList(), fechaDate);
         return new 
         {
             estilistaId = e.Id,
@@ -94,7 +94,7 @@ public async Task<IActionResult> EstilistasDisponibles(int servicioId, string fe
                 .Where(c => c.Fecha.Date == fechaDate.Date && c.EstilistaId == estilistaId && c.Estado != EstadoCita.Cancelada)
                 .ToListAsync();
 
-            var slots = GetSlots(estilista, servicio.DuracionHoras, citas);
+            var slots = GetSlots(estilista, servicio.DuracionHoras, citas, fechaDate);
             return Json(slots);
         }
 
@@ -435,22 +435,28 @@ public async Task<IActionResult> GuardarCalificacion([FromBody] GuardarCalificac
 
 
         // ── Helpers ──────────────────────────────────────────────────────────────
-        private static List<HorarioDisponibleDto> GetSlots(Estilista e, int duracion, List<Cita> citas)
+        private static List<HorarioDisponibleDto> GetSlots(Estilista e, int duracion, List<Cita> citas, DateTime fecha)
         {
             var slots = new List<HorarioDisponibleDto>();
+            var ahora = DateTime.Now;
+            bool esHoy = fecha.Date == ahora.Date;
+
             for (int h = e.HoraInicioTrabajo; h + duracion <= e.HoraFinTrabajo; h++)
             {
                 int fin = h + duracion;
                 bool enDescanso = h < e.HoraFinDescanso && fin > e.HoraInicioDescanso;
-                bool enCita = citas.Any(c => c.HoraInicio < fin && c.HoraFin > h);
-                bool disponible = !enDescanso && !enCita;
+                bool enCita     = citas.Any(c => c.HoraInicio < fin && c.HoraFin > h);
+                // Si es hoy, bloquear si la hora de inicio ya pasó (o está dentro de los próximos 0 min)
+                bool yaPaso     = esHoy && h <= ahora.Hour;
+
+                bool disponible = !enDescanso && !enCita && !yaPaso;
 
                 slots.Add(new HorarioDisponibleDto
                 {
-                    HoraInicio = h,
-                    HoraFin = fin,
-                    Disponible = disponible,
-                    Label = $"{h:D2}:00 - {fin:D2}:00"
+                    HoraInicio  = h,
+                    HoraFin     = fin,
+                    Disponible  = disponible,
+                    Label       = $"{h:D2}:00 - {fin:D2}:00"
                 });
             }
             return slots;
