@@ -42,6 +42,30 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Reconciliar historial: si el esquema fisico ya tiene columnas/tablas que
+    // pertenecen a SyncModel (porque se aplicaron antes con una migracion que
+    // luego fue eliminada), registramos esa migracion como aplicada para evitar
+    // el error "duplicate column name" al re-correrla.
+    var conn = db.Database.GetDbConnection();
+    conn.Open();
+    using (var cmd = conn.CreateCommand())
+    {
+        cmd.CommandText = "DELETE FROM __EFMigrationsLock";
+        try { cmd.ExecuteNonQuery(); } catch { }
+
+        cmd.CommandText = "SELECT COUNT(*) FROM pragma_table_info('Pagos') WHERE name = 'CuponCodigo'";
+        var yaExiste = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+        if (yaExiste)
+        {
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS __EFMigrationsHistory (MigrationId TEXT NOT NULL PRIMARY KEY, ProductVersion TEXT NOT NULL)";
+            cmd.ExecuteNonQuery();
+            cmd.CommandText = "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('20260610060352_SyncModel', '9.0.0')";
+            cmd.ExecuteNonQuery();
+        }
+    }
+    conn.Close();
+
     db.Database.Migrate();
 }
 
