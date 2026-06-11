@@ -337,7 +337,8 @@
                 @* ── Botón INICIAR (HU-17): visible solo si está Pendiente y es cita de hoy ── *@
                 @if ((Model.Estado == DkaizaProject.Models.EstadoCita.Pendiente ||
                       Model.Estado == DkaizaProject.Models.EstadoCita.Confirmada) &&
-                      Model.Fecha.Date == DateTime.Today)
+                      (DkaizaProject.Controllers.EstilistaController.DEMO_PERMITIR_CUALQUIER_DIA ||
+                       Model.Fecha.Date == DateTime.Today))
                 {
                     <button class="btn-iniciar" id="btnIniciar" onclick="iniciarAtencion(@Model.Id)">
                         <i class="fas fa-play"></i> Iniciar atención

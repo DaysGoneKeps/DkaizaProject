@@ -7,8 +7,12 @@ namespace DkaizaProject.Controllers
 {
     public class EstilistaController : Controller
     {
+        // ⚠️ DEMO: si está en true, permite iniciar atención cualquier día (no solo el día de la cita).
+        // Volver a false para restaurar la regla HU-17 (solo citas de hoy).
+        public const bool DEMO_PERMITIR_CUALQUIER_DIA = true;
+
         private readonly ApplicationDbContext _db;
- 
+
         public EstilistaController(ApplicationDbContext db) => _db = db;
  
         private bool EsEstilista => HttpContext.Session.GetString("EsEstilista") == "True";
@@ -106,7 +110,7 @@ namespace DkaizaProject.Controllers
                 return Json(new { success = false, message = "Solo puedes iniciar citas en estado Pendiente" });
  
             // HU-17 tarea T7: la cita debe ser del día actual
-            if (cita.Fecha.Date != DateTime.Today)
+            if (!DEMO_PERMITIR_CUALQUIER_DIA && cita.Fecha.Date != DateTime.Today)
                 return Json(new { success = false, message = "Solo puedes iniciar citas del día de hoy" });
  
             // HU-17 tarea T2: registrar hora exacta de inicio

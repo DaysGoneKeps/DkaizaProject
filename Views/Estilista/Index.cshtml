@@ -109,7 +109,8 @@
                             <span class="est-badge @EstadoClase(c.Estado)">@EstadoTexto(c.Estado)</span>
                             @if ((c.Estado == DkaizaProject.Models.EstadoCita.Pendiente ||
                                   c.Estado == DkaizaProject.Models.EstadoCita.Confirmada) &&
-                                  c.Fecha.Date == DateTime.Today)
+                                  (DkaizaProject.Controllers.EstilistaController.DEMO_PERMITIR_CUALQUIER_DIA ||
+                                   c.Fecha.Date == DateTime.Today))
                             {
                                 <button class="btn-iniciar-list" onclick="iniciarDesdeLista(@c.Id, this)">
                                     <i class="fas fa-play"></i> Iniciar atención

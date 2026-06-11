@@ -82,14 +82,19 @@
                 <div class="confirm-row"><span>Horario</span><strong id="conf-horario">—</strong></div>
                 <div class="confirm-row"><span>Precio</span><strong id="conf-precio">—</strong></div>
 
-                <!-- HU-15: Cupón de descuento -->
-                <div class="cupon-section">
-                    <p class="payment-method-label">¿Tienes un cupón de descuento?</p>
-                    <div class="cupon-input-row">
-                        <input type="text" id="cuponInput" placeholder="Ej: DKAIZA10" maxlength="50" />
-                        <button type="button" id="btnAplicarCupon">Aplicar</button>
+                <!-- HU-15: Cupón de descuento (colapsable) -->
+                <div class="cupon-section" id="cuponSection">
+                    <button type="button" class="cupon-toggle" id="cuponToggle" aria-expanded="false" aria-controls="cuponBody">
+                        <span><i class="fas fa-ticket-alt"></i> ¿Tienes un cupón de descuento?</span>
+                        <i class="fas fa-chevron-down cupon-chevron"></i>
+                    </button>
+                    <div class="cupon-body" id="cuponBody">
+                        <div class="cupon-input-row">
+                            <input type="text" id="cuponInput" placeholder="Ej: DKAIZA10" maxlength="50" />
+                            <button type="button" id="btnAplicarCupon">Aplicar</button>
+                        </div>
+                        <div id="cuponMsg" class="cupon-msg" style="display:none;"></div>
                     </div>
-                    <div id="cuponMsg" class="cupon-msg" style="display:none;"></div>
                 </div>
 
                 <div class="confirm-row" id="rowDescuento" style="display:none;">
@@ -435,9 +440,47 @@
         border-top: 1px solid var(--border);
     }
 
-    .cupon-section .payment-method-label {
-        margin-top: 0;
+    .cupon-toggle {
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--ink-mid);
+        font-size: 13px;
+        font-family: inherit;
         text-align: left;
+        transition: color .2s;
+    }
+
+    .cupon-toggle:hover,
+    .cupon-toggle:focus { outline: none; color: var(--rose-dark); }
+
+    .cupon-toggle .fa-ticket-alt { margin-right: 4px; }
+
+    .cupon-chevron {
+        font-size: 11px;
+        transition: transform .2s ease;
+    }
+
+    .cupon-section.open .cupon-chevron { transform: rotate(180deg); }
+
+    .cupon-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height .25s ease, margin-top .25s ease, opacity .2s ease;
+        margin-top: 0;
+        opacity: 0;
+    }
+
+    .cupon-section.open .cupon-body {
+        max-height: 220px;
+        margin-top: 12px;
+        opacity: 1;
     }
 
     .cupon-input-row {
@@ -754,7 +797,23 @@ function resetCupon() {
     btn.disabled = false;
     btn.textContent = 'Aplicar';
     btn.style.background = '';
+    // Colapsar la sección al resetear (al cambiar de horario)
+    const sect = document.getElementById('cuponSection');
+    const tog  = document.getElementById('cuponToggle');
+    if (sect) sect.classList.remove('open');
+    if (tog)  tog.setAttribute('aria-expanded', 'false');
 }
+
+// Toggle de la sección de cupón: solo se despliega al hacer click en el texto.
+document.getElementById('cuponToggle').addEventListener('click', function () {
+    const sect = document.getElementById('cuponSection');
+    const open = sect.classList.toggle('open');
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+        // Focus directo en el input para escribir el código
+        setTimeout(() => document.getElementById('cuponInput').focus(), 200);
+    }
+});
 
 document.getElementById('btnAplicarCupon').addEventListener('click', async function () {
     const btn = this;
