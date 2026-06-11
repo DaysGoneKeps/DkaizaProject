@@ -17,12 +17,27 @@
         <!-- Step indicators -->
         <div class="steps-bar">
             <div class="step active" id="step-ind-1"><span>1</span> Fecha</div>
-            <div class="step-line"></div>
+            <div class="step-line" id="step-line-1-2"></div>
             <div class="step" id="step-ind-2"><span>2</span> Estilista</div>
             <div class="step-line"></div>
             <div class="step" id="step-ind-3"><span>3</span> Horario</div>
             <div class="step-line"></div>
             <div class="step" id="step-ind-4"><span>4</span> Confirmar</div>
+        </div>
+
+        <!-- Banner cuando el estilista viene preseleccionado desde "Nuestros estilistas" -->
+        <div id="estilistaPreselectBanner" class="selected-service-summary" style="display:none;">
+            <div class="summary-card">
+                <div class="summary-icon"><i class="fas fa-user-check"></i></div>
+                <div class="summary-info">
+                    <span class="summary-label">Estilista seleccionado</span>
+                    <h3 id="preselNombre">—</h3>
+                    <div class="summary-meta">
+                        <span id="preselEspecialidad"></span>
+                    </div>
+                </div>
+                <a href="/Appointments/Estilistas" class="btn-change-service">Cambiar</a>
+            </div>
         </div>
 
         <!-- STEP 1: Fecha -->
@@ -540,6 +555,8 @@ let cuponAplicado = null; // { codigo, descuento, montoFinal }
 const urlParams = new URLSearchParams(window.location.search);
 const esReprogramacion = urlParams.get('reprogramar') === 'true';
 const servicioId = urlParams.get('servicioId');
+const estilistaIdPreset = urlParams.get('estilistaId');
+const estilistasAll = @Html.Raw(Json.Serialize(Model.Estilistas));
 
 // ── Cargar servicio seleccionado ─────────────────────────────────────────
 async function loadSelectedService() {
@@ -600,12 +617,41 @@ function renderCalendar() {
     grid.querySelectorAll('.cal-cell:not(.disabled):not(.empty)').forEach(cell => {
         cell.addEventListener('click', () => {
             sel.fecha = { d: +cell.dataset.d, m: +cell.dataset.m, y: +cell.dataset.y };
-            sel.estilista = null; sel.horario = null;
+            sel.horario = null;
             renderCalendar();
-            loadEstilistas();
-            showStep(2);
+            // Si el estilista vino preseleccionado, saltamos el paso 2 y vamos directo a horarios
+            if (estilistaIdPreset && sel.estilista) {
+                loadHorarios();
+                showStep(3);
+            } else {
+                sel.estilista = null;
+                loadEstilistas();
+                showStep(2);
+            }
         });
     });
+}
+
+// Cuando el estilista llega preseleccionado por query (?estilistaId=...),
+// lo fijamos en `sel`, mostramos el banner y ocultamos el paso 2 del wizard.
+function setupPreselectedEstilista() {
+    if (!estilistaIdPreset) return;
+    const e = estilistasAll.find(x => String(x.id) === String(estilistaIdPreset));
+    if (!e) return;
+
+    sel.estilista = { id: e.id, nombre: e.nombre };
+
+    document.getElementById('preselNombre').textContent = e.nombre;
+    document.getElementById('preselEspecialidad').textContent = e.especialidad || 'Estilista profesional';
+    document.getElementById('estilistaPreselectBanner').style.display = 'block';
+
+    // Ocultar el indicador y el contenido del paso 2 (Estilista)
+    const ind2 = document.getElementById('step-ind-2');
+    const line = document.getElementById('step-line-1-2');
+    const step2 = document.getElementById('step-2');
+    if (ind2)  ind2.style.display  = 'none';
+    if (line)  line.style.display  = 'none';
+    if (step2) step2.style.display = 'none';
 }
 
 document.getElementById('calPrev').onclick = () => {
@@ -921,6 +967,7 @@ if (esReprogramacion) {
 }
 
 // Inicializar
+setupPreselectedEstilista();
 renderCalendar();
 loadSelectedService().then(() => resumePendingReserva());
 </script>

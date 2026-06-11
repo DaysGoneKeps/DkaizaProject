@@ -1,0 +1,146 @@
+@model List<DkaizaProject.Models.Estilista>
+@{
+    ViewData["Title"] = "Nuestros estilistas";
+    Layout = "_Layout";
+    var stats = ViewBag.Stats as Dictionary<int, (double Promedio, int Total)>
+                ?? new Dictionary<int, (double, int)>();
+}
+
+<style>
+    .est-pub-page { padding: 2rem 0 4rem; }
+    .est-pub-header { margin-bottom: 2rem; text-align: center; }
+    .est-pub-header h1 { font-family: var(--font-display); font-size: 2rem; color: var(--ink); margin: 0 0 .5rem; }
+    .est-pub-header p { color: var(--ink-mid); margin: 0; }
+
+    .est-pub-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .est-pub-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: all .2s;
+        display: flex; flex-direction: column;
+    }
+    .est-pub-card:hover { box-shadow: var(--shadow-lg); border-color: var(--rose); transform: translateY(-2px); }
+
+    .est-pub-top { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    .est-pub-foto {
+        width: 70px; height: 70px; border-radius: 50%;
+        object-fit: cover; border: 3px solid var(--rose-light);
+    }
+    .est-pub-foto-ph {
+        width: 70px; height: 70px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--rose-light), var(--cream-dark));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.7rem; color: var(--rose-dark);
+        font-family: var(--font-display); border: 3px solid var(--rose-light);
+    }
+    .est-pub-name { font-family: var(--font-display); font-size: 1.15rem; color: var(--ink); margin: 0 0 4px; }
+    .est-pub-espec { font-size: .82rem; color: var(--rose-dark); margin: 0; font-weight: 500; }
+
+    .est-pub-rating { display: flex; align-items: center; gap: 6px; margin-bottom: .75rem; }
+    .est-pub-rating .stars { display: flex; gap: 1px; }
+    .est-pub-rating .star-filled { color: #f5c842; font-size: 1rem; }
+    .est-pub-rating .star-empty  { color: var(--border-mid); font-size: 1rem; }
+    .est-pub-rating .num { font-weight: 700; color: var(--ink); font-size: .9rem; }
+    .est-pub-rating .total { font-size: .75rem; color: var(--ink-light); }
+    .est-pub-rating .sin-cal { font-size: .8rem; color: var(--ink-light); font-style: italic; }
+
+    .est-pub-info { font-size: .8rem; color: var(--ink-mid); margin: 0 0 1rem; }
+    .est-pub-info i { color: var(--rose-dark); margin-right: 4px; }
+
+    .est-pub-actions { display: flex; gap: 8px; margin-top: auto; }
+    .est-pub-actions a {
+        flex: 1; text-align: center; padding: 8px 12px; font-size: .8rem;
+        border-radius: 50px; text-decoration: none; transition: all .2s;
+    }
+    .btn-ver-perfil { background: var(--ink); color: white; }
+    .btn-ver-perfil:hover { background: var(--rose-dark); color: white; }
+    .btn-reservar-est { background: var(--rose-light); color: var(--rose-dark); border: 1px solid var(--rose); }
+    .btn-reservar-est:hover { background: var(--rose); color: white; }
+
+    .empty-pub { text-align: center; padding: 4rem 2rem; color: var(--ink-mid); }
+</style>
+
+<div class="est-pub-page">
+    <div class="container">
+        <div class="est-pub-header">
+            <p class="section-eyebrow">Equipo profesional</p>
+            <h1>Nuestros estilistas</h1>
+            <p>Conoce a nuestro equipo y revisa las opiniones de otros clientes.</p>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-pub">
+                <div style="font-size:3rem;">💇</div>
+                <h3>No hay estilistas disponibles</h3>
+            </div>
+        }
+        else
+        {
+            <div class="est-pub-grid">
+                @foreach (var e in Model)
+                {
+                    var tiene = stats.TryGetValue(e.Id, out var s);
+                    double prom = tiene ? s.Promedio : 0;
+                    int total   = tiene ? s.Total    : 0;
+
+                    <div class="est-pub-card">
+                        <div class="est-pub-top">
+                            @if (e.FotoBytes != null && e.FotoBytes.Length > 0)
+                            {
+                                <img src="data:@e.FotoContentType;base64,@Convert.ToBase64String(e.FotoBytes)"
+                                     class="est-pub-foto" alt="@e.Nombre" />
+                            }
+                            else
+                            {
+                                <div class="est-pub-foto-ph">@e.Nombre.Substring(0, 1)</div>
+                            }
+                            <div>
+                                <h3 class="est-pub-name">@e.Nombre</h3>
+                                <p class="est-pub-espec">@(e.Especialidad ?? "Estilista profesional")</p>
+                            </div>
+                        </div>
+
+                        <div class="est-pub-rating">
+                            @if (total > 0)
+                            {
+                                <div class="stars">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <span class="@(i <= Math.Round(prom) ? "star-filled" : "star-empty")">★</span>
+                                    }
+                                </div>
+                                <span class="num">@prom.ToString("0.0")</span>
+                                <span class="total">(@total)</span>
+                            }
+                            else
+                            {
+                                <span class="sin-cal">Sin calificaciones aún</span>
+                            }
+                        </div>
+
+                        <p class="est-pub-info">
+                            <i class="far fa-clock"></i> @e.HorarioTexto
+                        </p>
+
+                        <div class="est-pub-actions">
+                            <a href="/Appointments/PerfilEstilista/@e.Id" class="btn-ver-perfil">
+                                <i class="fas fa-eye"></i> Ver perfil
+                            </a>
+                            <a href="/Appointments/Servicios?estilistaId=@e.Id" class="btn-reservar-est">
+                                <i class="fas fa-calendar-alt"></i> Reservar
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

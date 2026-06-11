@@ -461,5 +461,59 @@ public async Task<IActionResult> GuardarCalificacion([FromBody] GuardarCalificac
             }
             return slots;
         }
+
+        // GET /Appointments/Estilistas - Listado público de estilistas con su promedio de calificaciones
+        public async Task<IActionResult> Estilistas()
+        {
+            var estilistas = await _db.Estilistas
+                .Where(e => e.Activo)
+                .OrderBy(e => e.Nombre)
+                .ToListAsync();
+
+            var ids = estilistas.Select(e => e.Id).ToList();
+            var stats = await _db.Calificaciones
+                .Where(c => ids.Contains(c.EstilistaId))
+                .GroupBy(c => c.EstilistaId)
+                .Select(g => new { EstilistaId = g.Key, Promedio = g.Average(x => (double)x.Estrellas), Total = g.Count() })
+                .ToListAsync();
+
+            ViewBag.Stats = stats.ToDictionary(s => s.EstilistaId, s => (s.Promedio, s.Total));
+            return View(estilistas);
+        }
+
+        // GET /Appointments/PerfilEstilista/5 - Perfil público del estilista con sus reseñas
+        public async Task<IActionResult> PerfilEstilista(int id, int pagina = 1)
+        {
+            var estilista = await _db.Estilistas.FirstOrDefaultAsync(e => e.Id == id && e.Activo);
+            if (estilista == null)
+                return RedirectToAction("Estilistas");
+
+            const int porPagina = 10;
+
+            var totalComentarios = await _db.Calificaciones
+                .CountAsync(c => c.EstilistaId == id);
+
+            var comentarios = await _db.Calificaciones
+                .Include(c => c.Cliente)
+                .Where(c => c.EstilistaId == id)
+                .OrderByDescending(c => c.FechaCreacion)
+                .Skip((pagina - 1) * porPagina)
+                .Take(porPagina)
+                .ToListAsync();
+
+            double promedio = totalComentarios > 0
+                ? await _db.Calificaciones
+                    .Where(c => c.EstilistaId == id)
+                    .AverageAsync(c => (double)c.Estrellas)
+                : 0;
+
+            ViewBag.Estilista = estilista;
+            ViewBag.Promedio = Math.Round(promedio, 1);
+            ViewBag.TotalCalificaciones = totalComentarios;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalComentarios / porPagina);
+
+            return View(comentarios);
+        }
     }
 }

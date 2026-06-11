@@ -1,0 +1,179 @@
+@model List<DkaizaProject.Models.Calificacion>
+@{
+    ViewData["Title"] = "Perfil del estilista";
+    Layout = "_Layout";
+    var estilista = ViewBag.Estilista as DkaizaProject.Models.Estilista;
+    double promedio = ViewBag.Promedio;
+    int totalCal = ViewBag.TotalCalificaciones;
+    int paginaActual = ViewBag.PaginaActual;
+    int totalPaginas = ViewBag.TotalPaginas;
+}
+
+<style>
+    .perfil-card {
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: 2rem;
+        display: flex; align-items: center; gap: 1.5rem;
+        margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .perfil-foto { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--rose-light); }
+    .perfil-foto-placeholder {
+        width: 100px; height: 100px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--rose-light), var(--cream-dark));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.5rem; color: var(--rose-dark);
+        font-family: var(--font-display); border: 4px solid var(--rose-light);
+    }
+    .perfil-info { flex: 1; min-width: 220px; }
+    .perfil-nombre { font-family: var(--font-display); font-size: 1.6rem; color: var(--ink); margin: 0 0 .25rem; }
+    .perfil-especialidad { color: var(--rose-dark); font-size: .9rem; font-weight: 500; margin: 0 0 .25rem; }
+    .perfil-horario { font-size: .82rem; color: var(--ink-mid); margin: 0 0 .75rem; }
+    .perfil-promedio { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .perfil-stars { display: flex; gap: 2px; }
+    .perfil-promedio-num { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--ink); }
+    .perfil-total-cal { font-size: .8rem; color: var(--ink-light); }
+    .star-filled { color: #f5c842; font-size: 1.2rem; }
+    .star-empty  { color: var(--border-mid); font-size: 1.2rem; }
+
+    .cta-reservar-estilista {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--rose); color: white;
+        border: none; border-radius: 50px;
+        padding: 10px 22px; font-size: .9rem; font-weight: 500;
+        text-decoration: none; transition: background .2s;
+    }
+    .cta-reservar-estilista:hover { background: var(--rose-dark); color: white; }
+
+    .comentarios-titulo { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); margin-bottom: 1rem; }
+
+    .comentario-card {
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem;
+        transition: box-shadow .2s;
+    }
+    .comentario-card:hover { box-shadow: var(--shadow); }
+    .comentario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; flex-wrap: wrap; gap: 8px; }
+    .comentario-cliente { display: flex; align-items: center; gap: 10px; }
+    .comentario-avatar {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--rose-light), var(--cream-dark));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; color: var(--rose-dark); font-weight: 600; flex-shrink: 0;
+    }
+    .comentario-cliente strong { font-size: .9rem; color: var(--ink); }
+    .comentario-fecha { font-size: .72rem; color: var(--ink-light); margin: 0; }
+    .comentario-stars { display: flex; gap: 2px; }
+    .comentario-stars .star-filled, .comentario-stars .star-empty { font-size: 1rem; }
+    .comentario-texto { font-size: .88rem; color: var(--ink-mid); line-height: 1.6; margin: 0; padding-top: .5rem; border-top: 1px solid var(--border); }
+
+    .paginacion { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .pag-btn { background: var(--ink); color: white; border-radius: 50px; padding: 8px 20px; font-size: .82rem; text-decoration: none; transition: background .2s; }
+    .pag-btn:hover { background: var(--rose-dark); color: white; text-decoration: none; }
+    .pag-info { font-size: .82rem; color: var(--ink-mid); }
+
+    @@media (max-width: 640px) {
+        .perfil-card { flex-direction: column; text-align: center; }
+        .perfil-promedio { justify-content: center; }
+        .comentario-header { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+
+<div class="booking-page">
+    <div class="container booking-container" style="max-width: 700px; padding-top: 2rem;">
+
+        <div class="perfil-card">
+            <div class="perfil-foto-wrap">
+                @if (estilista!.FotoBytes != null && estilista.FotoBytes.Length > 0)
+                {
+                    <img src="data:@estilista.FotoContentType;base64,@Convert.ToBase64String(estilista.FotoBytes)"
+                         class="perfil-foto" alt="@estilista.Nombre" />
+                }
+                else
+                {
+                    <div class="perfil-foto-placeholder">@estilista.Nombre.Substring(0, 1)</div>
+                }
+            </div>
+            <div class="perfil-info">
+                <h1 class="perfil-nombre">@estilista.Nombre</h1>
+                <p class="perfil-especialidad">@(estilista.Especialidad ?? "Estilista profesional")</p>
+                <p class="perfil-horario">🕐 @estilista.HorarioTexto</p>
+
+                <div class="perfil-promedio">
+                    <div class="perfil-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <span class="@(i <= Math.Round(promedio) ? "star-filled" : "star-empty")">★</span>
+                        }
+                    </div>
+                    <span class="perfil-promedio-num">@promedio.ToString("0.0")</span>
+                    <span class="perfil-total-cal">(@totalCal calificación@(totalCal != 1 ? "es" : ""))</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-bottom:2rem;">
+            <a href="/Appointments/Reservar" class="cta-reservar-estilista">
+                <i class="fas fa-calendar-alt"></i> Reservar cita
+            </a>
+        </div>
+
+        <div class="comentarios-section">
+            <h2 class="comentarios-titulo">Opiniones de clientes</h2>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state" style="padding: 2rem; text-align:center;">
+                    <div class="empty-icon">💬</div>
+                    <h3>Sin calificaciones aún</h3>
+                    <p>Este estilista aún no tiene calificaciones.</p>
+                </div>
+            }
+            else
+            {
+                foreach (var cal in Model)
+                {
+                    <div class="comentario-card">
+                        <div class="comentario-header">
+                            <div class="comentario-cliente">
+                                <div class="comentario-avatar">@cal.Cliente.Nombre.Substring(0, 1)</div>
+                                <div>
+                                    <strong>@cal.Cliente.Nombre</strong>
+                                    <p class="comentario-fecha">@cal.FechaCreacion.ToString("dd/MM/yyyy")</p>
+                                </div>
+                            </div>
+                            <div class="comentario-stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span class="@(i <= cal.Estrellas ? "star-filled" : "star-empty")">★</span>
+                                }
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(cal.Comentario))
+                        {
+                            <p class="comentario-texto">@cal.Comentario</p>
+                        }
+                    </div>
+                }
+
+                @if (totalPaginas > 1)
+                {
+                    <div class="paginacion">
+                        @if (paginaActual > 1)
+                        {
+                            <a href="/Appointments/PerfilEstilista/@estilista.Id?pagina=@(paginaActual - 1)" class="pag-btn">← Anterior</a>
+                        }
+                        <span class="pag-info">Página @paginaActual de @totalPaginas</span>
+                        @if (paginaActual < totalPaginas)
+                        {
+                            <a href="/Appointments/PerfilEstilista/@estilista.Id?pagina=@(paginaActual + 1)" class="pag-btn">Siguiente →</a>
+                        }
+                    </div>
+                }
+            }
+        </div>
+
+        <div style="text-align:center; margin-top: 2rem;">
+            <a href="/Appointments/Estilistas" class="btn-ghost-lg">← Volver a estilistas</a>
+        </div>
+    </div>
+</div>

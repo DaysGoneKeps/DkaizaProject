@@ -572,8 +572,13 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirigiendo...';
         btn.disabled = true;
 
+        const params = new URLSearchParams(window.location.search);
+        const estilistaId = params.get('estilistaId');
+        let url = '/Appointments/Reservar?servicioId=' + servicioId;
+        if (estilistaId) url += '&estilistaId=' + encodeURIComponent(estilistaId);
+
         setTimeout(() => {
-            window.location.href = '/Appointments/Reservar?servicioId=' + servicioId;
+            window.location.href = url;
         }, 300);
     }
 
